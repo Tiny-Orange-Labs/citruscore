@@ -1,3 +1,10 @@
 html,body, main, div, p, span, input, button, select {
     font-size: 16px;
 }
+
+html, body, main {
+    overflow: hidden;
+    position: relative;
+    height: 100%;
+    touch-action: none;
+}
