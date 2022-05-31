@@ -1,0 +1,7 @@
+:root {
+  --padding: 10px;
+}
+
+html, body, main, div, p, span, input, button, select {
+  font-size: 16px;
+}
