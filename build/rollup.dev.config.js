@@ -7,9 +7,9 @@ import prettier from 'rollup-plugin-prettier';
 
 const copyConfig = {
   targets: [{  
-        src: 'lib/html/index.html', 
-        dest: 'dist/dev'
-    }],
+    src: 'lib/html/index.html', 
+    dest: 'dist/dev'
+  }],
 };
 const scssConfig = {
   failOnError: true,

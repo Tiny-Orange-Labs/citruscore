@@ -1,4 +1,21 @@
 :root {
+    /* Colors */
+    --color-primary: #6200EE;
+    --color-primary-variant: #3700B3;
+    --color-secondary: #03DAC6;
+    --color-secondary-variant: #018786;
+    --background: #FFF;
+    --surface: #FFF;
+    --error: #B00020;
+    --color-on-primary: #FFF;
+    --color-on-secondary: #000;
+    --color-on-background: #000;
+    --color-on-surface: #000;
+    --color-on-error: #FFF;
+
+    --font: 'Lato', sans-serif;
+
+    /* Sizes */
     --padding: 10px;
     --gap: 10px;
     --nav-width: 40px;

@@ -9,7 +9,7 @@ const t$1 =
         'adoptedStyleSheets' in Document.prototype &&
         'replace' in CSSStyleSheet.prototype,
     e$2 = Symbol(),
-    n$4 = new Map();
+    n$3 = new Map();
 class s$3 {
     constructor(t, n) {
         if (((this._$cssResult$ = !0), n !== e$2))
@@ -19,11 +19,11 @@ class s$3 {
         this.cssText = t;
     }
     get styleSheet() {
-        let e = n$4.get(this.cssText);
+        let e = n$3.get(this.cssText);
         return (
             t$1 &&
                 void 0 === e &&
-                (n$4.set(this.cssText, (e = new CSSStyleSheet())),
+                (n$3.set(this.cssText, (e = new CSSStyleSheet())),
                 e.replaceSync(this.cssText)),
             e
         );
@@ -33,6 +33,27 @@ class s$3 {
     }
 }
 const o$3 = (t) => new s$3('string' == typeof t ? t : t + '', e$2),
+    r$2 = (t, ...n) => {
+        const o =
+            1 === t.length
+                ? t[0]
+                : n.reduce(
+                      (e, n, s) =>
+                          e +
+                          ((t) => {
+                              if (!0 === t._$cssResult$) return t.cssText;
+                              if ('number' == typeof t) return t;
+                              throw Error(
+                                  "Value passed to 'css' function must be a 'css' function result: " +
+                                      t +
+                                      ". Use 'unsafeCSS' to pass non-literal values, but take care to ensure page security."
+                              );
+                          })(n) +
+                          t[s + 1],
+                      t[0]
+                  );
+        return new s$3(o, e$2);
+    },
     i$1 = (e, n) => {
         t$1
             ? (e.adoptedStyleSheets = n.map((t) =>
@@ -97,13 +118,13 @@ const e$1 = window.trustedTypes,
             return s;
         },
     },
-    n$3 = (t, i) => i !== t && (i == i || t == t),
+    n$2 = (t, i) => i !== t && (i == i || t == t),
     l$2 = {
         attribute: !0,
         type: String,
         converter: o$2,
         reflect: !1,
-        hasChanged: n$3,
+        hasChanged: n$2,
     };
 class a$1 extends HTMLElement {
     constructor() {
@@ -310,7 +331,7 @@ class a$1 extends HTMLElement {
         void 0 !== t &&
             ((
                 (s = s || this.constructor.getPropertyOptions(t)).hasChanged ||
-                n$3
+                n$2
             )(this[t], i)
                 ? (this._$AL.has(t) || this._$AL.set(t, i),
                   !0 === s.reflect &&
@@ -416,7 +437,7 @@ const i = globalThis.trustedTypes,
     s$1 = i ? i.createPolicy('lit-html', { createHTML: (t) => t }) : void 0,
     e = `lit$${(Math.random() + '').slice(9)}$`,
     o$1 = '?' + e,
-    n$2 = `<${o$1}>`,
+    n$1 = `<${o$1}>`,
     l$1 = document,
     h = (t = '') => l$1.createComment(t),
     r = (t) => null === t || ('object' != typeof t && 'function' != typeof t),
@@ -439,6 +460,10 @@ const i = globalThis.trustedTypes,
     _ = /'/g,
     m = /"/g,
     g = /^(?:script|style|textarea|title)$/i,
+    p =
+        (t) =>
+        (i, ...s) => ({ _$litType$: t, strings: i, values: s }),
+    $ = p(1),
     b = Symbol.for('lit-noChange'),
     w = Symbol.for('lit-nothing'),
     T = new WeakMap(),
@@ -509,7 +534,7 @@ const i = globalThis.trustedTypes,
             const y = d === f && t[i + 1].startsWith('/>') ? ' ' : '';
             r +=
                 d === c
-                    ? s + n$2
+                    ? s + n$1
                     : p >= 0
                     ? (l.push(o), s.slice(0, p) + '$lit$' + s.slice(p) + e + y)
                     : s + e + (-2 === p ? (l.push(void 0), i) : y);
@@ -954,26 +979,23 @@ class s extends a$1 {
     null === (l = globalThis.litElementHydrateSupport) ||
         void 0 === l ||
         l.call(globalThis, { LitElement: s });
-const n$1 = globalThis.litElementPolyfillSupport;
-null == n$1 || n$1({ LitElement: s });
+const n = globalThis.litElementPolyfillSupport;
+null == n || n({ LitElement: s });
 (null !== (o = globalThis.litElementVersions) && void 0 !== o
     ? o
     : (globalThis.litElementVersions = [])
 ).push('3.2.0');
 
-/**
- * @license
- * Copyright 2021 Google LLC
- * SPDX-License-Identifier: BSD-3-Clause
- */ var n;
-null !=
-(null === (n = window.HTMLSlotElement) || void 0 === n
-    ? void 0
-    : n.prototype.assignedElements)
-    ? (o, n) => o.assignedElements(n)
-    : (o, n) =>
-          o.assignedNodes(n).filter((o) => o.nodeType === Node.ELEMENT_NODE);
+class AppLayout extends s {
+    static styles = r$2`:host{display:grid;grid-template-rows:var(--nav-width) 1fr;gap:var(--gap);max-height:100vh;height:100vh}nav{background-color:var(--color-primary)}i{color:var(--color-on-primary)}`;
 
-const welcome = 'Hello World :)!';
+    constructor() {
+        super();
+    }
 
-console.log(welcome);
+    render() {
+        return $`<link rel="stylesheet" href="../assets/css/fontawesome.min.css"><link rel="stylesheet" href="../assets/css/solid.css"><nav><i class="fa-solid fa-bars"></i></nav><main><div></div><div></div></main>`;
+    }
+}
+
+customElements.define('app-layout', AppLayout);

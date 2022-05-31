@@ -9,10 +9,19 @@ import copy from 'rollup-plugin-copy';
 import sass from 'sass';
 
 const copyConfig = {
-  targets: [/*{ 
-        src: 'lib/html/index.dev.html', 
-        dest: 'dist' 
-    }*/],
+  targets: [{ 
+      src: 'node_modules/@fortawesome/fontawesome-free/css/solid.css', 
+      dest: 'dist/assets/css' 
+  }, { 
+    src: 'node_modules/@fortawesome/fontawesome-free/css/fontawesome.min.css', 
+    dest: 'dist/assets/css' 
+  }, { 
+    src: 'node_modules/@fortawesome/fontawesome-free/webfonts/fa-solid-900.ttf', 
+    dest: 'dist/assets/webfonts/' 
+  }, { 
+    src: 'node_modules/@fortawesome/fontawesome-free/webfonts/fa-solid-900.woff2', 
+    dest: 'dist/assets/webfonts/' 
+  }],
 };
 const minifyHTMLConfig = {
   targets: [{
@@ -50,14 +59,14 @@ const config = {
     format: 'esm',
   },
   plugins: [
+    copy(copyConfig),
     minifyHTML(minifyHTMLConfig),
     prettier(prettierConfig),
     eslint(eslintConfig),
     scss(scssConfig),
     minifyHTMLLiterals(),
-    copy(copyConfig),
     resolve(),
-    terser(),
+    terser()
   ]
 };
 
