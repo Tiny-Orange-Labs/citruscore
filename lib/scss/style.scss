@@ -12,23 +12,6 @@ html, body, main {
     touch-action: none;
 }
 
-app-layout {
-    display: grid;
-    gap: var(--gap);
-    grid-template-rows: var(--top-navi-height) 1fr;
-}
-
-main {
-    max-height: 100vh;
-    height: 100vh;
-}
-
-nav {
-    background-color: var(--color-primary);
-    height: var(--top-navi-height);
-}
-
-nav i {
-    color: var(--color-on-primary);
-    margin: calc(var(--top-navi-height) / 3);
+.hide {
+    display: none;
 }
