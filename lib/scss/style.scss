@@ -12,6 +12,19 @@ html, body, main {
     touch-action: none;
 }
 
-i {
+main {
+    display: grid;
+    grid-template-rows: var(--nav-width) 1fr;
+    gap: var(--gap);
+    max-height: 100vh;
+    height: 100vh;
+}
+
+nav {
+    background-color: var(--color-primary);
+}
+
+nav i {
     color: var(--color-on-primary);
+    margin: var(--padding);
 }
