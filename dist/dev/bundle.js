@@ -1059,7 +1059,6 @@ class Modal extends s {
     }
 
     set({ HTML }) {
-        console.log(this);
         this.shadowRoot.querySelector('.modal-content').innerHTML = HTML;
     }
 
@@ -1079,6 +1078,6 @@ document.addEventListener('DOMContentLoaded', function () {
     const modal = document.querySelector('modal-window');
 
     modal.setAndOpen({
-        HTML: 'willkomen im lit template',
+        HTML: 'welcome to the lit template',
     });
 });
