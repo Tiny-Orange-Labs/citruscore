@@ -1070,6 +1070,10 @@ class Modal extends s {
     render() {
         return $`<div class="inner-modal"><small @click="${this.close}" class="close-modal">close</small><div class="modal-content"></div></div>`;
     }
+
+    #berni() {
+        return 3;
+    }
 }
 
 customElements.define('modal-window', Modal);

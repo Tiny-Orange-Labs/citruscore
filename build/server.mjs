@@ -5,6 +5,11 @@ import compression from 'compression';
 
 const app = Express();
 const port = 3000;
+const urls = [
+    `http://localhost:${port}/prod/`,
+    `http://localhost:${port}/dev/`,
+    `http://localhost:${port}/unit-tests/`,
+];
 
 app.disable('x-powered-by');
 app.use(cors());
@@ -19,4 +24,6 @@ app.use(bodyParser.urlencoded({
 }));
 app.use(compression());
 app.use('/', Express.static('./dist/'));
-app.listen(port, () => console.log(`Open http://localhost:${port}/prod/ or http://localhost:${port}/dev/`));
+app.use('/unit-tests/', Express.static('./test/unit-tests'));
+app.use('/unit-tests/', Express.static('./node_modules'));
+app.listen(port, () => console.log(`Open ${urls.join(', ')} in your browser`));
