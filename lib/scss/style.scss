@@ -5,6 +5,11 @@ html, body, main, div, p, span, input, button, select {
     font-family: var(--font);
 }
 
+h1, h2, h3, h4, h5, h6 {
+    padding: 0;
+    margin: 0;
+}
+
 html, body, main {
     overflow: hidden;
     position: relative;
@@ -12,13 +17,8 @@ html, body, main {
     touch-action: none;
 }
 
-h1, h2, h3, h4, h5, h6 {
-    padding: 0;
-    margin: 0;
-}
-
 .hide {
-    display: none;
+    display: none !important;
 }
 
 .float-left {
@@ -27,4 +27,10 @@ h1, h2, h3, h4, h5, h6 {
 
 .float-right {
     float: right;
+}
+
+.danger {
+    background-color: var(--color-error);
+    border-color: var(--color-error);
+    color: var(--color-on-error);
 }

@@ -6,7 +6,8 @@
     --color-secondary-variant: #018786;
     --background: #FFF;
     --surface: #FFF;
-    --error: #B00020;
+    --colorsurface: #FFF;
+    --color-error: #B00020;
     --color-on-primary: #FFF;
     --color-on-secondary: #000;
     --color-on-background: #000;
@@ -16,10 +17,12 @@
     --font: 'Lato', sans-serif;
 
     /* Sizes */
+    --verysmall-padding: 2.5px;
     --small-padding: 10px;
     --big-padding: 35px;
     --gap: 10px;
     --side-navi-width: 365px;
     --top-navi-height: 44px;
-    --border-radius: 1em;
+    --big-border-radius: 1em;
+    --small-border-radius: 0.5em;
 }
