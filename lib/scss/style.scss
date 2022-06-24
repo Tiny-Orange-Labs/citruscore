@@ -5,11 +5,6 @@ html, body, main, div, p, span, input, button, select {
     font-family: var(--font);
 }
 
-h1, h2, h3, h4, h5, h6 {
-    padding: 0;
-    margin: 0;
-}
-
 html, body, main {
     overflow: hidden;
     position: relative;
@@ -17,8 +12,48 @@ html, body, main {
     touch-action: none;
 }
 
+h1, h2, h3, h4, h5, h6 {
+    margin: 0;
+    padding: 0;
+}
+
+h1 {
+    font-size: 1.5em;
+    padding-bottom: var(--small-padding);
+}
+
+h2 {
+    font-size: 1.25em;
+}
+
+button {
+    padding: var(--verysmall-padding);
+    outline: 1px solid #5d6063;
+    font-weight: bold;
+    border-radius: 0.5em;
+    cursor: pointer;
+    transition: background-color 0.3s linear;
+    background: var(--color-highlight-variant);
+    border: 3px solid var(--color-highlight-variant);
+    color: var(--color-on-error);
+}
+
+a,
+a:link,
+a:active,
+a:visited,
+a:hover {
+    color: var(--color-highlight-variant) !important;
+    text-decoration: none;
+}
+
 .hide {
     display: none !important;
+}
+
+.shrinkToZero {
+    width: 0;
+    visibility: hidden;
 }
 
 .float-left {
@@ -27,6 +62,16 @@ html, body, main {
 
 .float-right {
     float: right;
+}
+
+.hover-background {
+    cursor: pointer;
+    background-color: var(--color-highlight);
+}
+
+.hover-font {
+    cursor: pointer;
+    color: var(--color-highlight);
 }
 
 .danger {
