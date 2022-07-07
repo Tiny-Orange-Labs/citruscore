@@ -79,3 +79,17 @@ a:hover {
     border-color: var(--color-error);
     color: var(--color-on-error);
 }
+
+.danger-color {
+    color: var(--color-error);
+}
+
+.disabled {
+    opacity: 0.35;
+    cursor: none;
+    pointer-events: none;
+}
+
+.highlight-color {
+    color: var(--color-highlight);
+}
