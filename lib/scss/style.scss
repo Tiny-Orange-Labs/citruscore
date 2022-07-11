@@ -74,7 +74,7 @@ a:hover {
     color: var(--color-highlight);
 }
 
-.danger {
+.danger-background {
     background-color: var(--color-error);
     border-color: var(--color-error);
     color: var(--color-on-error);
@@ -82,6 +82,11 @@ a:hover {
 
 .danger-color {
     color: var(--color-error);
+}
+
+
+.orange-background {
+    background-color: var(--color-orange);
 }
 
 .disabled {
