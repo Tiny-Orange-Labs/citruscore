@@ -1,5 +1,5 @@
 {
-    "parser": "babel-eslint",
+    "@babel/eslint-parser": "^7.18.2",
     "env": {
         "browser": true,
         "es6": true,

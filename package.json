@@ -10,6 +10,7 @@
     "test": "node_modules/cypress/bin/cypress open"
   },
   "devDependencies": {
+    "@babel/eslint-parser": "^7.18.2",
     "@esm-bundle/chai": "^4.3.4-fix.0",
     "@rollup/plugin-eslint": "^8.0.2",
     "@rollup/plugin-node-resolve": "^13.3.0",
