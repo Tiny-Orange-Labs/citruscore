@@ -64,12 +64,12 @@ a:hover {
     float: right;
 }
 
-.hover-background {
+.hover-background:hover {
     cursor: pointer;
     background-color: var(--color-highlight);
 }
 
-.hover-font {
+.hover-font:hover {
     cursor: pointer;
     color: var(--color-highlight);
 }

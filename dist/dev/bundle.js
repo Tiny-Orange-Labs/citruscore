@@ -987,6 +987,14 @@ null == n || n({ LitElement: s });
 ).push('3.2.0');
 
 class AppLayout extends s {
+    #sideNaviWidth = getComputedStyle(
+        document.documentElement
+    ).getPropertyValue('--side-navi-width');
+
+    constructor() {
+        super();
+    }
+
     createRenderRoot() {
         return this;
     }
@@ -1001,15 +1009,19 @@ class AppLayout extends s {
         }
 
         sideNavi.setAttribute('data-open', 'true');
-        document.body.style.setProperty('--side-navi-width', '365px');
-    }
-
-    constructor() {
-        super();
+        document.body.style.setProperty(
+            '--side-navi-width',
+            this.#sideNaviWidth
+        );
     }
 
     render() {
-        return $`<header><i @click="${this.openNavi}" class="fa-solid fa-bars"></i></header><nav data-open="true"></nav><main></main>`;
+        const naviElements = [
+            $`<p class="navi-element hover-background"><i class="fa-solid fa-house"></i> Main</p>`,
+            $`<p class="navi-element hover-background"><i class="fa-solid fa-gears"></i> Settings</p>`,
+        ];
+
+        return $`<header><i @click="${this.openNavi}" class="fa-solid fa-bars"></i></header><nav data-open="true">${naviElements}</nav><main></main>`;
     }
 }
 
@@ -1070,15 +1082,12 @@ class Modal extends s {
     render() {
         return $`<div class="inner-modal"><small @click="${this.close}" class="close-modal">close</small><div class="modal-content"></div></div>`;
     }
-
-    #berni() {
-        return 3;
-    }
 }
 
 customElements.define('modal-window', Modal);
 
-document.addEventListener('DOMContentLoaded', function () {
+document.addEventListener('DOMContentLoaded', function bootStrapApp() {
+    document.querySelector('app-layout');
     const modal = document.querySelector('modal-window');
 
     modal.setAndOpen({
