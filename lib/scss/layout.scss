@@ -26,6 +26,7 @@ header i:hover {
 }
 
 nav {
+    overflow: hidden;
     grid-area: 2 / 1 / 3 / 2;
     width: var(--side-navi-width);
     background-color: var(--color-secondary);
