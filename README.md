@@ -1,33 +1,25 @@
 # Lit Template
-The idea of my lit template is to generate a boilerplate
-that fits my needs. Everything I put into it, is my personal 
-preference. 
 
-## NPM Scripts
-### serve
+The idea of my lit template is to generate a boilerplate that fits my needs. Everything I put into it, is my personal preference.
+This abomination includes typescript, lit, tailwind, fontawesome and maybe more in the near future. Overengineering is the future.
 
-Opens a test server to serve files
+## Building
 
-### watch 
+happens in multiple stages and can be split up to its indiviual parts.
+This is the order it executes the different builds:
 
-Start the test server, same as `npm run serve`. Watches files and rebuilds after a change.
+1. npm run build-ts
+1. npm run build-rollup
+1. npm run build-html
+1. npm run build-css
 
-### build
+if you want to build everything:
 
-Builds dev and production. Can be found in dist/dev and dist/prod 
+```bash
+npm run build-all
+```
 
-### buildDev
+## ToDo
 
-Builds dev only. Can be found in dist/dev.
-
-### buildProd
-
-Builds production only. Can be found in dist/prod.
-
-## Tests
-### Qunit
-For unit testing we use qunit just start your demo server with
-`npm run server` and visit http://localhost:3000/unit-tests/ in your browser.
-
-### Cypress
-For e2e testing we use cypress, run `npm test` and cypress automatically opens.
+1. bootstrap the whole backend part
+1. prevent people to create more js libs
