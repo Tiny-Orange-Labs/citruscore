@@ -7,7 +7,7 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 import { LitElement, html } from 'lit';
 import { customElement } from 'lit/decorators.js';
 import { repeat } from 'lit/directives/repeat.js';
-import { navElements } from '../data/nav';
+import { navElements } from '../../data/nav';
 let MainNav = class MainNav extends LitElement {
     #activeClass = 'nav-elem-active';
     constructor() {
@@ -41,25 +41,6 @@ let MainNav = class MainNav extends LitElement {
         const closed = this.getAttribute('closed') === 'true';
         return this.setAttribute('closed', !closed + '');
     }
-    #renderNavLogoBar() {
-        return html `<header class="nav-header">
-            <img class="nav-logo" src="./assets/img/logos/${navElements.logo.src}" />
-            <i @click="${this.#clickOnCloseMobile}" class="fa fa-solid fa-times fa-fw close-mobil-nav"></i>
-        </header>`;
-    }
-    #renderNavFooter() {
-        const hasFooter = !!navElements.items.find(elem => elem.isNavFooter);
-        if (!hasFooter) {
-            return;
-        }
-        return html `<footer class="nav-footer">
-            <img src="./assets/img/fallbacks/avatar.png" />
-            <div name="profile" isNavFooter="true">
-                <span>User Name</span>
-                <small @click="${this.#click}" class="view-profile">View Profile</small>
-            </div>
-        </footer>`;
-    }
     #renderNavItems() {
         const fallBackFirstTimeUse = navElements.items[0].name;
         const activeView = localStorage.getItem('active-view') || fallBackFirstTimeUse;
@@ -74,6 +55,25 @@ let MainNav = class MainNav extends LitElement {
                 <span>${first.toLocaleUpperCase()}${rest.join('')}</span>
             </div>`;
         });
+    }
+    #renderNavFooter() {
+        const hasFooter = !!navElements.items.find(elem => elem.isNavFooter);
+        if (!hasFooter) {
+            return;
+        }
+        return html `<footer class="nav-footer">
+            <img src="./assets/img/fallbacks/avatar.png" />
+            <div name="profile" isNavFooter="true">
+                <span>User Name</span>
+                <small @click="${this.#click}" class="view-profile">View Profile</small>
+            </div>
+        </footer>`;
+    }
+    #renderNavLogoBar() {
+        return html `<header class="nav-header">
+            <img class="nav-logo" src="./assets/img/logos/${navElements.logo.src}" />
+            <i @click="${this.#clickOnCloseMobile}" class="fa fa-solid fa-times fa-fw close-mobil-nav"></i>
+        </header>`;
     }
     render() {
         const navLogoBar = this.#renderNavLogoBar();

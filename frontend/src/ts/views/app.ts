@@ -29,11 +29,12 @@ export default class AppLayout extends LitElement {
         const nav = this.querySelector('.nav') as HTMLElement;
         const closed: boolean = nav.getAttribute('closed') === 'true';
 
-        nav.setAttribute('closed', !closed + '');
+        return nav.setAttribute('closed', !closed + '');
     }
 
     render() {
-        const activeView = localStorage.getItem('active-view');
+        const fallBackFirstTimeUse:string = navElements.items[0].name;
+        const activeView:string = localStorage.getItem('active-view') || fallBackFirstTimeUse;
 
         return html`<main-nav class="nav" closed="true" @viewSwitch="${this.#viewSwitch}"></main-nav>
             <main>
@@ -46,7 +47,6 @@ export default class AppLayout extends LitElement {
                 </div>
                 ${repeat(navElements.items, (elem: navData) => {
                     const active = elem.name === activeView;
-
                     return html`<view-layout name="${elem.name}" active="${active}" class="view"></view-layout>`;
                 })}
             </main>`;

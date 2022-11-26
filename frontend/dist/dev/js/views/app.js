@@ -27,10 +27,11 @@ let AppLayout = class AppLayout extends LitElement {
     #clickMobileHamburger() {
         const nav = this.querySelector('.nav');
         const closed = nav.getAttribute('closed') === 'true';
-        nav.setAttribute('closed', !closed + '');
+        return nav.setAttribute('closed', !closed + '');
     }
     render() {
-        const activeView = localStorage.getItem('active-view');
+        const fallBackFirstTimeUse = navElements.items[0].name;
+        const activeView = localStorage.getItem('active-view') || fallBackFirstTimeUse;
         return html `<main-nav class="nav" closed="true" @viewSwitch="${this.#viewSwitch}"></main-nav>
             <main>
                 <div class="view-header">

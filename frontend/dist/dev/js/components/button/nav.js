@@ -1,64 +1,58 @@
+var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
+    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+    return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
 import { LitElement, html } from 'lit';
 import { customElement } from 'lit/decorators.js';
 import { repeat } from 'lit/directives/repeat.js';
-import { navElements, navData } from '../data/nav';
-
-@customElement('main-nav')
-export default class MainNav extends LitElement {
-    #activeClass: string = 'nav-elem-active';
-
+import { navElements } from '../../data/nav';
+let MainNav = class MainNav extends LitElement {
+    #activeClass = 'nav-elem-active';
     constructor() {
         super();
     }
-
     createRenderRoot() {
         return this; // prevents creating a shadow root
     }
-
-    #click(event: { target: HTMLElement; bubbles: boolean }) {
-        const target = event.target as HTMLElement;
-        const parent = target.parentNode as HTMLElement;
+    #click(event) {
+        const target = event.target;
+        const parent = target.parentNode;
         const isNav = target.classList.contains('nav-element');
         const element = isNav ? target : parent;
         const active = document.querySelector(`.${this.#activeClass}`);
-        const isFooterElement: boolean = element.getAttribute('isNavFooter') === 'true';
+        const isFooterElement = element.getAttribute('isNavFooter') === 'true';
         const clickViewEvent = new CustomEvent('viewSwitch', {
             detail: {
                 name: element.getAttribute('name'),
             },
         });
-
         if (active) {
             active.classList.remove(this.#activeClass);
         }
         if (!isFooterElement) {
             element.classList.add(this.#activeClass);
         }
-
         this.setAttribute('closed', 'true');
         return this.dispatchEvent(clickViewEvent);
     }
-
     #clickOnCloseMobile() {
-        const closed: boolean = this.getAttribute('closed') === 'true';
-        this.setAttribute('closed', !closed + '');
+        const closed = this.getAttribute('closed') === 'true';
+        return this.setAttribute('closed', !closed + '');
     }
-
     #renderNavLogoBar() {
-        return html`<header class="nav-header">
+        return html `<header class="nav-header">
             <img class="nav-logo" src="./assets/img/logos/${navElements.logo.src}" />
             <i @click="${this.#clickOnCloseMobile}" class="fa fa-solid fa-times fa-fw close-mobil-nav"></i>
         </header>`;
     }
-
     #renderNavFooter() {
-        const hasFooter: boolean = !!navElements.items.find(elem => elem.isNavFooter);
-
+        const hasFooter = !!navElements.items.find(elem => elem.isNavFooter);
         if (!hasFooter) {
             return;
         }
-
-        return html`<footer class="nav-footer">
+        return html `<footer class="nav-footer">
             <img src="./assets/img/fallbacks/avatar.png" />
             <div name="profile" isNavFooter="true">
                 <span>User Name</span>
@@ -66,36 +60,29 @@ export default class MainNav extends LitElement {
             </div>
         </footer>`;
     }
-
     #renderNavItems() {
-        const activeView: string | null = localStorage.getItem('active-view');
-
-        return repeat(navElements.items, (elem: navData) => {
-            const [first, ...rest]: string = elem.name;
-            const classes: string = activeView === elem.name ? this.#activeClass : '';
-
+        const fallBackFirstTimeUse = navElements.items[0].name;
+        const activeView = localStorage.getItem('active-view') || fallBackFirstTimeUse;
+        return repeat(navElements.items, (elem) => {
+            const [first, ...rest] = elem.name;
+            const classes = activeView === elem.name ? this.#activeClass : '';
             if (!elem.viewable) {
                 return;
             }
-
-            return html`<div @click="${this.#click}" class="nav-element ${classes}" name="${elem.name}">
+            return html `<div @click="${this.#click}" class="nav-element ${classes}" name="${elem.name}">
                 <i class="fa-solid fa-${elem.icon} fa-fw mr-2"></i>
                 <span>${first.toLocaleUpperCase()}${rest.join('')}</span>
             </div>`;
         });
     }
-
     render() {
         const navLogoBar = this.#renderNavLogoBar();
         const bottom = this.#renderNavFooter();
         const elements = this.#renderNavItems();
-
-        return html`${navLogoBar}${elements}${bottom}`;
+        return html `${navLogoBar}${elements}${bottom}`;
     }
-}
-
-declare global {
-    interface HTMLElementTagNameMap {
-        'main-nav': MainNav;
-    }
-}
+};
+MainNav = __decorate([
+    customElement('main-nav')
+], MainNav);
+export default MainNav;
