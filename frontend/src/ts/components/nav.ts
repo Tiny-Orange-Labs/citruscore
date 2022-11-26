@@ -35,15 +35,19 @@ export default class MainNav extends LitElement {
             element.classList.add(this.#activeClass);
         }
 
+        this.setAttribute('closed', 'true');
         return this.dispatchEvent(clickViewEvent);
     }
 
-    #hideNav() {}
+    #clickOnCloseMobile() {
+        const closed: boolean = this.getAttribute('closed') === 'true';
+        this.setAttribute('closed', !closed + '');
+    }
 
     #renderNavLogoBar() {
         return html`<header class="nav-header">
-            <i class="fa fa-solid fa-2x fa-fw fa-bars hamburger-menu" @click="${this.#hideNav}"></i>
             <img class="nav-logo" src="./assets/img/logos/${navElements.logo.src}" />
+            <i @click="${this.#clickOnCloseMobile}" class="fa fa-solid fa-times fa-fw close-mobil-nav"></i>
         </header>`;
     }
 

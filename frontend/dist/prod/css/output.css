@@ -534,11 +534,6 @@ video {
   width: 100vw;
 }
 
-.bg-primarybg {
-  --tw-bg-opacity: 1;
-  background-color: rgb(243 244 246 / var(--tw-bg-opacity));
-}
-
 .text-xl {
   font-size: 1.25rem;
   line-height: 1.75rem;
@@ -573,10 +568,12 @@ video {
 
 .nav {
   position: absolute;
-  display: flex;
+  display: none;
   height: 100%;
-  width: 14rem;
+  width: 91.666667%;
   flex-direction: column;
+  border-top-right-radius: 1rem;
+  border-bottom-right-radius: 1rem;
   --tw-bg-opacity: 1;
   background-color: rgb(67 56 202 / var(--tw-bg-opacity));
   padding: 0.5rem;
@@ -594,7 +591,25 @@ video {
 @media (min-width: 768px) {
   .nav {
     position: relative;
+    display: flex;
+    width: 14rem;
+    border-radius: 0px;
+    border-right-width: 0px;
   }
+}
+
+.nav[closed='true'] {
+  display: none;
+}
+
+@media (min-width: 768px) {
+  .nav[closed='true'] {
+    display: flex;
+  }
+}
+
+.nav[closed='false'] {
+  display: flex;
 }
 
 .nav-header {
@@ -602,19 +617,27 @@ video {
   justify-content: space-between;
 }
 
-.hamburger-menu {
+.nav-logo {
+  width: 3.5rem;
+  padding: 0.5rem;
+}
+
+.close-mobil-nav {
   cursor: pointer;
   align-self: center;
+  font-size: 1.5rem;
+  line-height: 2rem;
 }
 
-.hamburger-menu:hover {
+.close-mobil-nav:hover {
   --tw-text-opacity: 1;
-  color: rgb(67 56 202 / var(--tw-text-opacity));
+  color: rgb(55 51 166 / var(--tw-text-opacity));
 }
 
-.nav-logo {
-  width: 5rem;
-  padding: 1rem;
+@media (min-width: 768px) {
+  .close-mobil-nav {
+    display: none !important;
+  }
 }
 
 .nav-element {
@@ -689,6 +712,29 @@ video {
   }
 }
 
+.view-header {
+  --tw-bg-opacity: 1;
+  background-color: rgb(243 244 246 / var(--tw-bg-opacity));
+  padding-top: 0.5rem;
+  padding-left: 0.5rem;
+}
+
+@media (min-width: 768px) {
+  .view-header {
+    display: none;
+  }
+}
+
+.hamburger-menu {
+  cursor: pointer;
+  align-self: center;
+}
+
+.hamburger-menu:hover {
+  --tw-text-opacity: 1;
+  color: rgb(55 51 166 / var(--tw-text-opacity));
+}
+
 .view {
   display: block;
   height: 100%;
@@ -706,6 +752,13 @@ video {
   height: 100%;
   flex-direction: column;
   padding: 3rem;
+  padding-top: 0px;
+}
+
+@media (min-width: 768px) {
+  .view-container {
+    padding-top: 3rem;
+  }
 }
 
 .view-content {

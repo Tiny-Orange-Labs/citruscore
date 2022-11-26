@@ -34,12 +34,17 @@ let MainNav = class MainNav extends LitElement {
         if (!isFooterElement) {
             element.classList.add(this.#activeClass);
         }
+        this.setAttribute('closed', 'true');
         return this.dispatchEvent(clickViewEvent);
+    }
+    #clickOnCloseMobile() {
+        const closed = this.getAttribute('closed') === 'true';
+        this.setAttribute('closed', !closed + '');
     }
     #renderNavLogoBar() {
         return html `<header class="nav-header">
-            <i class="fa fa-solid fa-2x fa-fw fa-bars hamburger-menu"></i>
             <img class="nav-logo" src="./assets/img/logos/${navElements.logo.src}" />
+            <i @click="${this.#clickOnCloseMobile}" class="fa fa-solid fa-times fa-fw close-mobil-nav"></i>
         </header>`;
     }
     #renderNavFooter() {

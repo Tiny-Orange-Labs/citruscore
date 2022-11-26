@@ -125,12 +125,17 @@ let MainNav = class MainNav extends s$1 {
         if (!isFooterElement) {
             element.classList.add(this.#activeClass);
         }
+        this.setAttribute('closed', 'true');
         return this.dispatchEvent(clickViewEvent);
+    }
+    #clickOnCloseMobile() {
+        const closed = this.getAttribute('closed') === 'true';
+        this.setAttribute('closed', !closed + '');
     }
     #renderNavLogoBar() {
         return y `<header class="nav-header">
-            <i class="fa fa-solid fa-2x fa-fw fa-bars hamburger-menu"></i>
             <img class="nav-logo" src="./assets/img/logos/${navElements.logo.src}" />
+            <i @click="${this.#clickOnCloseMobile}" class="fa fa-solid fa-times fa-fw close-mobil-nav"></i>
         </header>`;
     }
     #renderNavFooter() {
@@ -226,17 +231,25 @@ let AppLayout = class AppLayout extends s$1 {
         localStorage.setItem('active-view', name);
         view.setAttribute('active', 'true');
     }
+    #clickMobileHamburger() {
+        const nav = this.querySelector('.nav');
+        const closed = nav.getAttribute('closed') === 'true';
+        nav.setAttribute('closed', !closed + '');
+    }
     render() {
         const activeView = localStorage.getItem('active-view');
-        return y `<main-nav class="nav" @viewSwitch="${this.#viewSwitch}"></main-nav>
+        return y `<main-nav class="nav" closed="true" @viewSwitch="${this.#viewSwitch}"></main-nav>
             <main>
+                <div class="view-header">
+                    <i
+                        closed="true"
+                        @click="${this.#clickMobileHamburger}"
+                        class="fa fa-solid fa-fw fa-bars fa-2x hamburger-menu"
+                    ></i>
+                </div>
                 ${c(navElements.items, (elem) => {
             const active = elem.name === activeView;
-            return y `<view-layout
-                        name="${elem.name}"
-                        active="${active}"
-                        class="bg-primarybg view"
-                    ></view-layout>`;
+            return y `<view-layout name="${elem.name}" active="${active}" class="view"></view-layout>`;
         })}
             </main>`;
     }
@@ -246,5 +259,5 @@ AppLayout = __decorate([
 ], AppLayout);
 
 document.addEventListener('DOMContentLoaded', function () {
-    console.log('v:0.0.1 at: "2022-11-24T12:10:03.420Z" ');
+    console.log('v:0.0.1 at: "2022-11-24T17:06:28.724Z" ');
 });
