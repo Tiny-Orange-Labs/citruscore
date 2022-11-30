@@ -120,6 +120,17 @@ let InputButton = class InputButton extends s$1 {
     type = 'text';
     optional = false;
     placeholder = '';
+    get value() {
+        const inputValue = this.querySelector('input')?.value;
+        const hasPostFix = this.options.length !== 0;
+        if (hasPostFix) {
+            return {
+                options: this.querySelector('select')?.value,
+                value: inputValue,
+            };
+        }
+        return inputValue;
+    }
     constructor() {
         super();
     }
@@ -127,7 +138,6 @@ let InputButton = class InputButton extends s$1 {
         return this; // prevents creating a shadow root
     }
     #renderPostFix() {
-        console.log(this.options);
         if (this.options.length === 0) {
             return;
         }
@@ -420,5 +430,5 @@ AppLayout = __decorate([
 ], AppLayout);
 
 document.addEventListener('DOMContentLoaded', function () {
-    console.log('v:0.0.1 at: "2022-11-26T23:26:25.607Z" ');
+    console.log('v:0.0.1 at: "2022-11-30T20:46:22.956Z" ');
 });

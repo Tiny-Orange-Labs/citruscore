@@ -1,7 +1,6 @@
 import { LitElement, html } from 'lit';
 import { customElement, property } from 'lit/decorators.js';
 import { navElements, navData } from '../data/nav';
-import { repeat } from 'lit/directives/repeat.js';
 
 @customElement('view-layout')
 export default class ViewLayout extends LitElement {

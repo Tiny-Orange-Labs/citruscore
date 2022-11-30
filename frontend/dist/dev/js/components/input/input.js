@@ -6,7 +6,7 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 };
 import { LitElement, html } from 'lit';
 import { customElement, property } from 'lit/decorators.js';
-import { capitalize } from '../../utilities/text';
+import { capitalize } from '../../utilities/text/text';
 import { repeat } from 'lit/directives/repeat.js';
 let InputButton = class InputButton extends LitElement {
     prefix = '';
@@ -15,6 +15,17 @@ let InputButton = class InputButton extends LitElement {
     type = 'text';
     optional = false;
     placeholder = '';
+    get value() {
+        const inputValue = this.querySelector('input')?.value;
+        const hasPostFix = this.options.length !== 0;
+        if (hasPostFix) {
+            return {
+                options: this.querySelector('select')?.value,
+                value: inputValue,
+            };
+        }
+        return inputValue;
+    }
     constructor() {
         super();
     }
@@ -22,7 +33,6 @@ let InputButton = class InputButton extends LitElement {
         return this; // prevents creating a shadow root
     }
     #renderPostFix() {
-        console.log(this.options);
         if (this.options.length === 0) {
             return;
         }

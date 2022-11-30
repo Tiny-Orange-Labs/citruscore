@@ -1,6 +1,6 @@
 import { LitElement, html } from 'lit';
 import { customElement, property } from 'lit/decorators.js';
-import { capitalize } from '../../utilities/text';
+import { capitalize } from '../../utilities/text/text';
 import { repeat } from 'lit/directives/repeat.js';
 
 @customElement('project-input')
@@ -12,6 +12,20 @@ export default class InputButton extends LitElement {
     @property({ attribute: true }) optional: boolean = false;
     @property({ attribute: true }) placeholder: string = '';
 
+    get value() {
+        const inputValue = this.querySelector('input')?.value;
+        const hasPostFix = this.options.length !== 0;
+
+        if (hasPostFix) {
+            return {
+                option: this.querySelector('select')?.value,
+                value: inputValue,
+            };
+        }
+
+        return inputValue;
+    }
+
     constructor() {
         super();
     }
@@ -21,7 +35,6 @@ export default class InputButton extends LitElement {
     }
 
     #renderPostFix() {
-        console.log(this.options);
         if (this.options.length === 0) {
             return;
         }

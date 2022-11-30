@@ -19,7 +19,23 @@ if you want to build everything:
 npm run build-all
 ```
 
+## Tests
+
+We are using web-test-runner with a combo of chai and open-wc/testing as assertion libraries.
+Chai for stuff doesn't need dom and open-wc/testing for stuff that needs a dom.
+
+```bash
+npm test
+```
+
+To check your coverage with an UI run:
+
+```bash
+npm run coverage
+```
+
 ## ToDo
 
 1. bootstrap the whole backend part
 1. prevent people to create more js libs
+1. E2E tests
