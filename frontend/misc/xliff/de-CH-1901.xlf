@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xliff version="1.2" xmlns="urn:oasis:names:tc:xliff:document:1.2">
+<file target-language="de-CH-1901" source-language="en" original="lit-localize-inputs" datatype="plaintext">
+<body>
+<trans-unit id="s13be1af9766661e9">
+  <source>Accept</source>
+  <target>Aktzeptieren</target>
+</trans-unit>
+<trans-unit id="s9d8b8aa2b404c2c8">
+  <source>Settings</source>
+    <target>Einstellungen</target>
+</trans-unit>
+</body>
+</file>
+</xliff>

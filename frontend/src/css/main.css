@@ -30,7 +30,7 @@
 }
 
 .nav {
-    @apply flex w-11/12 absolute h-full bg-primary  p-2 text-white flex-col rounded-tr-2xl rounded-br-2xl
+    @apply flex w-11/12 absolute h-full bg-primary  p-2 text-white flex-col rounded-tr-2xl rounded-br-2xl z-50
          dark:bg-primary-dark
            md:relative md:w-56 md:border-r-0  md:rounded-none;
 }

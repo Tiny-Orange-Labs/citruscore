@@ -6,7 +6,7 @@ export const navElements = Object.freeze({
         {
             name: 'dashboard',
             icon: 'house',
-            rows: 4,
+            rows: 2,
             viewable: true,
             isNavFooter: false,
         },
@@ -20,7 +20,7 @@ export const navElements = Object.freeze({
         {
             name: 'calendar',
             icon: 'calendar',
-            rows: 2,
+            rows: 4,
             viewable: true,
             isNavFooter: false,
         },

@@ -11,6 +11,8 @@
         "watch-ts": "tsc --watch",
         "watch-rollup": "",
         "serve": "",
+        "translate-extract": "lit-localize extract",
+        "translate-build": "lit-localize build",
         "coverage": "open -a \"Google Chrome\" coverage/lcov-report/index.html",
         "live-server": "live-server --no-css-inject ./frontend/dist/dev",
         "test": "web-test-runner --node-resolve  --coverage  \"./frontend/src/ts/**/test.ts\""
@@ -24,6 +26,7 @@
     "devDependencies": {
         "@esm-bundle/chai": "^4.3.4-fix.0",
         "@fortawesome/fontawesome-free": "^6.2.1",
+        "@lit/localize-tools": "^0.6.5",
         "@open-wc/testing": "^3.1.7",
         "@rollup/plugin-node-resolve": "^15.0.1",
         "@rollup/plugin-replace": "^5.0.1",

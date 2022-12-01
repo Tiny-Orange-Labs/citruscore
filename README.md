@@ -34,6 +34,12 @@ To check your coverage with an UI run:
 npm run coverage
 ```
 
+## Translate
+
+```bash
+npm run translate
+```
+
 ## ToDo
 
 1. bootstrap the whole backend part

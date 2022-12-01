@@ -1,6 +1,7 @@
 import { LitElement, html } from 'lit';
+import { unsafeHTML } from 'lit/directives/unsafe-html.js';
 import { customElement } from 'lit/decorators.js';
-import { navElements, navData } from '../data/nav';
+import { navElements, navData } from './data/nav';
 import { repeat } from 'lit/directives/repeat.js';
 
 @customElement('app-layout')
@@ -14,8 +15,8 @@ export default class AppLayout extends LitElement {
     }
 
     #viewSwitch({ detail: { name } }: { detail: { name: string } }) {
-        const active = this.querySelector('view-layout[active="true"]') as HTMLElement;
-        const view = this.querySelector(`view-layout[name="${name}"]`) as HTMLElement;
+        const active = this.querySelector('.view[active="true"]') as HTMLElement;
+        const view = this.querySelector(`.view[name="${name}"]`) as HTMLElement;
 
         if (active) {
             active.setAttribute('active', 'false');
@@ -33,8 +34,8 @@ export default class AppLayout extends LitElement {
     }
 
     render() {
-        const fallBackFirstTimeUse:string = navElements.items[0].name;
-        const activeView:string = localStorage.getItem('active-view') || fallBackFirstTimeUse;
+        const fallBackFirstTimeUse: string = navElements.items[0].name;
+        const activeView: string = localStorage.getItem('active-view') || fallBackFirstTimeUse;
 
         return html`<main-nav class="nav" closed="true" @viewSwitch="${this.#viewSwitch}"></main-nav>
             <main>
@@ -47,6 +48,16 @@ export default class AppLayout extends LitElement {
                 </div>
                 ${repeat(navElements.items, (elem: navData) => {
                     const active = elem.name === activeView;
+                    const tag = `${unsafeHTML(elem.name)}-layout`;
+
+                    if (elem.name === 'dashboard') {
+                        return html`<dashboard-layout
+                            name="${elem.name}"
+                            active="${active}"
+                            class="view"
+                        ></dashboard-layout>`;
+                    }
+
                     return html`<view-layout name="${elem.name}" active="${active}" class="view"></view-layout>`;
                 })}
             </main>`;

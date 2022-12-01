@@ -20,7 +20,7 @@ let InputButton = class InputButton extends LitElement {
         const hasPostFix = this.options.length !== 0;
         if (hasPostFix) {
             return {
-                options: this.querySelector('select')?.value,
+                option: this.querySelector('select')?.value,
                 value: inputValue,
             };
         }
