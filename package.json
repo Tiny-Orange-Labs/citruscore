@@ -9,12 +9,14 @@
         "build-all": "npm run build-ts  && npm run build-rollup && npm run build-html && npm run build-css",
         "watch-css": "tailwindcss -i ./frontend/src/css/main.css -o ./frontend/dist/dev/css/output.css --watch",
         "watch-ts": "tsc --watch",
-        "watch-rollup": "",
         "serve": "",
         "translate-extract": "lit-localize extract",
         "translate-build": "lit-localize build",
+        "translate-all": "npm run translate-extract && npm run translate-build",
+        "generate": "npm run translate-all && npm run build-all",
         "coverage": "open -a \"Google Chrome\" coverage/lcov-report/index.html",
-        "live-server": "live-server --no-css-inject ./frontend/dist/dev",
+        "live-server-dev": "live-server --no-css-inject ./frontend/dist/dev",
+        "live-server-prod": "live-server --no-css-inject ./frontend/dist/prod",
         "test": "web-test-runner --node-resolve  --coverage  \"./frontend/src/ts/**/test.ts\""
     },
     "repository": {
@@ -22,7 +24,7 @@
         "url": "git+https://github.com/oliverjessner/lit-template.git"
     },
     "author": "oliver jessner",
-    "license": "MIT",
+    "license": "SEE LICENSE",
     "devDependencies": {
         "@esm-bundle/chai": "^4.3.4-fix.0",
         "@fortawesome/fontawesome-free": "^6.2.1",

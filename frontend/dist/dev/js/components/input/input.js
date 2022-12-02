@@ -8,6 +8,7 @@ import { LitElement, html } from 'lit';
 import { customElement, property } from 'lit/decorators.js';
 import { capitalize } from '../../utilities/text/text';
 import { repeat } from 'lit/directives/repeat.js';
+import { localized } from '@lit/localize';
 let InputButton = class InputButton extends LitElement {
     prefix = '';
     label = '';
@@ -103,6 +104,7 @@ __decorate([
     property({ attribute: true })
 ], InputButton.prototype, "placeholder", void 0);
 InputButton = __decorate([
+    localized(),
     customElement('project-input')
 ], InputButton);
 export default InputButton;

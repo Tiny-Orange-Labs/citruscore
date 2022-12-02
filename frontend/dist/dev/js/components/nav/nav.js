@@ -8,6 +8,8 @@ import { LitElement, html } from 'lit';
 import { customElement } from 'lit/decorators.js';
 import { repeat } from 'lit/directives/repeat.js';
 import { navElements } from '../../data/nav';
+import { localized } from '@lit/localize';
+import { capitalize } from '../../utilities/text/text';
 let MainNav = class MainNav extends LitElement {
     #activeClass = 'nav-elem-active';
     constructor() {
@@ -45,14 +47,13 @@ let MainNav = class MainNav extends LitElement {
         const fallBackFirstTimeUse = navElements.items[0].name;
         const activeView = localStorage.getItem('active-view') || fallBackFirstTimeUse;
         return repeat(navElements.items, (elem) => {
-            const [first, ...rest] = elem.name;
             const classes = activeView === elem.name ? this.#activeClass : '';
             if (!elem.viewable) {
                 return;
             }
             return html `<div @click="${this.#click}" class="nav-element ${classes}" name="${elem.name}">
                 <i class="fa-solid fa-${elem.icon} fa-fw mr-2"></i>
-                <span>${first.toLocaleUpperCase()}${rest.join('')}</span>
+                <span>${capitalize(elem.name)}</span>
             </div>`;
         });
     }
@@ -83,6 +84,7 @@ let MainNav = class MainNav extends LitElement {
     }
 };
 MainNav = __decorate([
+    localized(),
     customElement('main-nav')
 ], MainNav);
 export default MainNav;

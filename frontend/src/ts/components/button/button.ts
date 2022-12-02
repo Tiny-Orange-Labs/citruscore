@@ -1,11 +1,13 @@
 import { LitElement, html } from 'lit';
 import { customElement, property } from 'lit/decorators.js';
+import { localized } from '@lit/localize';
 
+@localized()
 @customElement('project-button')
 export default class ProjectButton extends LitElement {
     @property({ attribute: true })
     icon: string = 'none';
-    @property({ attribute: true })
+    @property({ attribute: true, reflect: true })
     content: string = '';
     @property({ attribute: true })
     type: string = 'normal';

@@ -37,7 +37,14 @@ npm run coverage
 ## Translate
 
 ```bash
-npm run translate
+npm run translate-extract
+npm run translate-build
+```
+
+or
+
+```bash
+npm run translate-all
 ```
 
 ## ToDo

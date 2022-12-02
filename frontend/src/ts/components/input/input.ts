@@ -2,7 +2,9 @@ import { LitElement, html } from 'lit';
 import { customElement, property } from 'lit/decorators.js';
 import { capitalize } from '../../utilities/text/text';
 import { repeat } from 'lit/directives/repeat.js';
+import { localized } from '@lit/localize';
 
+@localized()
 @customElement('project-input')
 export default class InputButton extends LitElement {
     @property({ attribute: true }) prefix: string = '';

@@ -48,7 +48,6 @@ export default class AppLayout extends LitElement {
                 </div>
                 ${repeat(navElements.items, (elem: navData) => {
                     const active = elem.name === activeView;
-                    const tag = `${unsafeHTML(elem.name)}-layout`;
 
                     if (elem.name === 'dashboard') {
                         return html`<dashboard-layout

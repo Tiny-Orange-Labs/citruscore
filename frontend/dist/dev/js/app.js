@@ -5,7 +5,6 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
     return c > 3 && r && Object.defineProperty(target, key, r), r;
 };
 import { LitElement, html } from 'lit';
-import { unsafeHTML } from 'lit/directives/unsafe-html.js';
 import { customElement } from 'lit/decorators.js';
 import { navElements } from './data/nav';
 import { repeat } from 'lit/directives/repeat.js';
@@ -44,7 +43,6 @@ let AppLayout = class AppLayout extends LitElement {
                 </div>
                 ${repeat(navElements.items, (elem) => {
             const active = elem.name === activeView;
-            const tag = `${unsafeHTML(elem.name)}-layout`;
             if (elem.name === 'dashboard') {
                 return html `<dashboard-layout
                             name="${elem.name}"

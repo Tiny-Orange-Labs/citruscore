@@ -68,6 +68,22 @@ const config = [
                         src: 'frontend/assets/',
                         dest: 'frontend/dist/prod/',
                     },
+                    {
+                        src: 'node_modules/@fortawesome/fontawesome-free/css/solid.css',
+                        dest: 'frontend/dist/prod/css',
+                    },
+                    {
+                        src: 'node_modules/@fortawesome/fontawesome-free/css/fontawesome.min.css',
+                        dest: 'frontend/dist/prod/css',
+                    },
+                    {
+                        src: 'node_modules/@fortawesome/fontawesome-free/webfonts/fa-solid-900.ttf',
+                        dest: 'frontend/dist/prod/webfonts',
+                    },
+                    {
+                        src: 'node_modules/@fortawesome/fontawesome-free/webfonts/fa-solid-900.woff2',
+                        dest: 'frontend/dist/prod/webfonts',
+                    },
                 ],
             }),
             resolve(),

@@ -2,7 +2,10 @@ import { LitElement, html } from 'lit';
 import { customElement } from 'lit/decorators.js';
 import { repeat } from 'lit/directives/repeat.js';
 import { navElements, navData } from '../../data/nav';
+import { localized, msg } from '@lit/localize';
+import { capitalize } from '../../utilities/text/text';
 
+@localized()
 @customElement('main-nav')
 export default class MainNav extends LitElement {
     #activeClass: string = 'nav-elem-active';
@@ -49,7 +52,6 @@ export default class MainNav extends LitElement {
         const activeView: string = localStorage.getItem('active-view') || fallBackFirstTimeUse;
 
         return repeat(navElements.items, (elem: navData) => {
-            const [first, ...rest]: string = elem.name;
             const classes: string = activeView === elem.name ? this.#activeClass : '';
 
             if (!elem.viewable) {
@@ -58,7 +60,7 @@ export default class MainNav extends LitElement {
 
             return html`<div @click="${this.#click}" class="nav-element ${classes}" name="${elem.name}">
                 <i class="fa-solid fa-${elem.icon} fa-fw mr-2"></i>
-                <span>${first.toLocaleUpperCase()}${rest.join('')}</span>
+                <span>${capitalize(elem.name)}</span>
             </div>`;
         });
     }

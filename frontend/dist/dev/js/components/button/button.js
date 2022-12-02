@@ -6,6 +6,7 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 };
 import { LitElement, html } from 'lit';
 import { customElement, property } from 'lit/decorators.js';
+import { localized } from '@lit/localize';
 let ProjectButton = class ProjectButton extends LitElement {
     icon = 'none';
     content = '';
@@ -29,12 +30,13 @@ __decorate([
     property({ attribute: true })
 ], ProjectButton.prototype, "icon", void 0);
 __decorate([
-    property({ attribute: true })
+    property({ attribute: true, reflect: true })
 ], ProjectButton.prototype, "content", void 0);
 __decorate([
     property({ attribute: true })
 ], ProjectButton.prototype, "type", void 0);
 ProjectButton = __decorate([
+    localized(),
     customElement('project-button')
 ], ProjectButton);
 export default ProjectButton;
