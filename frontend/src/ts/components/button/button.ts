@@ -5,12 +5,9 @@ import { localized } from '@lit/localize';
 @localized()
 @customElement('project-button')
 export default class ProjectButton extends LitElement {
-    @property({ attribute: true })
-    icon: string = 'none';
-    @property({ attribute: true, reflect: true })
-    content: string = '';
-    @property({ attribute: true })
-    type: string = 'normal';
+    @property({ attribute: true }) icon: string = 'none';
+    @property({ attribute: true, reflect: true }) content: string = '';
+    @property({ attribute: true }) type: string = 'normal';
 
     constructor() {
         super();

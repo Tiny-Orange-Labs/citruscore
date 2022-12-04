@@ -7,7 +7,8 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 import { LitElement, html } from 'lit';
 import { customElement, property } from 'lit/decorators.js';
 import { navElements } from '../data/nav';
-import { localized } from '@lit/localize';
+import { localized, msg } from '@lit/localize';
+import { capitalize } from '../utilities/text/text';
 let ViewLayout = class ViewLayout extends LitElement {
     name = '';
     constructor() {
@@ -23,11 +24,15 @@ let ViewLayout = class ViewLayout extends LitElement {
     }
     render(ROWS = '') {
         const viewData = navElements.items.find(i => i.name === this.name);
-        const name = this.name?.toLocaleUpperCase();
+        // Workaround for localized, because it only compiles statically
+        const hlStaticElements = Object.freeze({
+            analytics: html `<h1 class="view-headline">${capitalize(msg('analytics'))}</h1>`,
+            dashboard: html `<h1 class="view-headline">${capitalize(msg('dashboard'))}</h1>`,
+            calendar: html `<h1 class="view-headline">${capitalize(msg('calendar'))}</h1>`,
+            profile: html `<h1 class="view-headline">${capitalize(msg('profile'))}</h1>`,
+        });
         return html `<div class="view-container">
-            <header>
-                <h1 class="text-xl my-3">${name}</h1>
-            </header>
+            <header>${hlStaticElements[this.name]}</header>
             <div class="view-content grid-cols-${viewData.rows}">${this.#renderRows(viewData, ROWS)}</div>
         </div>`;
     }

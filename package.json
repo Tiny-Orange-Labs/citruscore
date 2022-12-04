@@ -16,7 +16,7 @@
         "generate": "npm run translate-all && npm run build-all",
         "coverage": "open -a \"Google Chrome\" coverage/lcov-report/index.html",
         "live-server-dev": "live-server --no-css-inject ./frontend/dist/dev",
-        "live-server-prod": "live-server --no-css-inject ./frontend/dist/prod",
+        "live-server-prod": "live-server --port=8081 --no-css-inject ./frontend/dist/prod",
         "test": "web-test-runner --node-resolve  --coverage  \"./frontend/src/ts/**/test.ts\""
     },
     "repository": {

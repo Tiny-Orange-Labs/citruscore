@@ -521,7 +521,7 @@ function _installMsgImplementation(impl) {
     installed = true;
 }
 
-var __decorate$5 = (undefined && undefined.__decorate) || function (decorators, target, key, desc) {
+var __decorate$7 = (undefined && undefined.__decorate) || function (decorators, target, key, desc) {
     var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
     if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
     else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
@@ -546,16 +546,16 @@ let ProjectButton = class ProjectButton extends s$1 {
         return y `<button class="${this.type}-button">${this.content}</button>`;
     }
 };
-__decorate$5([
+__decorate$7([
     e$1({ attribute: true })
 ], ProjectButton.prototype, "icon", void 0);
-__decorate$5([
+__decorate$7([
     e$1({ attribute: true, reflect: true })
 ], ProjectButton.prototype, "content", void 0);
-__decorate$5([
+__decorate$7([
     e$1({ attribute: true })
 ], ProjectButton.prototype, "type", void 0);
-ProjectButton = __decorate$5([
+ProjectButton = __decorate$7([
     localized(),
     e$2('project-button')
 ], ProjectButton);
@@ -585,7 +585,7 @@ const t={ATTRIBUTE:1,CHILD:2,PROPERTY:3,BOOLEAN_ATTRIBUTE:4,EVENT:5,ELEMENT:6},e
  */
 const u=(e,s,t)=>{const r=new Map;for(let l=s;l<=t;l++)r.set(e[l],l);return r},c=e(class extends i{constructor(e){if(super(e),e.type!==t.CHILD)throw Error("repeat() can only be used in text expressions")}ht(e,s,t){let r;void 0===t?t=s:void 0!==s&&(r=s);const l=[],o=[];let i=0;for(const s of e)l[i]=r?r(s,i):i,o[i]=t(s,i),i++;return {values:o,keys:l}}render(e,s,t){return this.ht(e,s,t).values}update(s$1,[t,r$1,c]){var d;const a=m(s$1),{values:p$1,keys:v}=this.ht(t,r$1,c);if(!Array.isArray(a))return this.ut=v,p$1;const h=null!==(d=this.ut)&&void 0!==d?d:this.ut=[],m$1=[];let y,x$1,j=0,k=a.length-1,w=0,A=p$1.length-1;for(;j<=k&&w<=A;)if(null===a[j])j++;else if(null===a[k])k--;else if(h[j]===v[w])m$1[w]=u$1(a[j],p$1[w]),j++,w++;else if(h[k]===v[A])m$1[A]=u$1(a[k],p$1[A]),k--,A--;else if(h[j]===v[A])m$1[A]=u$1(a[j],p$1[A]),r(s$1,m$1[A+1],a[j]),j++,A--;else if(h[k]===v[w])m$1[w]=u$1(a[k],p$1[w]),r(s$1,a[j],a[k]),k--,w++;else if(void 0===y&&(y=u(v,w,A),x$1=u(h,j,k)),y.has(h[j]))if(y.has(h[k])){const e=x$1.get(v[w]),t=void 0!==e?a[e]:null;if(null===t){const e=r(s$1,a[j]);u$1(e,p$1[w]),m$1[w]=e;}else m$1[w]=u$1(t,p$1[w]),r(s$1,a[j],t),a[e]=null;w++;}else p(a[k]),k--;else p(a[j]),j++;for(;w<=A;){const e=r(s$1,m$1[A+1]);u$1(e,p$1[w]),m$1[w++]=e;}for(;j<=k;){const e=a[j++];null!==e&&p(e);}return this.ut=v,s(s$1,m$1),x}});
 
-var __decorate$4 = (undefined && undefined.__decorate) || function (decorators, target, key, desc) {
+var __decorate$6 = (undefined && undefined.__decorate) || function (decorators, target, key, desc) {
     var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
     if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
     else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
@@ -667,28 +667,90 @@ let InputButton = class InputButton extends s$1 {
             </div>`;
     }
 };
-__decorate$4([
+__decorate$6([
     e$1({ attribute: true })
 ], InputButton.prototype, "prefix", void 0);
-__decorate$4([
+__decorate$6([
     e$1({ attribute: true })
 ], InputButton.prototype, "label", void 0);
-__decorate$4([
+__decorate$6([
     e$1({ attribute: true, type: Array })
 ], InputButton.prototype, "options", void 0);
-__decorate$4([
+__decorate$6([
     e$1({ attribute: true })
 ], InputButton.prototype, "type", void 0);
-__decorate$4([
+__decorate$6([
     e$1({ attribute: true })
 ], InputButton.prototype, "optional", void 0);
-__decorate$4([
+__decorate$6([
     e$1({ attribute: true })
 ], InputButton.prototype, "placeholder", void 0);
-InputButton = __decorate$4([
+InputButton = __decorate$6([
     localized(),
     e$2('project-input')
 ], InputButton);
+
+var __decorate$5 = (undefined && undefined.__decorate) || function (decorators, target, key, desc) {
+    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+    return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+let ProjectSelect = class ProjectSelect extends s$1 {
+    label = '';
+    selected = '';
+    options = [];
+    values = [];
+    set value(value) {
+        const select = this.querySelector('select');
+        if (select) {
+            select.value = value;
+        }
+    }
+    get value() {
+        const select = this.querySelector('select');
+        return select?.value || '';
+    }
+    constructor() {
+        super();
+    }
+    createRenderRoot() {
+        return this; // prevents creating a shadow root
+    }
+    render() {
+        const options = c(this.options, (item, i) => {
+            if (this.values[i] === this.selected) {
+                return y `<option value="${this.values[i]}" selected>${item}</option>`;
+            }
+            return y `<option value="${this.values[i]}">${item}</option>`;
+        });
+        if (this.label) {
+            return y `<label class="input-label">${this.label}</label
+                ><select class="select">
+                    ${options}
+                </select> `;
+        }
+        return y `<select class="select">
+            ${options}
+        </select> `;
+    }
+};
+__decorate$5([
+    e$1({ attribute: true })
+], ProjectSelect.prototype, "label", void 0);
+__decorate$5([
+    e$1({ attribute: true })
+], ProjectSelect.prototype, "selected", void 0);
+__decorate$5([
+    e$1({ attribute: true, type: Array })
+], ProjectSelect.prototype, "options", void 0);
+__decorate$5([
+    e$1({ attribute: true, type: Array })
+], ProjectSelect.prototype, "values", void 0);
+ProjectSelect = __decorate$5([
+    localized(),
+    e$2('project-select')
+], ProjectSelect);
 
 const navElements = Object.freeze({
     logo: {
@@ -719,14 +781,14 @@ const navElements = Object.freeze({
         {
             name: 'profile',
             icon: '',
-            rows: 2,
+            rows: 1,
             viewable: false,
             isNavFooter: true, // flip or remove all isNavFooter elements to not create any navFooter
         },
     ],
 });
 
-var __decorate$3 = (undefined && undefined.__decorate) || function (decorators, target, key, desc) {
+var __decorate$4 = (undefined && undefined.__decorate) || function (decorators, target, key, desc) {
     var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
     if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
     else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
@@ -768,6 +830,12 @@ let MainNav = class MainNav extends s$1 {
     #renderNavItems() {
         const fallBackFirstTimeUse = navElements.items[0].name;
         const activeView = localStorage.getItem('active-view') || fallBackFirstTimeUse;
+        // Workaround for localized, because it only compiles statically
+        const navStaticElements = Object.freeze({
+            analytics: y `<span>${capitalize(msg('analytics'))}</span>`,
+            dashboard: y `<span>${capitalize(msg('dashboard'))}</span>`,
+            calendar: y `<span>${capitalize(msg('calendar'))}</span>`,
+        });
         return c(navElements.items, (elem) => {
             const classes = activeView === elem.name ? this.#activeClass : '';
             if (!elem.viewable) {
@@ -775,7 +843,7 @@ let MainNav = class MainNav extends s$1 {
             }
             return y `<div @click="${this.#click}" class="nav-element ${classes}" name="${elem.name}">
                 <i class="fa-solid fa-${elem.icon} fa-fw mr-2"></i>
-                <span>${capitalize(elem.name)}</span>
+                ${navStaticElements[elem.name]}
             </div>`;
         });
     }
@@ -785,10 +853,10 @@ let MainNav = class MainNav extends s$1 {
             return;
         }
         return y `<footer class="nav-footer">
-            <img src="./assets/img/fallbacks/avatar.png" />
+            <img src="./assets/img/fallbacks/avatar.png" class="avatar" />
             <div name="profile" isNavFooter="true">
-                <span>User Name</span>
-                <small @click="${this.#click}" class="view-profile">View Profile</small>
+                <span>${msg('Username')}</span>
+                <small @click="${this.#click}" class="view-profile">${msg('View Profile')}</small>
             </div>
         </footer>`;
     }
@@ -805,12 +873,12 @@ let MainNav = class MainNav extends s$1 {
         return y `${navLogoBar}${elements}${bottom}`;
     }
 };
-MainNav = __decorate$3([
+MainNav = __decorate$4([
     localized(),
     e$2('main-nav')
 ], MainNav);
 
-var __decorate$2 = (undefined && undefined.__decorate) || function (decorators, target, key, desc) {
+var __decorate$3 = (undefined && undefined.__decorate) || function (decorators, target, key, desc) {
     var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
     if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
     else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
@@ -831,23 +899,94 @@ let ViewLayout = class ViewLayout extends s$1 {
     }
     render(ROWS = '') {
         const viewData = navElements.items.find(i => i.name === this.name);
-        const name = this.name?.toLocaleUpperCase();
+        // Workaround for localized, because it only compiles statically
+        const hlStaticElements = Object.freeze({
+            analytics: y `<h1 class="view-headline">${capitalize(msg('analytics'))}</h1>`,
+            dashboard: y `<h1 class="view-headline">${capitalize(msg('dashboard'))}</h1>`,
+            calendar: y `<h1 class="view-headline">${capitalize(msg('calendar'))}</h1>`,
+            profile: y `<h1 class="view-headline">${capitalize(msg('profile'))}</h1>`,
+        });
         return y `<div class="view-container">
-            <header>
-                <h1 class="text-xl my-3">${name}</h1>
-            </header>
+            <header>${hlStaticElements[this.name]}</header>
             <div class="view-content grid-cols-${viewData.rows}">${this.#renderRows(viewData, ROWS)}</div>
         </div>`;
     }
 };
-__decorate$2([
+__decorate$3([
     e$1({ attribute: true, reflect: true })
 ], ViewLayout.prototype, "name", void 0);
-ViewLayout = __decorate$2([
+ViewLayout = __decorate$3([
     localized(),
     e$2('view-layout')
 ], ViewLayout);
 var ViewLayout$1 = ViewLayout;
+
+// Do not modify this file by hand!
+// Re-generate this file by running lit-localize.
+/**
+ * The locale code that templates in this source code are written in.
+ */
+const sourceLocale = `en`;
+/**
+ * The other locale codes that this application is localized into. Sorted
+ * lexicographically.
+ */
+const targetLocales = [
+    `de-CH-1901`,
+];
+
+const { getLocale, setLocale } = configureLocalization({
+    sourceLocale,
+    targetLocales,
+    loadLocale: locale => import(`/js/locales/${locale}.js`),
+});
+
+var __decorate$2 = (undefined && undefined.__decorate) || function (decorators, target, key, desc) {
+    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+    return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+let ProfileView = class ProfileView extends ViewLayout$1 {
+    constructor() {
+        super();
+    }
+    // Bootstraping any other lang than english
+    updated() {
+        const lang = localStorage.getItem('lang');
+        if (lang && lang !== 'en') {
+            setLocale(lang);
+        }
+    }
+    createRenderRoot() {
+        return this; // prevents creating a shadow root
+    }
+    #changeEvent({ target: { value } }) {
+        setLocale(value);
+        localStorage.setItem('lang', value);
+    }
+    #renderRows() {
+        const lang = localStorage.getItem('lang');
+        const row1 = y `
+            <project-select
+                @change="${this.#changeEvent}"
+                selected="${lang || 'en'}"
+                label="${capitalize(msg('language'))}"
+                values='["en", "de-CH-1901"]'
+                options='["${msg('English')}", "${msg('German')}"]'
+            ></project-select>
+        `;
+        return [row1];
+    }
+    render() {
+        const rows = this.#renderRows();
+        return super.render(rows);
+    }
+};
+ProfileView = __decorate$2([
+    localized(),
+    e$2('profile-layout')
+], ProfileView);
 
 var __decorate$1 = (undefined && undefined.__decorate) || function (decorators, target, key, desc) {
     var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
@@ -951,6 +1090,13 @@ let AppLayout = class AppLayout extends s$1 {
                             class="view"
                         ></dashboard-layout>`;
             }
+            if (elem.name === 'profile') {
+                return y `<profile-layout
+                            name="${elem.name}"
+                            active="${active}"
+                            class="view"
+                        ></profile-layout>`;
+            }
             return y `<view-layout name="${elem.name}" active="${active}" class="view"></view-layout>`;
         })}
             </main>`;
@@ -960,30 +1106,6 @@ AppLayout = __decorate([
     e$2('app-layout')
 ], AppLayout);
 
-// Do not modify this file by hand!
-// Re-generate this file by running lit-localize.
-/**
- * The locale code that templates in this source code are written in.
- */
-const sourceLocale = `en`;
-/**
- * The other locale codes that this application is localized into. Sorted
- * lexicographically.
- */
-const targetLocales = [
-    `de-CH-1901`,
-];
-
-const { getLocale, setLocale } = configureLocalization({
-    sourceLocale,
-    targetLocales,
-    loadLocale: locale => import(`/js/locales/${locale}.js`),
-});
-
 document.addEventListener('DOMContentLoaded', function () {
-    console.log('v:0.0.1 at: "2022-12-02T20:06:29.624Z" ');
+    console.log('v:0.0.1 at: "2022-12-04T19:26:48.898Z" ');
 });
-setTimeout(function () {
-    console.log('language change');
-    setLocale('de-CH-1901');
-}, 5000);

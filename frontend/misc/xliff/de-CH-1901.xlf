@@ -2,9 +2,41 @@
 <xliff version="1.2" xmlns="urn:oasis:names:tc:xliff:document:1.2">
 <file target-language="de-CH-1901" source-language="en" original="lit-localize-inputs" datatype="plaintext">
 <body>
+<trans-unit id="sbb8f299ccf033beb">
+  <source>analytics</source>
+  <target>analyse</target>
+</trans-unit>
+<trans-unit id="s19dfa8ffb6084e9b">
+  <source>dashboard</source>
+  <target>dashboard</target>
+</trans-unit>
 <trans-unit id="s0a7cf666efcba93f">
   <source>calendar</source>
-  <target>Kalender</target>
+  <target>kalender</target>
+</trans-unit>
+<trans-unit id="s03f42eea72154959">
+  <source>Username</source>
+  <target>Benutzername</target>
+</trans-unit>
+<trans-unit id="s3507acf6d495a60d">
+  <source>View Profile</source>
+  <target>Profil Ansehen</target>
+</trans-unit>
+<trans-unit id="s8add349e618ba10e">
+  <source>profile</source>
+  <target>Profil</target>
+</trans-unit>
+<trans-unit id="sd2fd35287f0a935b">
+  <source>language</source>
+  <target>sprache</target>
+</trans-unit>
+<trans-unit id="s4caed5b7a7e5d89b">
+  <source>English</source>
+  <target>Englisch</target>
+</trans-unit>
+<trans-unit id="s63e71d20d1eaca93">
+  <source>German</source>
+  <target>Deutsch</target>
 </trans-unit>
 <trans-unit id="s13be1af9766661e9">
   <source>Accept</source>

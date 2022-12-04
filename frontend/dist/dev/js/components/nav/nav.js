@@ -8,7 +8,7 @@ import { LitElement, html } from 'lit';
 import { customElement } from 'lit/decorators.js';
 import { repeat } from 'lit/directives/repeat.js';
 import { navElements } from '../../data/nav';
-import { localized } from '@lit/localize';
+import { localized, msg } from '@lit/localize';
 import { capitalize } from '../../utilities/text/text';
 let MainNav = class MainNav extends LitElement {
     #activeClass = 'nav-elem-active';
@@ -46,6 +46,12 @@ let MainNav = class MainNav extends LitElement {
     #renderNavItems() {
         const fallBackFirstTimeUse = navElements.items[0].name;
         const activeView = localStorage.getItem('active-view') || fallBackFirstTimeUse;
+        // Workaround for localized, because it only compiles statically
+        const navStaticElements = Object.freeze({
+            analytics: html `<span>${capitalize(msg('analytics'))}</span>`,
+            dashboard: html `<span>${capitalize(msg('dashboard'))}</span>`,
+            calendar: html `<span>${capitalize(msg('calendar'))}</span>`,
+        });
         return repeat(navElements.items, (elem) => {
             const classes = activeView === elem.name ? this.#activeClass : '';
             if (!elem.viewable) {
@@ -53,7 +59,7 @@ let MainNav = class MainNav extends LitElement {
             }
             return html `<div @click="${this.#click}" class="nav-element ${classes}" name="${elem.name}">
                 <i class="fa-solid fa-${elem.icon} fa-fw mr-2"></i>
-                <span>${capitalize(elem.name)}</span>
+                ${navStaticElements[elem.name]}
             </div>`;
         });
     }
@@ -63,10 +69,10 @@ let MainNav = class MainNav extends LitElement {
             return;
         }
         return html `<footer class="nav-footer">
-            <img src="./assets/img/fallbacks/avatar.png" />
+            <img src="./assets/img/fallbacks/avatar.png" class="avatar" />
             <div name="profile" isNavFooter="true">
-                <span>User Name</span>
-                <small @click="${this.#click}" class="view-profile">View Profile</small>
+                <span>${msg('Username')}</span>
+                <small @click="${this.#click}" class="view-profile">${msg('View Profile')}</small>
             </div>
         </footer>`;
     }

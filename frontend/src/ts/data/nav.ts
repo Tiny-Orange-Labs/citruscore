@@ -2,6 +2,7 @@ export type navData = {
     name: string;
     icon: string;
     rows: number;
+    html?: any;
     viewable: boolean;
     isNavFooter: boolean;
 };
@@ -34,7 +35,7 @@ export const navElements = Object.freeze({
         {
             name: 'profile',
             icon: '',
-            rows: 2,
+            rows: 1,
             viewable: false,
             isNavFooter: true, // flip or remove all isNavFooter elements to not create any navFooter
         },

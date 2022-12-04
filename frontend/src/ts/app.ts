@@ -56,6 +56,13 @@ export default class AppLayout extends LitElement {
                             class="view"
                         ></dashboard-layout>`;
                     }
+                    if (elem.name === 'profile') {
+                        return html`<profile-layout
+                            name="${elem.name}"
+                            active="${active}"
+                            class="view"
+                        ></profile-layout>`;
+                    }
 
                     return html`<view-layout name="${elem.name}" active="${active}" class="view"></view-layout>`;
                 })}

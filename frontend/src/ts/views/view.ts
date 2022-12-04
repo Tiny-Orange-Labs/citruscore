@@ -2,6 +2,7 @@ import { LitElement, html } from 'lit';
 import { customElement, property } from 'lit/decorators.js';
 import { navElements, navData } from '../data/nav';
 import { localized, msg } from '@lit/localize';
+import { capitalize } from '../utilities/text/text';
 
 @localized()
 @customElement('view-layout')
@@ -25,12 +26,16 @@ export default class ViewLayout extends LitElement {
 
     render(ROWS: any = '') {
         const viewData: navData = navElements.items.find(i => i.name === this.name) as navData;
-        const name = this.name?.toLocaleUpperCase();
+        // Workaround for localized, because it only compiles statically
+        const hlStaticElements: { [index: string]: object | undefined } = Object.freeze({
+            analytics: html`<h1 class="view-headline">${capitalize(msg('analytics'))}</h1>`,
+            dashboard: html`<h1 class="view-headline">${capitalize(msg('dashboard'))}</h1>`,
+            calendar: html`<h1 class="view-headline">${capitalize(msg('calendar'))}</h1>`,
+            profile: html`<h1 class="view-headline">${capitalize(msg('profile'))}</h1>`,
+        });
 
         return html`<div class="view-container">
-            <header>
-                <h1 class="text-xl my-3">${name}</h1>
-            </header>
+            <header>${hlStaticElements[this.name]}</header>
             <div class="view-content grid-cols-${viewData.rows}">${this.#renderRows(viewData, ROWS)}</div>
         </div>`;
     }
