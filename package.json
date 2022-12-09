@@ -2,7 +2,9 @@
     "name": "lit-template",
     "version": "0.0.1",
     "scripts": {
-        "build-ts": "tsc --project frontend/tsconfig.json",
+        "build-frontend-ts": "tsc --project frontend/tsconfig.json ",
+        "build-backend-ts": "tsc --project backend/tsconfig.json",
+        "build-ts": "npm run build-frontend-ts && npm run build-backend-ts",
         "build-css": "tailwindcss build -i ./frontend/src/css/main.css -o ./frontend/dist/dev/css/output.css && tailwindcss build -i ./frontend/src/css/main.css -o ./frontend/dist/prod/css/output.css",
         "build-rollup": "rollup -c ./frontend/rollup.config.mjs",
         "build-html": "node _build/build-html.mjs",
@@ -44,6 +46,6 @@
         "rollup": "^3.3.0",
         "rollup-plugin-copy": "^3.4.0",
         "tailwindcss": "^3.2.4",
-        "typescript": "^4.9.3"
+        "typescript": "^4.9.4"
     }
 }
