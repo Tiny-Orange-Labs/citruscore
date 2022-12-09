@@ -2,7 +2,7 @@
     "$schema": "https://raw.githubusercontent.com/lit/lit/main/packages/localize-tools/config.schema.json",
     "sourceLocale": "en",
     "targetLocales": ["de-CH-1901"],
-    "tsConfig": "./tsconfig.json",
+    "tsConfig": "./frontend/tsconfig.json",
     "output": {
         "mode": "runtime",
         "outputDir": "./frontend/src/ts/locales",

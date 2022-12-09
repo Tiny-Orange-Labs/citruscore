@@ -49,6 +49,6 @@ npm run translate-all
 
 ## ToDo
 
-1. bootstrap the whole backend part
-1. prevent people to create more js libs
+1. bootstrap the whole backend parts
 1. E2E tests
+1. prevent people to create more js libs
