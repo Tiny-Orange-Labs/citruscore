@@ -1,7 +1,7 @@
 # Lit Template
 
 The idea of my lit template is to generate a boilerplate that fits my needs. Everything I put into it, is my personal preference.
-This abomination includes typescript, lit, tailwind, fontawesome and maybe more in the near future. Overengineering is the future.
+This abomination includes hapi, graphQL, typescript, lit, lit-localize, tailwind, fontawesome and maybe more in the near future. Overengineering is the future.
 
 ## Building
 
