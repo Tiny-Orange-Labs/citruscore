@@ -1,4 +1,3 @@
-/** @type {import('tailwindcss').Config} */
 module.exports = {
     content: ['./frontend/dist/**/*.{html,js}'],
     presets: [],

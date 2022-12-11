@@ -1,5 +1,5 @@
 import Hapi, { Server } from '@hapi/hapi';
-import host from './staticfiles/app.mjs';
+import host from './staticfiles/app';
 
 const server: Server = Hapi.server({
     port: 3000,

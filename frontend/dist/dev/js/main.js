@@ -754,7 +754,7 @@ ProjectSelect = __decorate$5([
 
 const navElements = Object.freeze({
     logo: {
-        src: 'tailwind.png',
+        src: 'logo.png',
     },
     items: [
         {
@@ -1107,5 +1107,5 @@ AppLayout = __decorate([
 ], AppLayout);
 
 document.addEventListener('DOMContentLoaded', function () {
-    console.log('v:0.0.1 at: "2022-12-09T23:42:47.702Z" ');
+    console.log('v:0.0.1 at: "2022-12-11T21:03:32.913Z" ');
 });

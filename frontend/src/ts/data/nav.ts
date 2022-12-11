@@ -8,7 +8,7 @@ export type navData = {
 };
 export const navElements = Object.freeze({
     logo: {
-        src: 'tailwind.png',
+        src: 'logo.png',
     },
     items: [
         {

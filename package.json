@@ -1,16 +1,15 @@
 {
-    "name": "lit-template",
+    "name": "log",
     "version": "0.0.1",
-    "type": "module",
     "scripts": {
         "build-frontend-ts": "tsc --project frontend/tsconfig.json",
         "rename-js-to-mjs": "find ./backend/dist/ -name \"*.js\" -exec bash -c 'mv \"$1\" \"${1%.js}\".mjs' - '{}' \\;",
         "build-backend-ts": "tsc --project backend/tsconfig.json && npm run rename-js-to-mjs",
         "build-ts": "npm run build-frontend-ts && npm run build-backend-ts",
-        "build-css": "tailwindcss build -i ./frontend/src/css/main.css -o ./frontend/dist/dev/css/output.css && tailwindcss build -i ./frontend/src/css/main.css -o ./frontend/dist/prod/css/output.css",
+        "build-css": "tailwindcss build -c tailwind.config.js -i ./frontend/src/css/main.css -o ./frontend/dist/dev/css/output.css && tailwindcss build -c tailwind.config.js -i ./frontend/src/css/main.css -o ./frontend/dist/prod/css/output.css",
         "build-rollup": "rollup -c ./frontend/rollup.config.mjs",
         "build-html": "node _build/build-html.mjs",
-        "build-all": "npm run build-ts && npm run build-rollup && npm run build-html && npm run build-css",
+        "build-all": "npm run build-frontend-ts && npm run build-rollup && npm run build-html && npm run build-css",
         "watch-css": "tailwindcss -i ./frontend/src/css/main.css -o ./frontend/dist/dev/css/output.css --watch",
         "watch-ts": "tsc --watch",
         "serve": "",
@@ -21,8 +20,9 @@
         "coverage": "open -a \"Google Chrome\" coverage/lcov-report/index.html",
         "live-server-dev": "live-server --no-css-inject ./frontend/dist/dev",
         "live-server-prod": "live-server --port=8081 --no-css-inject ./frontend/dist/prod",
+        "start-server": "node --es-module-specifier-resolution=node backend/dist/app.mjs ",
         "test": "web-test-runner --node-resolve  --coverage  \"./frontend/src/ts/**/test.ts\"",
-        "start": "npm run build-backend-ts && node backend/dist/app.mjs"
+        "start": "npm run build-backend-ts && npm run start-server"
     },
     "repository": {
         "type": "git",
