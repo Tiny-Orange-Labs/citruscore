@@ -1,8 +1,10 @@
 import Hapi from '@hapi/hapi';
+import host from './staticfiles/app';
 const server = Hapi.server({
     port: 3000,
     host: 'localhost',
 });
+await host(server);
 await server.start();
 console.log('Server running on %s', server.info.uri);
 process.on('unhandledRejection', err => {

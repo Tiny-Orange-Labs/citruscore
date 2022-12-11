@@ -1,15 +1,12 @@
-import Hapi, { Server } from '@hapi/hapi';
+import Hapi from '@hapi/hapi';
 import host from './staticfiles/app.mjs';
-
-const server: Server = Hapi.server({
+const server = Hapi.server({
     port: 3000,
     host: 'localhost',
 });
-
 await host(server);
 await server.start();
 console.log('Server running on %s', server.info.uri);
-
 process.on('unhandledRejection', err => {
     console.log(err);
     process.exit(1);
