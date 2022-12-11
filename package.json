@@ -26,7 +26,7 @@
     },
     "repository": {
         "type": "git",
-        "url": "git+https://github.com/oliverjessner/lit-template.git"
+        "url": "git+https://github.com/oliverjessner/log.git"
     },
     "author": "oliver jessner",
     "license": "SEE LICENSE",
