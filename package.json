@@ -40,6 +40,7 @@
         "@rollup/plugin-strip": "^3.0.1",
         "@rollup/plugin-terser": "^0.1.0",
         "@rollup/plugin-typescript": "^9.0.2",
+        "@shoelace-style/shoelace": "^2.0.0-beta.87",
         "@web/dev-server-esbuild": "^0.3.3",
         "@web/test-runner": "^0.15.0",
         "@web/test-runner-playwright": "^0.9.0",
