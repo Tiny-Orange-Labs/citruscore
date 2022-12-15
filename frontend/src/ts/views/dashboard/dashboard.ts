@@ -20,31 +20,17 @@ export default class DashboardView extends ViewLayout {
     }
 
     #renderRows() {
-        const row1 = html`
-            <project-input
-                label="email"
-                placeholder="max.mustermann"
-                options='["@gmail.com","@yahoo.com","@gmx.net"]'
-            ></project-input>
-            <project-input optional="true" prefix="€" label="Preis" options='["USD","YEN","EURO"]'></project-input>
-            <project-button content="${msg('Accept')}" icon="check"></project-button>
-            <project-button
-                @click="${this.#settingsClick}"
-                content="${msg('Settings')}"
-                type="highlight"
-                icon="gear"
-            ></project-button>
-        `;
-        const row2 = html`
-            <project-input
-                label="email"
-                placeholder="max.mustermann"
-                options='["@gmail.com","@yahoo.com","@gmx.net"]'
-            ></project-input>
-            <project-input optional="true" prefix="€" label="Preis" options='["USD","YEN","EURO"]'></project-input>
-            <project-button content="Search" icon="magnifying-glass"></project-button>
-            <project-button content="Setting" type="highlight" icon="gear"></project-button>
-        `;
+        const row1 = html`<sl-button variant="default">Default</sl-button>
+            <sl-button variant="primary">Primary</sl-button>
+            <sl-button variant="success">Success</sl-button>
+            <sl-button variant="neutral">Neutral</sl-button>
+            <sl-button variant="warning">Warning</sl-button>
+            <sl-button variant="danger">Danger</sl-button>`;
+        const row2 = html`<sl-button-group label="Alignment">
+            <sl-button>Left</sl-button>
+            <sl-button>Center</sl-button>
+            <sl-button>Right</sl-button>
+        </sl-button-group>`;
 
         return [row1, row2];
     }

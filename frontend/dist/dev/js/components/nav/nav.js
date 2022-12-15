@@ -58,8 +58,7 @@ let MainNav = class MainNav extends LitElement {
                 return;
             }
             return html `<div @click="${this.#click}" class="nav-element ${classes}" name="${elem.name}">
-                <i class="fa-solid fa-${elem.icon} fa-fw mr-2"></i>
-                ${navStaticElements[elem.name]}
+                <sl-icon name="${elem.icon}"></sl-icon>&nbsp; ${navStaticElements[elem.name]}
             </div>`;
         });
     }
@@ -69,7 +68,7 @@ let MainNav = class MainNav extends LitElement {
             return;
         }
         return html `<footer class="nav-footer">
-            <img src="./assets/img/fallbacks/avatar.png" class="avatar" />
+            <sl-avatar image="./assets/img/fallbacks/avatar.png" label="${msg('Your profile avatar')}"></sl-avatar>
             <div name="profile" isNavFooter="true">
                 <span>${msg('Username')}</span>
                 <small @click="${this.#click}" class="view-profile">${msg('View Profile')}</small>
@@ -77,7 +76,7 @@ let MainNav = class MainNav extends LitElement {
         </footer>`;
     }
     #renderNavLogoBar() {
-        return html `<header class="nav-header">
+        return html `<header class="nav-header mb-4">
             <img class="nav-logo" src="./assets/img/logos/${navElements.logo.src}" />
             <i @click="${this.#clickOnCloseMobile}" class="fa fa-solid fa-times fa-fw close-mobil-nav"></i>
         </header>`;

@@ -14,6 +14,10 @@
   <source>calendar</source>
   <target>kalender</target>
 </trans-unit>
+<trans-unit id="sad172e5427857448">
+  <source>Your profile avatar</source>
+  <target>Dein Profilebild</target>
+</trans-unit>
 <trans-unit id="s03f42eea72154959">
   <source>Username</source>
   <target>Benutzername</target>
@@ -28,23 +32,7 @@
 </trans-unit>
 <trans-unit id="sd2fd35287f0a935b">
   <source>language</source>
-  <target>sprache</target>
-</trans-unit>
-<trans-unit id="s4caed5b7a7e5d89b">
-  <source>English</source>
-  <target>Englisch</target>
-</trans-unit>
-<trans-unit id="s63e71d20d1eaca93">
-  <source>German</source>
-  <target>Deutsch</target>
-</trans-unit>
-<trans-unit id="s13be1af9766661e9">
-  <source>Accept</source>
-  <target>Aktzeptieren</target>
-</trans-unit>
-<trans-unit id="s9d8b8aa2b404c2c8">
-  <source>Settings</source>
-  <target>Einstellungen</target>
+  <target>Sprache</target>
 </trans-unit>
 </body>
 </file>

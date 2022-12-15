@@ -13,21 +13,21 @@ export const navElements = Object.freeze({
     items: [
         {
             name: 'dashboard',
-            icon: 'house',
+            icon: 'house-heart',
             rows: 2,
             viewable: true,
             isNavFooter: false,
         },
         {
             name: 'analytics',
-            icon: 'chart-column',
+            icon: 'bar-chart-line',
             rows: 3,
             viewable: true,
             isNavFooter: false,
         },
         {
             name: 'calendar',
-            icon: 'calendar',
+            icon: 'calendar-day',
             rows: 4,
             viewable: true,
             isNavFooter: false,
