@@ -5,6 +5,8 @@ import { customElement } from 'lit/decorators.js';
 import { msg, localized } from '@lit/localize';
 import { setLocale } from '../../utilities/language/language';
 import { capitalize } from '../../utilities/text/text';
+import { language, languages } from '../../data/langs';
+import { repeat } from 'lit/directives/repeat.js';
 
 @localized()
 @customElement('profile-layout')
@@ -32,16 +34,17 @@ export default class ProfileView extends ViewLayout {
     }
 
     #renderRows() {
-        const lang: string | null = localStorage.getItem('lang');
-        const row1 = html`
-            <project-select
-                @change="${this.#changeEvent}"
-                selected="${lang || 'en'}"
-                label="${capitalize(msg('language'))}"
-                values='["en", "de-CH-1901"]'
-                options='["${msg('English')}", "${msg('German')}"]'
-            ></project-select>
-        `;
+        const lang: string = localStorage.getItem('lang') || languages[0].code;
+
+        const row1 = html`<sl-radio-group
+            @click="${this.#changeEvent}"
+            label="${capitalize(msg('language'))}"
+            value="${lang}"
+        >
+            ${repeat(languages, function ({ name, code }) {
+                return html` <sl-radio-button value="${code}">${name}</sl-radio-button>`;
+            })}
+        </sl-radio-group>`;
         return [row1];
     }
 

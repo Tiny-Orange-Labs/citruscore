@@ -57,7 +57,7 @@
 }
 
 .nav-element {
-    @apply cursor-pointer p-2 m-1 hover:bg-primarylight rounded-md transition ease-in-out duration-100
+    @apply text-lg cursor-pointer p-2 my-1 mx-2 hover:bg-primarylight rounded-md transition ease-in-out duration-100
          dark:hover:bg-primarylight-dark;
 }
 
@@ -70,10 +70,6 @@
     grid-template-columns: auto 1fr;
     @apply bg-primary-third p-4 -m-2 mt-auto grid gap-4
            dark:bg-primary-third-dark;
-}
-
-.avatar {
-    @apply inline-block h-10 w-10 rounded-full ring-2 ring-white;
 }
 
 .view-profile {
@@ -98,8 +94,7 @@
 }
 
 .view-container {
-    @apply h-full p-12 pt-0 flex flex-col
-           md:pt-12;
+    @apply h-full p-12 pt-0 flex flex-col;
 }
 
 .view-content {
@@ -107,29 +102,9 @@
 }
 
 .view-headline {
-    @apply mt-3 mb-3 text-xl;
+    @apply mt-4 mb-4 text-4xl;
 }
 
 .view-row {
     @apply h-full border-dashed border-4 rounded-md;
-}
-
-.normal-button {
-    @apply cursor-pointer inline-flex items-center rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-primarylight focus:ring-offset-2;
-}
-
-.highlight-button {
-    @apply cursor-pointer inline-flex items-center rounded-md border border-transparent bg-primary px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-primarylight focus:outline-none focus:ring-2 focus:ring-primarylight focus:ring-offset-2;
-}
-
-.input-label {
-    @apply block text-sm font-medium text-gray-500;
-}
-
-.input-label-optional {
-    @apply float-right text-gray-500;
-}
-
-.select {
-    @apply block border-gray-300 pl-4 pr-4 focus:border-primary focus:ring-primary rounded-md border-transparent p-2 text-gray-500 sm:text-sm;
 }
