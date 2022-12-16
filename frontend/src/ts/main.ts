@@ -15,10 +15,13 @@ import '@shoelace-style/shoelace/dist/components/radio-group/radio-group.js';
 import '@shoelace-style/shoelace/dist/components/radio-button/radio-button.js';
 import '@shoelace-style/shoelace/dist/components/badge/badge.js';
 import '@shoelace-style/shoelace/dist/components/avatar/avatar.js';
+import '@shoelace-style/shoelace/dist/components/alert/alert.js';
+import '@shoelace-style/shoelace/dist/components/card/card.js';
 import { setBasePath } from '@shoelace-style/shoelace/dist/utilities/base-path.js';
 
 /* log code */
 import './components/nav/nav';
+import './components/graphcard/graphcard';
 import './views/profile/profile';
 import './views/dashboard/dashboard'; /* ToDo: Test view remove */
 import './views/view';

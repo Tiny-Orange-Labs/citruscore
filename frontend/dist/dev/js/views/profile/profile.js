@@ -39,7 +39,7 @@ let ProfileView = class ProfileView extends ViewLayout {
             value="${lang}"
         >
             ${repeat(languages, function ({ name, code }) {
-            return html ` <sl-radio-button value="${code}">${name}</sl-radio-button>`;
+            return html `<sl-radio-button value="${code}">${name}</sl-radio-button>`;
         })}
         </sl-radio-group>`;
         return [row1];

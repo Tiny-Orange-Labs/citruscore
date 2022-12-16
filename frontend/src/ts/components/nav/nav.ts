@@ -48,8 +48,6 @@ export default class MainNav extends LitElement {
     }
 
     #renderNavItems() {
-        const fallBackFirstTimeUse: string = navElements.items[0].name;
-        const activeView: string = localStorage.getItem('active-view') || fallBackFirstTimeUse;
         // Workaround for localized, because it only compiles statically
         const navStaticElements: { [index: string]: object | undefined } = Object.freeze({
             analytics: html`<span>${capitalize(msg('analytics'))}</span>`,
@@ -58,14 +56,12 @@ export default class MainNav extends LitElement {
         });
 
         return repeat(navElements.items, (elem: navData) => {
-            const classes: string = activeView === elem.name ? this.#activeClass : '';
-
             if (!elem.viewable) {
                 return;
             }
 
-            return html`<div @click="${this.#click}" class="nav-element ${classes}" name="${elem.name}">
-                <sl-icon name="${elem.icon}"></sl-icon>&nbsp; ${navStaticElements[elem.name]}
+            return html`<div @click="${this.#click}" class="nav-element nav-element-click" name="${elem.name}">
+                <sl-icon name="${elem.icon}"></sl-icon>&nbsp;&nbsp;${navStaticElements[elem.name]}
             </div>`;
         });
     }
@@ -79,9 +75,11 @@ export default class MainNav extends LitElement {
 
         return html`<footer class="nav-footer">
             <sl-avatar image="./assets/img/fallbacks/avatar.png" label="${msg('Your profile avatar')}"></sl-avatar>
-            <div name="profile" isNavFooter="true">
+            <div isNavFooter="true" name="profile">
                 <span>${msg('Username')}</span>
-                <small @click="${this.#click}" class="view-profile">${msg('View Profile')}</small>
+                <small @click="${this.#click}" class="view-profile nav-element-click" name="profile">
+                    ${msg('View Profile')}
+                </small>
             </div>
         </footer>`;
     }

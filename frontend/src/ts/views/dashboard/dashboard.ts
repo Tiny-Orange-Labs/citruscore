@@ -15,12 +15,17 @@ export default class DashboardView extends ViewLayout {
         return this; // prevents creating a shadow root
     }
 
-    #settingsClick() {
+    setActive() {
+        const gc = this.querySelector('graph-card');
+        gc?.fill();
+
         console.log('settingsclick');
     }
 
     #renderRows() {
-        const row1 = html`<sl-button variant="default">Default</sl-button>
+        const row1 = html`<graph-card></graph-card>
+
+            <sl-button variant="default">Default</sl-button>
             <sl-button variant="primary">Primary</sl-button>
             <sl-button variant="success">Success</sl-button>
             <sl-button variant="neutral">Neutral</sl-button>

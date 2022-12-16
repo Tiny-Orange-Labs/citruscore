@@ -15,6 +15,14 @@ let AppLayout = class AppLayout extends LitElement {
     createRenderRoot() {
         return this; // prevents creating a shadow root
     }
+    bootstrapActiveMenu() {
+        const fallBackFirstTimeUse = navElements.items[0].name;
+        const activeView = localStorage.getItem('active-view') || fallBackFirstTimeUse;
+        const view = this.querySelector(`.nav-element-click[name="${activeView}"]`);
+        if (view) {
+            view.click();
+        }
+    }
     #viewSwitch({ detail: { name } }) {
         const active = this.querySelector('.view[active="true"]');
         const view = this.querySelector(`.view[name="${name}"]`);
@@ -23,6 +31,7 @@ let AppLayout = class AppLayout extends LitElement {
         }
         localStorage.setItem('active-view', name);
         view.setAttribute('active', 'true');
+        view.setActive();
     }
     #clickMobileHamburger() {
         const nav = this.querySelector('.nav');
@@ -30,8 +39,6 @@ let AppLayout = class AppLayout extends LitElement {
         return nav.setAttribute('closed', !closed + '');
     }
     render() {
-        const fallBackFirstTimeUse = navElements.items[0].name;
-        const activeView = localStorage.getItem('active-view') || fallBackFirstTimeUse;
         return html `<main-nav class="nav" closed="true" @viewSwitch="${this.#viewSwitch}"></main-nav>
             <main>
                 <div class="view-header">
@@ -42,22 +49,17 @@ let AppLayout = class AppLayout extends LitElement {
                     ></i>
                 </div>
                 ${repeat(navElements.items, (elem) => {
-            const active = elem.name === activeView;
             if (elem.name === 'dashboard') {
                 return html `<dashboard-layout
                             name="${elem.name}"
-                            active="${active}"
                             class="view"
+                            active="false"
                         ></dashboard-layout>`;
             }
             if (elem.name === 'profile') {
-                return html `<profile-layout
-                            name="${elem.name}"
-                            active="${active}"
-                            class="view"
-                        ></profile-layout>`;
+                return html `<profile-layout name="${elem.name}" class="view" active="false"></profile-layout>`;
             }
-            return html `<view-layout name="${elem.name}" active="${active}" class="view"></view-layout>`;
+            return html `<view-layout name="${elem.name}" class="view" active="false"></view-layout>`;
         })}
             </main>`;
     }

@@ -57,7 +57,7 @@
 }
 
 .nav-element {
-    @apply text-lg cursor-pointer p-2 my-1 mx-2 hover:bg-primarylight rounded-md transition ease-in-out duration-100
+    @apply text-lg cursor-pointer p-2 my-1 mx-2 hover:bg-primarylight rounded-md transition ease-in-out duration-100 flex items-center select-none	
          dark:hover:bg-primarylight-dark;
 }
 
@@ -107,4 +107,8 @@
 
 .view-row {
     @apply h-full border-dashed border-4 rounded-md;
+}
+
+.graph-cards {
+    width: 450px;
 }
