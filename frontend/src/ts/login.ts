@@ -14,4 +14,4 @@ import { setBasePath } from '@shoelace-style/shoelace/dist/utilities/base-path.j
 import './views/login';
 
 // Set the base path to the folder you copied Shoelace's assets to
-setBasePath('/assets/shoelace');
+setBasePath('assets/shoelace');

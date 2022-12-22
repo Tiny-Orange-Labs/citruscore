@@ -2,7 +2,7 @@
 
 ![log logo](frontend/assets/img/logos/logo.png)
 The idea of log is to generate a boilerplate that fits my needs. Everything I put into it, is my personal preference.
-This abomination includes hapi, graphQL, typescript, rollup (and of course rollup plugins), lit, lit-localize, tailwind, shoelace, chartjs, fontawesome and maybe more in the near future. Overengineering is the future.
+This abomination includes hapi, db(?), typescript, rollup (and of course rollup plugins), lit, lit-localize, tailwind, shoelace, chartjs, fontawesome and maybe more in the near future. Overengineering is the future.
 
 ## Install
 

@@ -2,11 +2,27 @@
 <xliff version="1.2" xmlns="urn:oasis:names:tc:xliff:document:1.2">
 <file target-language="de-CH-1901" source-language="en" original="lit-localize-inputs" datatype="plaintext">
 <body>
+<trans-unit id="sebf7bfdc93f34404">
+  <source>Wrong Password or Username</source>
+</trans-unit>
+<trans-unit id="sf0034e5a35beb589">
+  <source>Your Username or Password is wrong</source>
+</trans-unit>
 <trans-unit id="s17d6e088af315c6a">
   <source>Credentials are Empty</source>
+  <target>Zugangsdaten sind Leer</target>
 </trans-unit>
 <trans-unit id="s8c82b2a3a1dd23b1">
   <source>Please fill in Username and Password</source>
+  <target>Bitte gib einen Benutzername und ein Passwort ein</target>
+</trans-unit>
+<trans-unit id="s94a644b5e0880579">
+  <source>username</source>
+  <target>benutzername</target>
+</trans-unit>
+<trans-unit id="s4b1a493507b3a318">
+  <source>password</source>
+  <target>passwort</target>
 </trans-unit>
 <trans-unit id="sbb8f299ccf033beb">
   <source>analytics</source>
@@ -24,21 +40,17 @@
   <source>Your profile avatar</source>
   <target>Dein Profilebild</target>
 </trans-unit>
-<trans-unit id="s03f42eea72154959">
-  <source>Username</source>
-  <target>Benutzername</target>
-</trans-unit>
 <trans-unit id="s3507acf6d495a60d">
   <source>View Profile</source>
   <target>Profil Ansehen</target>
 </trans-unit>
 <trans-unit id="s8add349e618ba10e">
   <source>profile</source>
-  <target>Profil</target>
+  <target>profil</target>
 </trans-unit>
 <trans-unit id="sd2fd35287f0a935b">
   <source>language</source>
-  <target>Sprache</target>
+  <target>sprache</target>
 </trans-unit>
 </body>
 </file>

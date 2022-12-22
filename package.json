@@ -6,7 +6,7 @@
         "rename-js-to-mjs": "find ./backend/dist/ -name \"*.js\" -exec bash -c 'mv \"$1\" \"${1%.js}\".mjs' - '{}' \\;",
         "build-backend-ts": "tsc --project backend/tsconfig.json && npm run rename-js-to-mjs",
         "build-ts": "npm run build-frontend-ts && npm run build-backend-ts",
-        "build-css": "tailwindcss build -c tailwind.config.js -i ./frontend/src/css/app.css -o ./frontend/dist/dev/css/output.css --minify && tailwindcss -i ./frontend/src/css/login.css -o ./frontend/dist/dev/css/login.css --minify",
+        "build-css": "tailwindcss build -c tailwind.config.js -i ./frontend/src/css/app.css -o ./frontend/dist/dev/app/css/output.css --minify && tailwindcss -i ./frontend/src/css/login.css -o ./frontend/dist/dev/app/css/login.css --minify",
         "build-rollup": "rollup -c ./frontend/rollup.config.mjs",
         "build-html": "node _build/build-html.mjs",
         "build-all": "npm run build-css && npm run build-frontend-ts && npm run build-rollup && npm run build-html",
@@ -42,6 +42,9 @@
         "@rollup/plugin-typescript": "^9.0.2",
         "@shoelace-style/shoelace": "^2.0.0-beta.87",
         "@types/bcrypt": "^5.0.0",
+        "@types/hapi": "^18.0.7",
+        "@types/hapi__cookie": "^12.0.1",
+        "@types/hapi__inert": "^5.2.3",
         "@web/dev-server-esbuild": "^0.3.3",
         "@web/test-runner": "^0.15.0",
         "@web/test-runner-playwright": "^0.9.0",
@@ -59,9 +62,10 @@
         "typescript": "^4.9.4"
     },
     "dependencies": {
+        "@hapi/boom": "^10.0.0",
+        "@hapi/cookie": "^12.0.0",
         "@hapi/hapi": "^21.1.0",
         "@hapi/inert": "^7.0.0",
-        "@types/hapi__inert": "^5.2.3",
         "bcrypt": "^5.1.0"
     }
 }

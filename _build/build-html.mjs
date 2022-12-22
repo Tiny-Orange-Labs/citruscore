@@ -32,29 +32,29 @@ const options = [
             patterns,
             dev: true,
         },
-        path: './frontend/dist/dev/index.html',
-        write: './frontend/dist/dev/index.html',
+        path: './frontend/dist/dev/app/index.html',
+        write: './frontend/dist/dev/app/index.html',
     },
     {
         options: {
             patterns,
         },
-        path: './frontend/dist/prod/index.html',
-        write: './frontend/dist/prod/index.html',
+        path: './frontend/dist/prod/app/index.html',
+        write: './frontend/dist/prod/app/index.html',
     },
     {
         options: {
             patterns,
         },
-        path: './frontend/dist/dev/login.html',
-        write: './frontend/dist/dev/login.html',
+        path: './frontend/dist/dev/login/login.html',
+        write: './frontend/dist/dev/login/login.html',
     },
     {
         options: {
             patterns,
         },
-        path: './frontend/dist/prod/login.html',
-        write: './frontend/dist/prod/login.html',
+        path: './frontend/dist/prod/login/login.html',
+        write: './frontend/dist/prod/login/login.html',
     },
 ];
 

@@ -4,6 +4,7 @@ import { customElement } from 'lit/decorators.js';
 import { client } from '../data/misc';
 import toast from '../misc/toast';
 import { localized, msg } from '@lit/localize';
+import { capitalize } from '../utilities/text/text';
 
 @localized()
 @customElement('login-layout')
@@ -17,7 +18,7 @@ export default class LoginLayout extends LitElement {
     }
 
     async #sendRequest(username: string, password: string) {
-        const request = await fetch('/auth', {
+        const request = await fetch('/login', {
             method: 'POST',
             mode: 'cors',
             cache: 'no-cache',
@@ -32,6 +33,10 @@ export default class LoginLayout extends LitElement {
             }),
         });
         const json = await request.json();
+
+        if (!json.auth) {
+            return toast('danger', msg('Wrong Password or Username'), msg('Your Username or Password is wrong'));
+        }
 
         console.log(json);
     }
@@ -57,10 +62,16 @@ export default class LoginLayout extends LitElement {
                     <p>Your Account</p>
                 </div>
 
-                <sl-input id="username" label="Username:" autofocus>
+                <sl-input id="username" label="${capitalize(msg('username'))}:" autofocus>
                     <sl-icon name="person-circle" placeholder="Max Musterman" slot="prefix"></sl-icon>
                 </sl-input>
-                <sl-input id="password" label="Password:" placeholder="*****" type="password" password-toggle>
+                <sl-input
+                    id="password"
+                    label="${capitalize(msg('password'))}:"
+                    placeholder="*****"
+                    type="password"
+                    password-toggle
+                >
                     <sl-icon name="unlock" slot="prefix"></sl-icon>
                 </sl-input>
 

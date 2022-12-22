@@ -76,7 +76,7 @@ export default class MainNav extends LitElement {
         return html`<footer class="nav-footer">
             <sl-avatar image="./assets/img/fallbacks/avatar.png" label="${msg('Your profile avatar')}"></sl-avatar>
             <div isNavFooter="true" name="profile">
-                <span>${msg('Username')}</span>
+                <span>${msg('username').toUpperCase()}</span>
                 <small @click="${this.#click}" class="view-profile nav-element-click" name="profile">
                     ${msg('View Profile')}
                 </small>

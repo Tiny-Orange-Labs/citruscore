@@ -6,16 +6,17 @@ import copy from 'rollup-plugin-copy';
 import css from 'rollup-plugin-css-only';
 import pkg from '../package.json' assert { type: 'json' };
 
-const allHTMLData = './frontend/src/html/*.html';
+const loginHTML = './frontend/src/html/login.html';
+const appHTML = './frontend/src/html/index.html';
 const fontAwesomeTff = './node_modules/@fortawesome/fontawesome-free/webfonts/fa-solid-900.ttf';
 const fontAwesomeWoff2 = './node_modules/@fortawesome/fontawesome-free/webfonts/fa-solid-900.woff2';
 const shoelaceAssets = './node_modules/@shoelace-style/shoelace/dist/assets';
 const outputDir = './frontend/dist/';
 const config = [
     {
-        input: `${outputDir}dev/js/main.js`,
+        input: `${outputDir}dev/app/js/main.js`,
         output: {
-            dir: `${outputDir}dev/js`,
+            dir: `${outputDir}dev/app/js`,
             format: 'esm',
         },
         plugins: [
@@ -35,31 +36,31 @@ const config = [
                 targets: [
                     {
                         src: shoelaceAssets,
-                        dest: './frontend/dist/dev/assets/shoelace',
+                        dest: './frontend/dist/dev/app/assets/shoelace',
                     },
                     {
-                        src: allHTMLData,
-                        dest: './frontend/dist/dev',
+                        src: appHTML,
+                        dest: './frontend/dist/dev/app',
                     },
                     {
                         src: fontAwesomeTff,
-                        dest: './frontend/dist/dev/webfonts',
+                        dest: './frontend/dist/dev/app/webfonts',
                     },
                     {
                         src: fontAwesomeWoff2,
-                        dest: './frontend/dist/dev/webfonts',
+                        dest: './frontend/dist/dev/app/webfonts',
                     },
                     {
                         src: 'frontend/assets/',
-                        dest: 'frontend/dist/dev/',
+                        dest: 'frontend/dist/dev/app',
                     },
                     {
                         src: 'frontend/assets/',
-                        dest: 'frontend/dist/dev/',
+                        dest: 'frontend/dist/dev/app',
                     },
                     {
-                        src: 'frontend/dist/dev/js/bundle.css',
-                        dest: 'frontend/dist/dev/css/',
+                        src: 'frontend/dist/dev/app/js/bundle.css',
+                        dest: 'frontend/dist/dev/app/css/',
                     },
                 ],
                 copyOnce: true,
@@ -69,9 +70,9 @@ const config = [
         ],
     },
     {
-        input: `${outputDir}dev/js/main.js`,
+        input: `${outputDir}dev/app/js/main.js`,
         output: {
-            dir: `${outputDir}prod/js`,
+            dir: `${outputDir}prod/app/js`,
             format: 'iife',
         },
         plugins: [
@@ -79,31 +80,32 @@ const config = [
                 targets: [
                     {
                         src: shoelaceAssets,
-                        dest: './frontend/dist/prod/assets/shoelace',
+                        dest: './frontend/dist/prod/app/assets/shoelace',
                     },
                     {
-                        src: allHTMLData,
-                        dest: './frontend/dist/prod/',
+                        src: appHTML,
+                        dest: './frontend/dist/prod/app/',
                     },
+
                     {
                         src: fontAwesomeTff,
-                        dest: './frontend/dist/prod/webfonts',
+                        dest: './frontend/dist/prod/app/webfonts',
                     },
                     {
                         src: fontAwesomeWoff2,
-                        dest: './frontend/dist/prod/webfonts',
+                        dest: './frontend/dist/prod/app/webfonts',
                     },
                     {
-                        src: './frontend/dist/dev/js/locales/*',
-                        dest: './frontend/dist/prod/js/locales/',
+                        src: './frontend/dist/dev/app/js/locales/*',
+                        dest: './frontend/dist/prod/app/js/locales/',
                     },
                     {
                         src: 'frontend/assets/',
-                        dest: 'frontend/dist/prod/',
+                        dest: 'frontend/dist/prod/app/',
                     },
                     {
-                        src: 'frontend/dist/dev/js/bundle.css',
-                        dest: 'frontend/dist/prod/css/',
+                        src: 'frontend/dist/dev/app/js/bundle.css',
+                        dest: 'frontend/dist/prod/app/css/',
                     },
                 ],
             }),
@@ -113,9 +115,9 @@ const config = [
         ],
     },
     {
-        input: `${outputDir}dev/js/login.js`,
+        input: `${outputDir}dev/app/js/login.js`,
         output: {
-            dir: `${outputDir}dev/js`,
+            dir: `${outputDir}dev/login`,
             format: 'iife',
         },
         plugins: [
@@ -127,17 +129,21 @@ const config = [
             copy({
                 targets: [
                     {
-                        src: 'frontend/dist/dev/js/login.css',
-                        dest: 'frontend/dist/prod/css/',
+                        src: loginHTML,
+                        dest: './frontend/dist/dev/login',
+                    },
+                    {
+                        src: shoelaceAssets,
+                        dest: './frontend/dist/dev/login/assets/shoelace',
                     },
                 ],
             }),
         ],
     },
     {
-        input: `${outputDir}dev/js/login.js`,
+        input: `${outputDir}dev/app/js/login.js`,
         output: {
-            dir: `${outputDir}prod/js`,
+            dir: `${outputDir}prod/login`,
             format: 'iife',
         },
         plugins: [
@@ -151,8 +157,12 @@ const config = [
             copy({
                 targets: [
                     {
-                        src: 'frontend/dist/dev/js/login.css',
-                        dest: 'frontend/dist/prod/css/',
+                        src: loginHTML,
+                        dest: './frontend/dist/prod/login',
+                    },
+                    {
+                        src: shoelaceAssets,
+                        dest: './frontend/dist/prod/login/assets/shoelace',
                     },
                 ],
             }),
