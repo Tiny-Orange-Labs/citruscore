@@ -6,13 +6,13 @@
         "rename-js-to-mjs": "find ./backend/dist/ -name \"*.js\" -exec bash -c 'mv \"$1\" \"${1%.js}\".mjs' - '{}' \\;",
         "build-backend-ts": "tsc --project backend/tsconfig.json && npm run rename-js-to-mjs",
         "build-ts": "npm run build-frontend-ts && npm run build-backend-ts",
-        "build-css": "tailwindcss build -c tailwind.config.js -i ./frontend/src/css/main.css -o ./frontend/dist/dev/css/output.css --minify",
+        "build-css": "tailwindcss build -c tailwind.config.js -i ./frontend/src/css/app.css -o ./frontend/dist/dev/css/output.css --minify && tailwindcss -i ./frontend/src/css/login.css -o ./frontend/dist/dev/css/login.css --minify",
         "build-rollup": "rollup -c ./frontend/rollup.config.mjs",
         "build-html": "node _build/build-html.mjs",
         "build-all": "npm run build-css && npm run build-frontend-ts && npm run build-rollup && npm run build-html",
-        "watch-css": "tailwindcss -i ./frontend/src/css/main.css -o ./frontend/dist/dev/css/output.css --watch",
+        "watch-css": "tailwindcss -i ./frontend/src/css/app.css -o ./frontend/dist/dev/css/output.css --watch && tailwindcss -i ./frontend/src/css/login.css -o ./frontend/dist/dev/css/login.css --watch",
         "watch-ts": "tsc --watch",
-        "serve": "",
+        "serve": "nodemon --es-module-specifier-resolution=node backend/dist/app.mjs",
         "translate-extract": "lit-localize extract",
         "translate-build": "lit-localize build",
         "translate-all": "npm run translate-extract && npm run translate-build",
@@ -20,7 +20,7 @@
         "coverage": "open -a \"Google Chrome\" coverage/lcov-report/index.html",
         "live-server-dev": "live-server --no-css-inject ./frontend/dist/dev",
         "live-server-prod": "live-server --port=8081 --no-css-inject ./frontend/dist/prod",
-        "start-server": "node --es-module-specifier-resolution=node backend/dist/app.mjs ",
+        "start-server": "node --es-module-specifier-resolution=node backend/dist/app.mjs",
         "test": "web-test-runner --node-resolve  --coverage  \"./frontend/src/ts/**/test.ts\"",
         "start": "npm run build-backend-ts && npm run start-server"
     },
@@ -41,6 +41,7 @@
         "@rollup/plugin-terser": "^0.1.0",
         "@rollup/plugin-typescript": "^9.0.2",
         "@shoelace-style/shoelace": "^2.0.0-beta.87",
+        "@types/bcrypt": "^5.0.0",
         "@web/dev-server-esbuild": "^0.3.3",
         "@web/test-runner": "^0.15.0",
         "@web/test-runner-playwright": "^0.9.0",
@@ -49,6 +50,7 @@
         "chart.js": "^4.0.1",
         "html-minifier": "^4.0.0",
         "lit": "^2.4.1",
+        "nodemon": "^2.0.20",
         "rollup": "^3.3.0",
         "rollup-plugin-copy": "^3.4.0",
         "rollup-plugin-css-only": "^4.3.0",
@@ -59,6 +61,7 @@
     "dependencies": {
         "@hapi/hapi": "^21.1.0",
         "@hapi/inert": "^7.0.0",
-        "@types/hapi__inert": "^5.2.3"
+        "@types/hapi__inert": "^5.2.3",
+        "bcrypt": "^5.1.0"
     }
 }

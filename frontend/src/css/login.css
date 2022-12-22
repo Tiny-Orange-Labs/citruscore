@@ -1,0 +1,17 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+.login {
+    @apply grid w-screen h-screen text-white;
+}
+
+@media (min-width: 768px) {
+    login-layout {
+        grid-template-columns: 0px 1fr;
+    }
+}
+
+login-layout {
+    grid-template-columns: 2fr 1fr;
+}

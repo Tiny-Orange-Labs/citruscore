@@ -20320,6 +20320,7 @@ let ProfileView = class ProfileView extends ViewLayout$1 {
     #changeEvent({ target: { value } }) {
         setLocale(value);
         localStorage.setItem('lang', value);
+        document.querySelector('html')?.setAttribute('lang', value);
     }
     #renderRows() {
         const lang = localStorage.getItem('lang') || languages[0].code;
@@ -20457,7 +20458,7 @@ AppLayout = __decorate([
 document.addEventListener('DOMContentLoaded', function () {
     const app = document.querySelector('app-layout');
     app.bootstrapActiveMenu();
-    console.log('v:0.0.1 at: "2022-12-15T16:16:20.604Z" ');
+    console.log('v:0.0.1 at: "2022-12-22T11:21:45.244Z" ');
 });
 
 /* CSS */

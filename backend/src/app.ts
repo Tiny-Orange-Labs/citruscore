@@ -8,7 +8,7 @@ const server: Server = Hapi.server({
 
 await host(server);
 await server.start();
-console.log('Server running on %s', server.info.uri);
+console.log('server running on %s', server.info.uri);
 
 process.on('unhandledRejection', err => {
     console.log(err);

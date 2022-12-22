@@ -112,6 +112,52 @@ const config = [
             strip(),
         ],
     },
+    {
+        input: `${outputDir}dev/js/login.js`,
+        output: {
+            dir: `${outputDir}dev/js`,
+            format: 'iife',
+        },
+        plugins: [
+            resolve(),
+            css({
+                // no absolute or relative paths allowed (bruh)
+                output: 'login.css',
+            }),
+            copy({
+                targets: [
+                    {
+                        src: 'frontend/dist/dev/js/login.css',
+                        dest: 'frontend/dist/prod/css/',
+                    },
+                ],
+            }),
+        ],
+    },
+    {
+        input: `${outputDir}dev/js/login.js`,
+        output: {
+            dir: `${outputDir}prod/js`,
+            format: 'iife',
+        },
+        plugins: [
+            resolve(),
+            css({
+                // no absolute or relative paths allowed (bruh)
+                output: 'login.css',
+            }),
+            terser(),
+            strip(),
+            copy({
+                targets: [
+                    {
+                        src: 'frontend/dist/dev/js/login.css',
+                        dest: 'frontend/dist/prod/css/',
+                    },
+                ],
+            }),
+        ],
+    },
 ];
 
 export default config;

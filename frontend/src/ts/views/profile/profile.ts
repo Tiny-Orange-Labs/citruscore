@@ -31,6 +31,7 @@ export default class ProfileView extends ViewLayout {
     #changeEvent({ target: { value } }: { target: { value: string } }) {
         setLocale(value);
         localStorage.setItem('lang', value);
+        document.querySelector('html')?.setAttribute('lang', value);
     }
 
     #renderRows() {

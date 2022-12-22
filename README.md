@@ -4,6 +4,20 @@
 The idea of log is to generate a boilerplate that fits my needs. Everything I put into it, is my personal preference.
 This abomination includes hapi, graphQL, typescript, rollup (and of course rollup plugins), lit, lit-localize, tailwind, shoelace, chartjs, fontawesome and maybe more in the near future. Overengineering is the future.
 
+## Install
+
+You need the following things on your pc
+
+-   [Node v18+](https://nodejs.org/en/)
+
+```bash
+npm install -g live-server
+```
+
+```bash
+npm install
+```
+
 ## Building
 
 happens in multiple stages and can be split up to its indiviual parts.

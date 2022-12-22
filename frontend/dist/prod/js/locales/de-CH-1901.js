@@ -11,4 +11,6 @@ export const templates = {
     'sad172e5427857448': `Dein Profilebild`,
     'sbb8f299ccf033beb': `analyse`,
     'sd2fd35287f0a935b': `Sprache`,
+    's17d6e088af315c6a': `Credentials are Empty`,
+    's8c82b2a3a1dd23b1': `Please fill in Username and Password`,
 };

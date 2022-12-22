@@ -42,6 +42,20 @@ const options = [
         path: './frontend/dist/prod/index.html',
         write: './frontend/dist/prod/index.html',
     },
+    {
+        options: {
+            patterns,
+        },
+        path: './frontend/dist/dev/login.html',
+        write: './frontend/dist/dev/login.html',
+    },
+    {
+        options: {
+            patterns,
+        },
+        path: './frontend/dist/prod/login.html',
+        write: './frontend/dist/prod/login.html',
+    },
 ];
 
 options.forEach(function ({ options, path, write }) {

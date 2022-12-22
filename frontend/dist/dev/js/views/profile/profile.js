@@ -30,6 +30,7 @@ let ProfileView = class ProfileView extends ViewLayout {
     #changeEvent({ target: { value } }) {
         setLocale(value);
         localStorage.setItem('lang', value);
+        document.querySelector('html')?.setAttribute('lang', value);
     }
     #renderRows() {
         const lang = localStorage.getItem('lang') || languages[0].code;

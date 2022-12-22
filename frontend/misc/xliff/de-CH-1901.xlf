@@ -2,6 +2,12 @@
 <xliff version="1.2" xmlns="urn:oasis:names:tc:xliff:document:1.2">
 <file target-language="de-CH-1901" source-language="en" original="lit-localize-inputs" datatype="plaintext">
 <body>
+<trans-unit id="s17d6e088af315c6a">
+  <source>Credentials are Empty</source>
+</trans-unit>
+<trans-unit id="s8c82b2a3a1dd23b1">
+  <source>Please fill in Username and Password</source>
+</trans-unit>
 <trans-unit id="sbb8f299ccf033beb">
   <source>analytics</source>
   <target>analyse</target>
@@ -14,10 +20,6 @@
   <source>calendar</source>
   <target>kalender</target>
 </trans-unit>
-<trans-unit id="s8add349e618ba10e">
-  <source>profile</source>
-  <target>Profil</target>
-</trans-unit>
 <trans-unit id="sad172e5427857448">
   <source>Your profile avatar</source>
   <target>Dein Profilebild</target>
@@ -29,6 +31,10 @@
 <trans-unit id="s3507acf6d495a60d">
   <source>View Profile</source>
   <target>Profil Ansehen</target>
+</trans-unit>
+<trans-unit id="s8add349e618ba10e">
+  <source>profile</source>
+  <target>Profil</target>
 </trans-unit>
 <trans-unit id="sd2fd35287f0a935b">
   <source>language</source>

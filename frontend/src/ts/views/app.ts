@@ -1,9 +1,8 @@
 import { LitElement, html } from 'lit';
-import { unsafeHTML } from 'lit/directives/unsafe-html.js';
 import { customElement } from 'lit/decorators.js';
-import { navElements, navData } from './data/nav';
+import { navElements, navData } from '../data/nav';
 import { repeat } from 'lit/directives/repeat.js';
-import ViewLayout from './views/view';
+import ViewLayout from './view';
 
 @customElement('app-layout')
 export default class AppLayout extends LitElement {

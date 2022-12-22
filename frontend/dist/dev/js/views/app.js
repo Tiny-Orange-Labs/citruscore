@@ -6,7 +6,7 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 };
 import { LitElement, html } from 'lit';
 import { customElement } from 'lit/decorators.js';
-import { navElements } from './data/nav';
+import { navElements } from '../data/nav';
 import { repeat } from 'lit/directives/repeat.js';
 let AppLayout = class AppLayout extends LitElement {
     constructor() {
