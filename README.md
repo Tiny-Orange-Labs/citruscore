@@ -1,8 +1,19 @@
 # log
 
 ![log logo](frontend/assets/img/logos/logo.png)
-The idea of log is to generate a boilerplate that fits my needs. Everything I put into it, is my personal preference.
-This abomination includes hapi, db(?), typescript, rollup (and of course rollup plugins), lit, lit-localize, tailwind, shoelace, chartjs, fontawesome and maybe more in the near future. Overengineering is the future.
+
+I build the same stuff over and over again:
+
+-   translation
+-   login
+-   auth
+-   db
+-   settings
+-   design systems
+-   building systems
+
+thats pretty boring so I am creating this gigantic overengineering boilerplate.
+This abomination includes hapi, db(? not sure yet), typescript, rollup (and of course rollup plugins), lit, lit-localize, tailwind, shoelace, chartjs, fontawesome and maybe more in the near future.
 
 ## Install
 
@@ -18,21 +29,58 @@ npm install -g live-server
 npm install
 ```
 
-## Building
+## Translate
 
-happens in multiple stages and can be split up to its indiviual parts.
-This is the order it executes the different builds:
+You can find an xlf file in `frontend/misc/xliff` currently translated in english and german.
 
-1. npm run build-ts
-1. npm run build-rollup
-1. npm run build-html
-1. npm run build-css
+### Add new word to the translation
 
-if you want to build everything:
+Just pass strings to the `msg` method and us the `localized` decorator.
+
+```javascript
+import { localized, msg } from '@lit/localize';
+
+@localized()
+@customElement('login-layout')
+export default class LoginLayout extends LitElement {
+    rendern() {
+        return msg('hello');
+    }
+}
+```
+
+Then run:
 
 ```bash
-npm run build-all
+npm run translate-extract
 ```
+
+after the extract the xlf file in `frontend/misc/xliff` has new entries:
+
+```xml
+  <source>hello</source>
+```
+
+You need to add the translation like this:
+
+```xml
+  <source>hello</source>
+  <target>hallo</target>
+```
+
+to generate the files which get load from the server you need to run
+the following command after translating:
+
+```bash
+npm run translate-build
+```
+
+Check out the new generated files in `frontend/src/ts/lang.ts`.
+
+Note:
+
+> You can run both `npm run extract` and `npm run build` via `npm run translate-all`
+> Running `npm run generate` also triggers translate-all
 
 ## Tests
 
