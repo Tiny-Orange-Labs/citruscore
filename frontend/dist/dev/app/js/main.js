@@ -1,11 +1,11 @@
 // node_modules/@lit/reactive-element/css-tag.js
-var t$5 = window;
-var e$9 = t$5.ShadowRoot && (void 0 === t$5.ShadyCSS || t$5.ShadyCSS.nativeShadow) && "adoptedStyleSheets" in Document.prototype && "replace" in CSSStyleSheet.prototype;
-var s$7 = Symbol();
-var n$7 = /* @__PURE__ */ new WeakMap();
+var t$6 = window;
+var e$9 = t$6.ShadowRoot && (void 0 === t$6.ShadyCSS || t$6.ShadyCSS.nativeShadow) && "adoptedStyleSheets" in Document.prototype && "replace" in CSSStyleSheet.prototype;
+var s$8 = Symbol();
+var n$8 = /* @__PURE__ */ new WeakMap();
 var o$7 = class o {
   constructor(t3, e4, n5) {
-    if (this._$cssResult$ = true, n5 !== s$7)
+    if (this._$cssResult$ = true, n5 !== s$8)
       throw Error("CSSResult is not constructable. Use `unsafeCSS` or `css` instead.");
     this.cssText = t3, this.t = e4;
   }
@@ -14,7 +14,7 @@ var o$7 = class o {
     const s5 = this.t;
     if (e$9 && void 0 === t3) {
       const e4 = void 0 !== s5 && 1 === s5.length;
-      e4 && (t3 = n$7.get(s5)), void 0 === t3 && ((this.o = t3 = new CSSStyleSheet()).replaceSync(this.cssText), e4 && n$7.set(s5, t3));
+      e4 && (t3 = n$8.get(s5)), void 0 === t3 && ((this.o = t3 = new CSSStyleSheet()).replaceSync(this.cssText), e4 && n$8.set(s5, t3));
     }
     return t3;
   }
@@ -22,7 +22,7 @@ var o$7 = class o {
     return this.cssText;
   }
 };
-var r$4 = (t3) => new o$7("string" == typeof t3 ? t3 : t3 + "", void 0, s$7);
+var r$5 = (t3) => new o$7("string" == typeof t3 ? t3 : t3 + "", void 0, s$8);
 var i$6 = (t3, ...e4) => {
   const n5 = 1 === t3.length ? t3[0] : e4.reduce((e5, s5, n6) => e5 + ((t4) => {
     if (true === t4._$cssResult$)
@@ -31,31 +31,31 @@ var i$6 = (t3, ...e4) => {
       return t4;
     throw Error("Value passed to 'css' function must be a 'css' function result: " + t4 + ". Use 'unsafeCSS' to pass non-literal values, but take care to ensure page security.");
   })(s5) + t3[n6 + 1], t3[0]);
-  return new o$7(n5, t3, s$7);
+  return new o$7(n5, t3, s$8);
 };
 var S$2 = (s5, n5) => {
   e$9 ? s5.adoptedStyleSheets = n5.map((t3) => t3 instanceof CSSStyleSheet ? t3 : t3.styleSheet) : n5.forEach((e4) => {
-    const n6 = document.createElement("style"), o5 = t$5.litNonce;
+    const n6 = document.createElement("style"), o5 = t$6.litNonce;
     void 0 !== o5 && n6.setAttribute("nonce", o5), n6.textContent = e4.cssText, s5.appendChild(n6);
   });
 };
-var c$4 = e$9 ? (t3) => t3 : (t3) => t3 instanceof CSSStyleSheet ? ((t4) => {
+var c$5 = e$9 ? (t3) => t3 : (t3) => t3 instanceof CSSStyleSheet ? ((t4) => {
   let e4 = "";
   for (const s5 of t4.cssRules)
     e4 += s5.cssText;
-  return r$4(e4);
+  return r$5(e4);
 })(t3) : t3;
 
 // node_modules/@lit/reactive-element/reactive-element.js
-var s2;
+var s2$1;
 var e2$2 = window;
-var r2 = e2$2.trustedTypes;
-var h$2 = r2 ? r2.emptyScript : "";
-var o2$1 = e2$2.reactiveElementPolyfillSupport;
-var n2 = { toAttribute(t3, i3) {
+var r2$1 = e2$2.trustedTypes;
+var h$3 = r2$1 ? r2$1.emptyScript : "";
+var o2$2 = e2$2.reactiveElementPolyfillSupport;
+var n2$1 = { toAttribute(t3, i3) {
   switch (i3) {
     case Boolean:
-      t3 = t3 ? h$2 : null;
+      t3 = t3 ? h$3 : null;
       break;
     case Object:
     case Array:
@@ -81,9 +81,9 @@ var n2 = { toAttribute(t3, i3) {
   }
   return s5;
 } };
-var a$3 = (t3, i3) => i3 !== t3 && (i3 == i3 || t3 == t3);
-var l$6 = { attribute: true, type: String, converter: n2, reflect: false, hasChanged: a$3 };
-var d$2 = class d extends HTMLElement {
+var a$4 = (t3, i3) => i3 !== t3 && (i3 == i3 || t3 == t3);
+var l$7 = { attribute: true, type: String, converter: n2$1, reflect: false, hasChanged: a$4 };
+var d$3 = class d extends HTMLElement {
   constructor() {
     super(), this._$Ei = /* @__PURE__ */ new Map(), this.isUpdatePending = false, this.hasUpdated = false, this._$El = null, this.u();
   }
@@ -99,7 +99,7 @@ var d$2 = class d extends HTMLElement {
       void 0 !== e4 && (this._$Ev.set(e4, s5), t3.push(e4));
     }), t3;
   }
-  static createProperty(t3, i3 = l$6) {
+  static createProperty(t3, i3 = l$7) {
     if (i3.state && (i3.attribute = false), this.finalize(), this.elementProperties.set(t3, i3), !i3.noAccessor && !this.prototype.hasOwnProperty(t3)) {
       const s5 = "symbol" == typeof t3 ? Symbol() : "__" + t3, e4 = this.getPropertyDescriptor(t3, s5, i3);
       void 0 !== e4 && Object.defineProperty(this.prototype, t3, e4);
@@ -114,7 +114,7 @@ var d$2 = class d extends HTMLElement {
     }, configurable: true, enumerable: true };
   }
   static getPropertyOptions(t3) {
-    return this.elementProperties.get(t3) || l$6;
+    return this.elementProperties.get(t3) || l$7;
   }
   static finalize() {
     if (this.hasOwnProperty("finalized"))
@@ -133,9 +133,9 @@ var d$2 = class d extends HTMLElement {
     if (Array.isArray(i3)) {
       const e4 = new Set(i3.flat(1 / 0).reverse());
       for (const i4 of e4)
-        s5.unshift(c$4(i4));
+        s5.unshift(c$5(i4));
     } else
-      void 0 !== i3 && s5.push(c$4(i3));
+      void 0 !== i3 && s5.push(c$5(i3));
     return s5;
   }
   static _$Ep(t3, i3) {
@@ -183,11 +183,11 @@ var d$2 = class d extends HTMLElement {
   attributeChangedCallback(t3, i3, s5) {
     this._$AK(t3, s5);
   }
-  _$EO(t3, i3, s5 = l$6) {
+  _$EO(t3, i3, s5 = l$7) {
     var e4;
     const r4 = this.constructor._$Ep(t3, s5);
     if (void 0 !== r4 && true === s5.reflect) {
-      const h3 = (void 0 !== (null === (e4 = s5.converter) || void 0 === e4 ? void 0 : e4.toAttribute) ? s5.converter : n2).toAttribute(i3, s5.type);
+      const h3 = (void 0 !== (null === (e4 = s5.converter) || void 0 === e4 ? void 0 : e4.toAttribute) ? s5.converter : n2$1).toAttribute(i3, s5.type);
       this._$El = t3, null == h3 ? this.removeAttribute(r4) : this.setAttribute(r4, h3), this._$El = null;
     }
   }
@@ -195,13 +195,13 @@ var d$2 = class d extends HTMLElement {
     var s5;
     const e4 = this.constructor, r4 = e4._$Ev.get(t3);
     if (void 0 !== r4 && this._$El !== r4) {
-      const t4 = e4.getPropertyOptions(r4), h3 = "function" == typeof t4.converter ? { fromAttribute: t4.converter } : void 0 !== (null === (s5 = t4.converter) || void 0 === s5 ? void 0 : s5.fromAttribute) ? t4.converter : n2;
+      const t4 = e4.getPropertyOptions(r4), h3 = "function" == typeof t4.converter ? { fromAttribute: t4.converter } : void 0 !== (null === (s5 = t4.converter) || void 0 === s5 ? void 0 : s5.fromAttribute) ? t4.converter : n2$1;
       this._$El = r4, this[r4] = h3.fromAttribute(i3, t4.type), this._$El = null;
     }
   }
   requestUpdate(t3, i3, s5) {
     let e4 = true;
-    void 0 !== t3 && (((s5 = s5 || this.constructor.getPropertyOptions(t3)).hasChanged || a$3)(this[t3], i3) ? (this._$AL.has(t3) || this._$AL.set(t3, i3), true === s5.reflect && this._$El !== t3 && (void 0 === this._$EC && (this._$EC = /* @__PURE__ */ new Map()), this._$EC.set(t3, s5))) : e4 = false), !this.isUpdatePending && e4 && (this._$E_ = this._$Ej());
+    void 0 !== t3 && (((s5 = s5 || this.constructor.getPropertyOptions(t3)).hasChanged || a$4)(this[t3], i3) ? (this._$AL.has(t3) || this._$AL.set(t3, i3), true === s5.reflect && this._$El !== t3 && (void 0 === this._$EC && (this._$EC = /* @__PURE__ */ new Map()), this._$EC.set(t3, s5))) : e4 = false), !this.isUpdatePending && e4 && (this._$E_ = this._$Ej());
   }
   async _$Ej() {
     this.isUpdatePending = true;
@@ -262,38 +262,38 @@ var d$2 = class d extends HTMLElement {
   firstUpdated(t3) {
   }
 };
-d$2.finalized = true, d$2.elementProperties = /* @__PURE__ */ new Map(), d$2.elementStyles = [], d$2.shadowRootOptions = { mode: "open" }, null == o2$1 || o2$1({ ReactiveElement: d$2 }), (null !== (s2 = e2$2.reactiveElementVersions) && void 0 !== s2 ? s2 : e2$2.reactiveElementVersions = []).push("1.4.2");
+d$3.finalized = true, d$3.elementProperties = /* @__PURE__ */ new Map(), d$3.elementStyles = [], d$3.shadowRootOptions = { mode: "open" }, null == o2$2 || o2$2({ ReactiveElement: d$3 }), (null !== (s2$1 = e2$2.reactiveElementVersions) && void 0 !== s2$1 ? s2$1 : e2$2.reactiveElementVersions = []).push("1.4.2");
 
 // node_modules/lit-html/lit-html.js
 var t2;
-var i2$2 = window;
-var s3 = i2$2.trustedTypes;
-var e3 = s3 ? s3.createPolicy("lit-html", { createHTML: (t3) => t3 }) : void 0;
-var o3 = `lit$${(Math.random() + "").slice(9)}$`;
-var n3 = "?" + o3;
-var l2$1 = `<${n3}>`;
-var h2$1 = document;
-var r3 = (t3 = "") => h2$1.createComment(t3);
-var d2 = (t3) => null === t3 || "object" != typeof t3 && "function" != typeof t3;
-var u$3 = Array.isArray;
-var c2 = (t3) => u$3(t3) || "function" == typeof (null == t3 ? void 0 : t3[Symbol.iterator]);
+var i2$3 = window;
+var s3 = i2$3.trustedTypes;
+var e3$1 = s3 ? s3.createPolicy("lit-html", { createHTML: (t3) => t3 }) : void 0;
+var o3$1 = `lit$${(Math.random() + "").slice(9)}$`;
+var n3 = "?" + o3$1;
+var l2$2 = `<${n3}>`;
+var h2$2 = document;
+var r3 = (t3 = "") => h2$2.createComment(t3);
+var d2$1 = (t3) => null === t3 || "object" != typeof t3 && "function" != typeof t3;
+var u$4 = Array.isArray;
+var c2$1 = (t3) => u$4(t3) || "function" == typeof (null == t3 ? void 0 : t3[Symbol.iterator]);
 var v$1 = /<(?:(!--|\/[^a-zA-Z])|(\/?[a-zA-Z][^>\s]*)|(\/?$))/g;
-var a2 = /-->/g;
-var f$3 = />/g;
+var a2$1 = /-->/g;
+var f$4 = />/g;
 var _$1 = RegExp(`>|[ 	
 \f\r](?:([^\\s"'>=/]+)([ 	
 \f\r]*=[ 	
 \f\r]*(?:[^ 	
 \f\r"'\`<>=]|("|')|))|$)`, "g");
-var m$2 = /'/g;
-var p$2 = /"/g;
+var m$3 = /'/g;
+var p$3 = /"/g;
 var $$1 = /^(?:script|style|textarea|title)$/i;
-var g$1 = (t3) => (i3, ...s5) => ({ _$litType$: t3, strings: i3, values: s5 });
-var y$1 = g$1(1);
-var x$1 = Symbol.for("lit-noChange");
-var b$1 = Symbol.for("lit-nothing");
-var T$1 = /* @__PURE__ */ new WeakMap();
-var A$1 = h2$1.createTreeWalker(h2$1, 129, null, false);
+var g$2 = (t3) => (i3, ...s5) => ({ _$litType$: t3, strings: i3, values: s5 });
+var y$1 = g$2(1);
+var x$2 = Symbol.for("lit-noChange");
+var b$2 = Symbol.for("lit-nothing");
+var T$2 = /* @__PURE__ */ new WeakMap();
+var A$2 = h2$2.createTreeWalker(h2$2, 129, null, false);
 var E$1 = (t3, i3) => {
   const s5 = t3.length - 1, n5 = [];
   let h3, r4 = 2 === i3 ? "<svg>" : "", d3 = v$1;
@@ -301,35 +301,35 @@ var E$1 = (t3, i3) => {
     const s6 = t3[i4];
     let e4, u3, c3 = -1, g2 = 0;
     for (; g2 < s6.length && (d3.lastIndex = g2, u3 = d3.exec(s6), null !== u3); )
-      g2 = d3.lastIndex, d3 === v$1 ? "!--" === u3[1] ? d3 = a2 : void 0 !== u3[1] ? d3 = f$3 : void 0 !== u3[2] ? ($$1.test(u3[2]) && (h3 = RegExp("</" + u3[2], "g")), d3 = _$1) : void 0 !== u3[3] && (d3 = _$1) : d3 === _$1 ? ">" === u3[0] ? (d3 = null != h3 ? h3 : v$1, c3 = -1) : void 0 === u3[1] ? c3 = -2 : (c3 = d3.lastIndex - u3[2].length, e4 = u3[1], d3 = void 0 === u3[3] ? _$1 : '"' === u3[3] ? p$2 : m$2) : d3 === p$2 || d3 === m$2 ? d3 = _$1 : d3 === a2 || d3 === f$3 ? d3 = v$1 : (d3 = _$1, h3 = void 0);
+      g2 = d3.lastIndex, d3 === v$1 ? "!--" === u3[1] ? d3 = a2$1 : void 0 !== u3[1] ? d3 = f$4 : void 0 !== u3[2] ? ($$1.test(u3[2]) && (h3 = RegExp("</" + u3[2], "g")), d3 = _$1) : void 0 !== u3[3] && (d3 = _$1) : d3 === _$1 ? ">" === u3[0] ? (d3 = null != h3 ? h3 : v$1, c3 = -1) : void 0 === u3[1] ? c3 = -2 : (c3 = d3.lastIndex - u3[2].length, e4 = u3[1], d3 = void 0 === u3[3] ? _$1 : '"' === u3[3] ? p$3 : m$3) : d3 === p$3 || d3 === m$3 ? d3 = _$1 : d3 === a2$1 || d3 === f$4 ? d3 = v$1 : (d3 = _$1, h3 = void 0);
     const y2 = d3 === _$1 && t3[i4 + 1].startsWith("/>") ? " " : "";
-    r4 += d3 === v$1 ? s6 + l2$1 : c3 >= 0 ? (n5.push(e4), s6.slice(0, c3) + "$lit$" + s6.slice(c3) + o3 + y2) : s6 + o3 + (-2 === c3 ? (n5.push(void 0), i4) : y2);
+    r4 += d3 === v$1 ? s6 + l2$2 : c3 >= 0 ? (n5.push(e4), s6.slice(0, c3) + "$lit$" + s6.slice(c3) + o3$1 + y2) : s6 + o3$1 + (-2 === c3 ? (n5.push(void 0), i4) : y2);
   }
   const u2 = r4 + (t3[s5] || "<?>") + (2 === i3 ? "</svg>" : "");
   if (!Array.isArray(t3) || !t3.hasOwnProperty("raw"))
     throw Error("invalid template strings array");
-  return [void 0 !== e3 ? e3.createHTML(u2) : u2, n5];
+  return [void 0 !== e3$1 ? e3$1.createHTML(u2) : u2, n5];
 };
-var C$1 = class C {
+var C$2 = class C {
   constructor({ strings: t3, _$litType$: i3 }, e4) {
     let l4;
     this.parts = [];
     let h3 = 0, d3 = 0;
     const u2 = t3.length - 1, c3 = this.parts, [v2, a3] = E$1(t3, i3);
-    if (this.el = C$1.createElement(v2, e4), A$1.currentNode = this.el.content, 2 === i3) {
+    if (this.el = C$2.createElement(v2, e4), A$2.currentNode = this.el.content, 2 === i3) {
       const t4 = this.el.content, i4 = t4.firstChild;
       i4.remove(), t4.append(...i4.childNodes);
     }
-    for (; null !== (l4 = A$1.nextNode()) && c3.length < u2; ) {
+    for (; null !== (l4 = A$2.nextNode()) && c3.length < u2; ) {
       if (1 === l4.nodeType) {
         if (l4.hasAttributes()) {
           const t4 = [];
           for (const i4 of l4.getAttributeNames())
-            if (i4.endsWith("$lit$") || i4.startsWith(o3)) {
+            if (i4.endsWith("$lit$") || i4.startsWith(o3$1)) {
               const s5 = a3[d3++];
               if (t4.push(i4), void 0 !== s5) {
-                const t5 = l4.getAttribute(s5.toLowerCase() + "$lit$").split(o3), i5 = /([.?@])?(.*)/.exec(s5);
-                c3.push({ type: 1, index: h3, name: i5[2], strings: t5, ctor: "." === i5[1] ? M$1 : "?" === i5[1] ? k$1 : "@" === i5[1] ? H$1 : S2 });
+                const t5 = l4.getAttribute(s5.toLowerCase() + "$lit$").split(o3$1), i5 = /([.?@])?(.*)/.exec(s5);
+                c3.push({ type: 1, index: h3, name: i5[2], strings: t5, ctor: "." === i5[1] ? M$1 : "?" === i5[1] ? k$2 : "@" === i5[1] ? H$2 : S2 });
               } else
                 c3.push({ type: 6, index: h3 });
             }
@@ -337,11 +337,11 @@ var C$1 = class C {
             l4.removeAttribute(i4);
         }
         if ($$1.test(l4.tagName)) {
-          const t4 = l4.textContent.split(o3), i4 = t4.length - 1;
+          const t4 = l4.textContent.split(o3$1), i4 = t4.length - 1;
           if (i4 > 0) {
             l4.textContent = s3 ? s3.emptyScript : "";
             for (let s5 = 0; s5 < i4; s5++)
-              l4.append(t4[s5], r3()), A$1.nextNode(), c3.push({ type: 2, index: ++h3 });
+              l4.append(t4[s5], r3()), A$2.nextNode(), c3.push({ type: 2, index: ++h3 });
             l4.append(t4[i4], r3());
           }
         }
@@ -350,23 +350,23 @@ var C$1 = class C {
           c3.push({ type: 2, index: h3 });
         else {
           let t4 = -1;
-          for (; -1 !== (t4 = l4.data.indexOf(o3, t4 + 1)); )
-            c3.push({ type: 7, index: h3 }), t4 += o3.length - 1;
+          for (; -1 !== (t4 = l4.data.indexOf(o3$1, t4 + 1)); )
+            c3.push({ type: 7, index: h3 }), t4 += o3$1.length - 1;
         }
       h3++;
     }
   }
   static createElement(t3, i3) {
-    const s5 = h2$1.createElement("template");
+    const s5 = h2$2.createElement("template");
     return s5.innerHTML = t3, s5;
   }
 };
 function P$1(t3, i3, s5 = t3, e4) {
   var o5, n5, l4, h3;
-  if (i3 === x$1)
+  if (i3 === x$2)
     return i3;
   let r4 = void 0 !== e4 ? null === (o5 = s5._$Co) || void 0 === o5 ? void 0 : o5[e4] : s5._$Cl;
-  const u2 = d2(i3) ? void 0 : i3._$litDirective$;
+  const u2 = d2$1(i3) ? void 0 : i3._$litDirective$;
   return (null == r4 ? void 0 : r4.constructor) !== u2 && (null === (n5 = null == r4 ? void 0 : r4._$AO) || void 0 === n5 || n5.call(r4, false), void 0 === u2 ? r4 = void 0 : (r4 = new u2(t3), r4._$AT(t3, s5, e4)), void 0 !== e4 ? (null !== (l4 = (h3 = s5)._$Co) && void 0 !== l4 ? l4 : h3._$Co = [])[e4] = r4 : s5._$Cl = r4), void 0 !== r4 && (i3 = P$1(t3, r4._$AS(t3, i3.values), r4, e4)), i3;
 }
 var V$1 = class V {
@@ -381,15 +381,15 @@ var V$1 = class V {
   }
   v(t3) {
     var i3;
-    const { el: { content: s5 }, parts: e4 } = this._$AD, o5 = (null !== (i3 = null == t3 ? void 0 : t3.creationScope) && void 0 !== i3 ? i3 : h2$1).importNode(s5, true);
-    A$1.currentNode = o5;
-    let n5 = A$1.nextNode(), l4 = 0, r4 = 0, d3 = e4[0];
+    const { el: { content: s5 }, parts: e4 } = this._$AD, o5 = (null !== (i3 = null == t3 ? void 0 : t3.creationScope) && void 0 !== i3 ? i3 : h2$2).importNode(s5, true);
+    A$2.currentNode = o5;
+    let n5 = A$2.nextNode(), l4 = 0, r4 = 0, d3 = e4[0];
     for (; void 0 !== d3; ) {
       if (l4 === d3.index) {
         let i4;
         2 === d3.type ? i4 = new N$1(n5, n5.nextSibling, this, t3) : 1 === d3.type ? i4 = new d3.ctor(n5, d3.name, d3.strings, this, t3) : 6 === d3.type && (i4 = new I$1(n5, this, t3)), this.u.push(i4), d3 = e4[++r4];
       }
-      l4 !== (null == d3 ? void 0 : d3.index) && (n5 = A$1.nextNode(), l4++);
+      l4 !== (null == d3 ? void 0 : d3.index) && (n5 = A$2.nextNode(), l4++);
     }
     return o5;
   }
@@ -402,7 +402,7 @@ var V$1 = class V {
 var N$1 = class N {
   constructor(t3, i3, s5, e4) {
     var o5;
-    this.type = 2, this._$AH = b$1, this._$AN = void 0, this._$AA = t3, this._$AB = i3, this._$AM = s5, this.options = e4, this._$Cm = null === (o5 = null == e4 ? void 0 : e4.isConnected) || void 0 === o5 || o5;
+    this.type = 2, this._$AH = b$2, this._$AN = void 0, this._$AA = t3, this._$AB = i3, this._$AM = s5, this.options = e4, this._$Cm = null === (o5 = null == e4 ? void 0 : e4.isConnected) || void 0 === o5 || o5;
   }
   get _$AU() {
     var t3, i3;
@@ -420,7 +420,7 @@ var N$1 = class N {
     return this._$AB;
   }
   _$AI(t3, i3 = this) {
-    t3 = P$1(this, t3, i3), d2(t3) ? t3 === b$1 || null == t3 || "" === t3 ? (this._$AH !== b$1 && this._$AR(), this._$AH = b$1) : t3 !== this._$AH && t3 !== x$1 && this.g(t3) : void 0 !== t3._$litType$ ? this.$(t3) : void 0 !== t3.nodeType ? this.T(t3) : c2(t3) ? this.k(t3) : this.g(t3);
+    t3 = P$1(this, t3, i3), d2$1(t3) ? t3 === b$2 || null == t3 || "" === t3 ? (this._$AH !== b$2 && this._$AR(), this._$AH = b$2) : t3 !== this._$AH && t3 !== x$2 && this.g(t3) : void 0 !== t3._$litType$ ? this.$(t3) : void 0 !== t3.nodeType ? this.T(t3) : c2$1(t3) ? this.k(t3) : this.g(t3);
   }
   O(t3, i3 = this._$AB) {
     return this._$AA.parentNode.insertBefore(t3, i3);
@@ -429,11 +429,11 @@ var N$1 = class N {
     this._$AH !== t3 && (this._$AR(), this._$AH = this.O(t3));
   }
   g(t3) {
-    this._$AH !== b$1 && d2(this._$AH) ? this._$AA.nextSibling.data = t3 : this.T(h2$1.createTextNode(t3)), this._$AH = t3;
+    this._$AH !== b$2 && d2$1(this._$AH) ? this._$AA.nextSibling.data = t3 : this.T(h2$2.createTextNode(t3)), this._$AH = t3;
   }
   $(t3) {
     var i3;
-    const { values: s5, _$litType$: e4 } = t3, o5 = "number" == typeof e4 ? this._$AC(t3) : (void 0 === e4.el && (e4.el = C$1.createElement(e4.h, this.options)), e4);
+    const { values: s5, _$litType$: e4 } = t3, o5 = "number" == typeof e4 ? this._$AC(t3) : (void 0 === e4.el && (e4.el = C$2.createElement(e4.h, this.options)), e4);
     if ((null === (i3 = this._$AH) || void 0 === i3 ? void 0 : i3._$AD) === o5)
       this._$AH.p(s5);
     else {
@@ -442,11 +442,11 @@ var N$1 = class N {
     }
   }
   _$AC(t3) {
-    let i3 = T$1.get(t3.strings);
-    return void 0 === i3 && T$1.set(t3.strings, i3 = new C$1(t3)), i3;
+    let i3 = T$2.get(t3.strings);
+    return void 0 === i3 && T$2.set(t3.strings, i3 = new C$2(t3)), i3;
   }
   k(t3) {
-    u$3(this._$AH) || (this._$AH = [], this._$AR());
+    u$4(this._$AH) || (this._$AH = [], this._$AR());
     const i3 = this._$AH;
     let s5, e4 = 0;
     for (const o5 of t3)
@@ -467,7 +467,7 @@ var N$1 = class N {
 };
 var S2 = class {
   constructor(t3, i3, s5, e4, o5) {
-    this.type = 1, this._$AH = b$1, this._$AN = void 0, this.element = t3, this.name = i3, this._$AM = e4, this.options = o5, s5.length > 2 || "" !== s5[0] || "" !== s5[1] ? (this._$AH = Array(s5.length - 1).fill(new String()), this.strings = s5) : this._$AH = b$1;
+    this.type = 1, this._$AH = b$2, this._$AN = void 0, this.element = t3, this.name = i3, this._$AM = e4, this.options = o5, s5.length > 2 || "" !== s5[0] || "" !== s5[1] ? (this._$AH = Array(s5.length - 1).fill(new String()), this.strings = s5) : this._$AH = b$2;
   }
   get tagName() {
     return this.element.tagName;
@@ -479,17 +479,17 @@ var S2 = class {
     const o5 = this.strings;
     let n5 = false;
     if (void 0 === o5)
-      t3 = P$1(this, t3, i3, 0), n5 = !d2(t3) || t3 !== this._$AH && t3 !== x$1, n5 && (this._$AH = t3);
+      t3 = P$1(this, t3, i3, 0), n5 = !d2$1(t3) || t3 !== this._$AH && t3 !== x$2, n5 && (this._$AH = t3);
     else {
       const e5 = t3;
       let l4, h3;
       for (t3 = o5[0], l4 = 0; l4 < o5.length - 1; l4++)
-        h3 = P$1(this, e5[s5 + l4], i3, l4), h3 === x$1 && (h3 = this._$AH[l4]), n5 || (n5 = !d2(h3) || h3 !== this._$AH[l4]), h3 === b$1 ? t3 = b$1 : t3 !== b$1 && (t3 += (null != h3 ? h3 : "") + o5[l4 + 1]), this._$AH[l4] = h3;
+        h3 = P$1(this, e5[s5 + l4], i3, l4), h3 === x$2 && (h3 = this._$AH[l4]), n5 || (n5 = !d2$1(h3) || h3 !== this._$AH[l4]), h3 === b$2 ? t3 = b$2 : t3 !== b$2 && (t3 += (null != h3 ? h3 : "") + o5[l4 + 1]), this._$AH[l4] = h3;
     }
     n5 && !e4 && this.j(t3);
   }
   j(t3) {
-    t3 === b$1 ? this.element.removeAttribute(this.name) : this.element.setAttribute(this.name, null != t3 ? t3 : "");
+    t3 === b$2 ? this.element.removeAttribute(this.name) : this.element.setAttribute(this.name, null != t3 ? t3 : "");
   }
 };
 var M$1 = class M extends S2 {
@@ -497,27 +497,27 @@ var M$1 = class M extends S2 {
     super(...arguments), this.type = 3;
   }
   j(t3) {
-    this.element[this.name] = t3 === b$1 ? void 0 : t3;
+    this.element[this.name] = t3 === b$2 ? void 0 : t3;
   }
 };
-var R$1 = s3 ? s3.emptyScript : "";
-var k$1 = class k extends S2 {
+var R$2 = s3 ? s3.emptyScript : "";
+var k$2 = class k extends S2 {
   constructor() {
     super(...arguments), this.type = 4;
   }
   j(t3) {
-    t3 && t3 !== b$1 ? this.element.setAttribute(this.name, R$1) : this.element.removeAttribute(this.name);
+    t3 && t3 !== b$2 ? this.element.setAttribute(this.name, R$2) : this.element.removeAttribute(this.name);
   }
 };
-var H$1 = class H extends S2 {
+var H$2 = class H extends S2 {
   constructor(t3, i3, s5, e4, o5) {
     super(t3, i3, s5, e4, o5), this.type = 5;
   }
   _$AI(t3, i3 = this) {
     var s5;
-    if ((t3 = null !== (s5 = P$1(this, t3, i3, 0)) && void 0 !== s5 ? s5 : b$1) === x$1)
+    if ((t3 = null !== (s5 = P$1(this, t3, i3, 0)) && void 0 !== s5 ? s5 : b$2) === x$2)
       return;
-    const e4 = this._$AH, o5 = t3 === b$1 && e4 !== b$1 || t3.capture !== e4.capture || t3.once !== e4.once || t3.passive !== e4.passive, n5 = t3 !== b$1 && (e4 === b$1 || o5);
+    const e4 = this._$AH, o5 = t3 === b$2 && e4 !== b$2 || t3.capture !== e4.capture || t3.once !== e4.once || t3.passive !== e4.passive, n5 = t3 !== b$2 && (e4 === b$2 || o5);
     o5 && this.element.removeEventListener(this.name, this, e4), n5 && this.element.addEventListener(this.name, this, t3), this._$AH = t3;
   }
   handleEvent(t3) {
@@ -536,8 +536,8 @@ var I$1 = class I {
     P$1(this, t3);
   }
 };
-var z$1 = i2$2.litHtmlPolyfillSupport;
-null == z$1 || z$1(C$1, N$1), (null !== (t2 = i2$2.litHtmlVersions) && void 0 !== t2 ? t2 : i2$2.litHtmlVersions = []).push("2.4.0");
+var z$1 = i2$3.litHtmlPolyfillSupport;
+null == z$1 || z$1(C$2, N$1), (null !== (t2 = i2$3.litHtmlVersions) && void 0 !== t2 ? t2 : i2$3.litHtmlVersions = []).push("2.4.0");
 var Z$1 = (t3, i3, s5) => {
   var e4, o5;
   const n5 = null !== (e4 = null == s5 ? void 0 : s5.renderBefore) && void 0 !== e4 ? e4 : i3;
@@ -552,7 +552,7 @@ var Z$1 = (t3, i3, s5) => {
 // node_modules/lit-element/lit-element.js
 var l3;
 var o4;
-var s4 = class extends d$2 {
+var s4 = class extends d$3 {
   constructor() {
     super(...arguments), this.renderOptions = { host: this }, this._$Dt = void 0;
   }
@@ -574,7 +574,7 @@ var s4 = class extends d$2 {
     super.disconnectedCallback(), null === (t3 = this._$Dt) || void 0 === t3 || t3.setConnected(false);
   }
   render() {
-    return x$1;
+    return x$2;
   }
 };
 s4.finalized = true, s4._$litElement$ = true, null === (l3 = globalThis.litElementHydrateSupport) || void 0 === l3 || l3.call(globalThis, { LitElement: s4 });
@@ -1219,6 +1219,18 @@ var __spreadValues = (a, b) => {
   return a;
 };
 var __spreadProps = (a, b) => __defProps(a, __getOwnPropDescs(b));
+var __objRest = (source, exclude) => {
+  var target = {};
+  for (var prop in source)
+    if (__hasOwnProp.call(source, prop) && exclude.indexOf(prop) < 0)
+      target[prop] = source[prop];
+  if (source != null && __getOwnPropSymbols)
+    for (var prop of __getOwnPropSymbols(source)) {
+      if (exclude.indexOf(prop) < 0 && __propIsEnum.call(source, prop))
+        target[prop] = source[prop];
+    }
+  return target;
+};
 var __decorateClass = (decorators, target, key, kind) => {
   var result = kind > 1 ? void 0 : kind ? __getOwnPropDesc(target, key) : target;
   for (var i = decorators.length - 1, decorator; i >= 0; i--)
@@ -1397,7 +1409,7 @@ var FormSubmitController = class {
 
 // node_modules/lit-html/static.js
 var e$8 = Symbol.for("");
-var l$5 = (t) => {
+var l$6 = (t) => {
   if ((null == t ? void 0 : t.r) === e$8)
     return null == t ? void 0 : t._$litStatic$;
 };
@@ -1407,24 +1419,24 @@ var i$5 = (t, ...r) => ({ _$litStatic$: r.reduce((r2, e2, l2) => r2 + ((t2) => {
   throw Error(`Value passed to 'literal' function must be a 'literal' result: ${t2}. Use 'unsafeStatic' to pass non-literal values, but
             take care to ensure page security.`);
 })(e2) + t[l2 + 1], t[0]), r: e$8 });
-var s$6 = /* @__PURE__ */ new Map();
-var a$2 = (t) => (r, ...e2) => {
+var s$7 = /* @__PURE__ */ new Map();
+var a$3 = (t) => (r, ...e2) => {
   const o = e2.length;
   let i2, a2;
   const n2 = [], u2 = [];
   let c, $ = 0, f = false;
   for (; $ < o; ) {
-    for (c = r[$]; $ < o && void 0 !== (a2 = e2[$], i2 = l$5(a2)); )
+    for (c = r[$]; $ < o && void 0 !== (a2 = e2[$], i2 = l$6(a2)); )
       c += i2 + r[++$], f = true;
     u2.push(a2), n2.push(c), $++;
   }
   if ($ === o && n2.push(r[o]), f) {
     const t2 = n2.join("$$lit$$");
-    void 0 === (r = s$6.get(t2)) && (n2.raw = n2, s$6.set(t2, r = n2)), e2 = u2;
+    void 0 === (r = s$7.get(t2)) && (n2.raw = n2, s$7.set(t2, r = n2)), e2 = u2;
   }
   return t(r, ...e2);
 };
-var n$6 = a$2(y$1);
+var n$7 = a$3(y$1);
 /**
  * @license
  * Copyright 2020 Google LLC
@@ -1589,9 +1601,22 @@ var HasSlotController = class {
     }
   }
 };
+function getTextContent(slot) {
+  if (!slot) {
+    return "";
+  }
+  const nodes = slot.assignedNodes({ flatten: true });
+  let text = "";
+  [...nodes].forEach((node) => {
+    if (node.nodeType === Node.TEXT_NODE) {
+      text += node.textContent;
+    }
+  });
+  return text;
+}
 
 // node_modules/lit-html/directives/if-defined.js
-var l$4 = (l2) => null != l2 ? l2 : b$1;
+var l$5 = (l2) => null != l2 ? l2 : b$2;
 /**
  * @license
  * Copyright 2018 Google LLC
@@ -1599,7 +1624,7 @@ var l$4 = (l2) => null != l2 ? l2 : b$1;
  */
 
 // node_modules/lit-html/directive.js
-var t$4 = { ATTRIBUTE: 1, CHILD: 2, PROPERTY: 3, BOOLEAN_ATTRIBUTE: 4, EVENT: 5, ELEMENT: 6 };
+var t$5 = { ATTRIBUTE: 1, CHILD: 2, PROPERTY: 3, BOOLEAN_ATTRIBUTE: 4, EVENT: 5, ELEMENT: 6 };
 var e$7 = (t2) => (...e2) => ({ _$litDirective$: t2, values: e2 });
 var i$4 = class i {
   constructor(t2) {
@@ -1627,7 +1652,7 @@ var i$4 = class i {
 var o$6 = e$7(class extends i$4 {
   constructor(t2) {
     var i2;
-    if (super(t2), t2.type !== t$4.ATTRIBUTE || "class" !== t2.name || (null === (i2 = t2.strings) || void 0 === i2 ? void 0 : i2.length) > 2)
+    if (super(t2), t2.type !== t$5.ATTRIBUTE || "class" !== t2.name || (null === (i2 = t2.strings) || void 0 === i2 ? void 0 : i2.length) > 2)
       throw Error("`classMap()` can only be used in the `class` attribute and must be the only part in the attribute.");
   }
   render(t2) {
@@ -1649,7 +1674,7 @@ var o$6 = e$7(class extends i$4 {
       const i3 = !!s[t2];
       i3 === this.nt.has(t2) || (null === (o2 = this.st) || void 0 === o2 ? void 0 : o2.has(t2)) || (i3 ? (e2.add(t2), this.nt.add(t2)) : (e2.remove(t2), this.nt.delete(t2)));
     }
-    return x$1;
+    return x$2;
   }
 });
 /**
@@ -1706,7 +1731,7 @@ function e2$1(e5) {
 }
 
 // node_modules/@lit/reactive-element/decorators/state.js
-function t$3(t2) {
+function t$4(t2) {
   return e2$1(__spreadProps(__spreadValues({}, t2), { state: true }));
 }
 
@@ -1726,7 +1751,7 @@ var o$5 = ({ finisher: e5, descriptor: t2 }) => (o2, n2) => {
 };
 
 // node_modules/@lit/reactive-element/decorators/query.js
-function i2$1(i3, n2) {
+function i2$2(i3, n2) {
   return o$5({ descriptor: (o2) => {
     const t2 = { get() {
       var o3, n3;
@@ -1744,8 +1769,8 @@ function i2$1(i3, n2) {
 }
 
 // node_modules/@lit/reactive-element/decorators/query-assigned-elements.js
-var n$5;
-null != (null === (n$5 = window.HTMLSlotElement) || void 0 === n$5 ? void 0 : n$5.prototype.assignedElements) ? (o2, n2) => o2.assignedElements(n2) : (o2, n2) => o2.assignedNodes(n2).filter((o3) => o3.nodeType === Node.ELEMENT_NODE);
+var n$6;
+null != (null === (n$6 = window.HTMLSlotElement) || void 0 === n$6 ? void 0 : n$6.prototype.assignedElements) ? (o2, n2) => o2.assignedElements(n2) : (o2, n2) => o2.assignedNodes(n2).filter((o3) => o3.nodeType === Node.ELEMENT_NODE);
 
 // src/internal/shoelace-element.ts
 var ShoelaceElement = class extends s4 {
@@ -1877,7 +1902,7 @@ var SlButton = class extends ShoelaceElement {
   render() {
     const isLink = this.isLink();
     const tag = isLink ? i$5`a` : i$5`button`;
-    return n$6`
+    return n$7`
       <${tag}
         part="base"
         class=${o$6({
@@ -1905,16 +1930,16 @@ var SlButton = class extends ShoelaceElement {
       "button--has-prefix": this.hasSlotController.test("prefix"),
       "button--has-suffix": this.hasSlotController.test("suffix")
     })}
-        ?disabled=${l$4(isLink ? void 0 : this.disabled)}
-        type=${l$4(isLink ? void 0 : this.type)}
+        ?disabled=${l$5(isLink ? void 0 : this.disabled)}
+        type=${l$5(isLink ? void 0 : this.type)}
         title=${this.title}
-        name=${l$4(isLink ? void 0 : this.name)}
-        value=${l$4(isLink ? void 0 : this.value)}
-        href=${l$4(isLink ? this.href : void 0)}
-        target=${l$4(isLink ? this.target : void 0)}
-        download=${l$4(isLink ? this.download : void 0)}
-        rel=${l$4(isLink && this.target ? "noreferrer noopener" : void 0)}
-        role=${l$4(isLink ? void 0 : "button")}
+        name=${l$5(isLink ? void 0 : this.name)}
+        value=${l$5(isLink ? void 0 : this.value)}
+        href=${l$5(isLink ? this.href : void 0)}
+        target=${l$5(isLink ? this.target : void 0)}
+        download=${l$5(isLink ? this.download : void 0)}
+        rel=${l$5(isLink && this.target ? "noreferrer noopener" : void 0)}
+        role=${l$5(isLink ? void 0 : "button")}
         aria-disabled=${this.disabled ? "true" : "false"}
         tabindex=${this.disabled ? "-1" : "0"}
         @blur=${this.handleBlur}
@@ -1924,21 +1949,21 @@ var SlButton = class extends ShoelaceElement {
         <slot name="prefix" part="prefix" class="button__prefix"></slot>
         <slot part="label" class="button__label"></slot>
         <slot name="suffix" part="suffix" class="button__suffix"></slot>
-        ${this.caret ? n$6` <sl-icon part="caret" class="button__caret" library="system" name="caret"></sl-icon> ` : ""}
-        ${this.loading ? n$6`<sl-spinner></sl-spinner>` : ""}
+        ${this.caret ? n$7` <sl-icon part="caret" class="button__caret" library="system" name="caret"></sl-icon> ` : ""}
+        ${this.loading ? n$7`<sl-spinner></sl-spinner>` : ""}
       </${tag}>
     `;
   }
 };
 SlButton.styles = button_styles_default;
 __decorateClass([
-  i2$1(".button")
+  i2$2(".button")
 ], SlButton.prototype, "button", 2);
 __decorateClass([
-  t$3()
+  t$4()
 ], SlButton.prototype, "hasFocus", 2);
 __decorateClass([
-  t$3()
+  t$4()
 ], SlButton.prototype, "invalid", 2);
 __decorateClass([
   e2$1()
@@ -2315,13 +2340,13 @@ var icon_styles_default = i$6`
 // node_modules/lit-html/directives/unsafe-html.js
 var e4 = class extends i$4 {
   constructor(i2) {
-    if (super(i2), this.it = b$1, i2.type !== t$4.CHILD)
+    if (super(i2), this.it = b$2, i2.type !== t$5.CHILD)
       throw Error(this.constructor.directiveName + "() can only be used in child bindings");
   }
   render(r) {
-    if (r === b$1 || null == r)
+    if (r === b$2 || null == r)
       return this._t = void 0, this.it = r;
-    if (r === x$1)
+    if (r === x$2)
       return r;
     if ("string" != typeof r)
       throw Error(this.constructor.directiveName + "() called with a non-string value");
@@ -2339,7 +2364,7 @@ var o$4 = e$7(e4);
 var t3 = class extends e4 {
 };
 t3.directiveName = "unsafeSVG", t3.resultType = 2;
-var o2 = e$7(t3);
+var o2$1 = e$7(t3);
 
 // src/components/icon/icon.ts
 var parser;
@@ -2421,12 +2446,12 @@ var SlIcon = class extends ShoelaceElement {
     this.setIcon();
   }
   render() {
-    return y$1` ${o2(this.svg)} `;
+    return y$1` ${o2$1(this.svg)} `;
   }
 };
 SlIcon.styles = icon_styles_default;
 __decorateClass([
-  t$3()
+  t$4()
 ], SlIcon.prototype, "svg", 2);
 __decorateClass([
   e2$1({ reflect: true })
@@ -2815,13 +2840,13 @@ var input_styles_default = i$6`
 `;
 
 var e2 = (o) => void 0 === o.strings;
-var f$2 = {};
-var s$5 = (o, l3 = f$2) => o._$AH = l3;
+var f$3 = {};
+var s$6 = (o, l3 = f$3) => o._$AH = l3;
 
 // node_modules/lit-html/directives/live.js
-var l2 = e$7(class extends i$4 {
+var l2$1 = e$7(class extends i$4 {
   constructor(r) {
-    if (super(r), r.type !== t$4.PROPERTY && r.type !== t$4.ATTRIBUTE && r.type !== t$4.BOOLEAN_ATTRIBUTE)
+    if (super(r), r.type !== t$5.PROPERTY && r.type !== t$5.ATTRIBUTE && r.type !== t$5.BOOLEAN_ATTRIBUTE)
       throw Error("The `live` directive is not allowed on child or event bindings");
     if (!e2(r))
       throw Error("`live` bindings can only contain a single expression");
@@ -2830,18 +2855,18 @@ var l2 = e$7(class extends i$4 {
     return r;
   }
   update(i2, [t2]) {
-    if (t2 === x$1 || t2 === b$1)
+    if (t2 === x$2 || t2 === b$2)
       return t2;
     const o = i2.element, l3 = i2.name;
-    if (i2.type === t$4.PROPERTY) {
+    if (i2.type === t$5.PROPERTY) {
       if (t2 === o[l3])
-        return x$1;
-    } else if (i2.type === t$4.BOOLEAN_ATTRIBUTE) {
+        return x$2;
+    } else if (i2.type === t$5.BOOLEAN_ATTRIBUTE) {
       if (!!t2 === o.hasAttribute(l3))
-        return x$1;
-    } else if (i2.type === t$4.ATTRIBUTE && o.getAttribute(l3) === t2 + "")
-      return x$1;
-    return s$5(i2), t2;
+        return x$2;
+    } else if (i2.type === t$5.ATTRIBUTE && o.getAttribute(l3) === t2 + "")
+      return x$2;
+    return s$6(i2), t2;
   }
 });
 /**
@@ -2859,8 +2884,8 @@ var defaultValue = (propertyName = "value") => (proto, key) => {
     const options = ctor.getPropertyOptions(propertyName);
     const attributeName = typeof options.attribute === "string" ? options.attribute : propertyName;
     if (name === attributeName) {
-      const converter = options.converter || n2;
-      const fromAttribute = typeof converter === "function" ? converter : (_a = converter == null ? void 0 : converter.fromAttribute) != null ? _a : n2.fromAttribute;
+      const converter = options.converter || n2$1;
+      const fromAttribute = typeof converter === "function" ? converter : (_a = converter == null ? void 0 : converter.fromAttribute) != null ? _a : n2$1.fromAttribute;
       const newValue = fromAttribute(value, options.type);
       if (this[propertyName] !== newValue) {
         this[key] = newValue;
@@ -3075,25 +3100,25 @@ var SlInput = class extends ShoelaceElement {
               class="input__control"
               type=${this.type === "password" && this.passwordVisible ? "text" : this.type}
               title=${this.title}
-              name=${l$4(this.name)}
+              name=${l$5(this.name)}
               ?disabled=${this.disabled}
               ?readonly=${this.readonly}
               ?required=${this.required}
-              placeholder=${l$4(this.placeholder)}
-              minlength=${l$4(this.minlength)}
-              maxlength=${l$4(this.maxlength)}
-              min=${l$4(this.min)}
-              max=${l$4(this.max)}
-              step=${l$4(this.step)}
-              .value=${l2(this.value)}
-              autocapitalize=${l$4(this.type === "password" ? "off" : this.autocapitalize)}
-              autocomplete=${l$4(this.type === "password" ? "off" : this.autocomplete)}
-              autocorrect=${l$4(this.type === "password" ? "off" : this.autocorrect)}
+              placeholder=${l$5(this.placeholder)}
+              minlength=${l$5(this.minlength)}
+              maxlength=${l$5(this.maxlength)}
+              min=${l$5(this.min)}
+              max=${l$5(this.max)}
+              step=${l$5(this.step)}
+              .value=${l2$1(this.value)}
+              autocapitalize=${l$5(this.type === "password" ? "off" : this.autocapitalize)}
+              autocomplete=${l$5(this.type === "password" ? "off" : this.autocomplete)}
+              autocorrect=${l$5(this.type === "password" ? "off" : this.autocorrect)}
               ?autofocus=${this.autofocus}
               spellcheck=${this.spellcheck}
-              pattern=${l$4(this.pattern)}
-              enterkeyhint=${l$4(this.enterkeyhint)}
-              inputmode=${l$4(this.inputmode)}
+              pattern=${l$5(this.pattern)}
+              enterkeyhint=${l$5(this.enterkeyhint)}
+              inputmode=${l$5(this.inputmode)}
               aria-describedby="help-text"
               aria-invalid=${this.invalid ? "true" : "false"}
               @change=${this.handleChange}
@@ -3159,13 +3184,13 @@ var SlInput = class extends ShoelaceElement {
 };
 SlInput.styles = input_styles_default;
 __decorateClass([
-  i2$1(".input__control")
+  i2$2(".input__control")
 ], SlInput.prototype, "input", 2);
 __decorateClass([
-  t$3()
+  t$4()
 ], SlInput.prototype, "hasFocus", 2);
 __decorateClass([
-  t$3()
+  t$4()
 ], SlInput.prototype, "invalid", 2);
 __decorateClass([
   e2$1()
@@ -3376,10 +3401,10 @@ function clamp(value, min, max) {
 }
 
 // node_modules/lit-html/directives/style-map.js
-var i2 = e$7(class extends i$4 {
+var i2$1 = e$7(class extends i$4 {
   constructor(t2) {
     var e2;
-    if (super(t2), t2.type !== t$4.ATTRIBUTE || "style" !== t2.name || (null === (e2 = t2.strings) || void 0 === e2 ? void 0 : e2.length) > 2)
+    if (super(t2), t2.type !== t$5.ATTRIBUTE || "style" !== t2.name || (null === (e2 = t2.strings) || void 0 === e2 ? void 0 : e2.length) > 2)
       throw Error("The `styleMap` directive must be used in the `style` attribute and must be the only part in the attribute.");
   }
   render(t2) {
@@ -3403,7 +3428,7 @@ var i2 = e$7(class extends i$4 {
       const e3 = r[t2];
       null != e3 && (this.vt.add(t2), t2.includes("-") ? s.setProperty(t2, e3) : s[t2] = e3);
     }
-    return x$1;
+    return x$2;
   }
 });
 /**
@@ -3572,7 +3597,7 @@ var SlRating = class extends ShoelaceElement {
         rating__symbol: true,
         "rating__symbol--hover": this.isHovering && Math.ceil(displayValue) === index + 1
       })}
-                style=${i2({
+                style=${i2$1({
         clipPath: displayValue > index + 1 ? "none" : isRtl ? `inset(0 0 0 ${100 - (displayValue - index) / 1 * 100}%)` : `inset(0 ${100 - (displayValue - index) / 1 * 100}% 0 0)`
       })}
                 role="presentation"
@@ -3588,13 +3613,13 @@ var SlRating = class extends ShoelaceElement {
 };
 SlRating.styles = rating_styles_default;
 __decorateClass([
-  i2$1(".rating")
+  i2$2(".rating")
 ], SlRating.prototype, "rating", 2);
 __decorateClass([
-  t$3()
+  t$4()
 ], SlRating.prototype, "hoverValue", 2);
 __decorateClass([
-  t$3()
+  t$4()
 ], SlRating.prototype, "isHovering", 2);
 __decorateClass([
   e2$1()
@@ -3620,92 +3645,6 @@ __decorateClass([
 SlRating = __decorateClass([
   e$6("sl-rating")
 ], SlRating);
-
-// src/components/button-group/button-group.styles.ts
-var button_group_styles_default = i$6`
-  ${component_styles_default}
-
-  :host {
-    display: inline-block;
-  }
-
-  .button-group {
-    display: flex;
-    flex-wrap: nowrap;
-  }
-`;
-
-// src/components/button-group/button-group.ts
-var SlButtonGroup = class extends ShoelaceElement {
-  constructor() {
-    super(...arguments);
-    this.disableRole = false;
-    this.label = "";
-  }
-  handleFocus(event) {
-    const button = findButton(event.target);
-    button == null ? void 0 : button.classList.add("sl-button-group__button--focus");
-  }
-  handleBlur(event) {
-    const button = findButton(event.target);
-    button == null ? void 0 : button.classList.remove("sl-button-group__button--focus");
-  }
-  handleMouseOver(event) {
-    const button = findButton(event.target);
-    button == null ? void 0 : button.classList.add("sl-button-group__button--hover");
-  }
-  handleMouseOut(event) {
-    const button = findButton(event.target);
-    button == null ? void 0 : button.classList.remove("sl-button-group__button--hover");
-  }
-  handleSlotChange() {
-    const slottedElements = [...this.defaultSlot.assignedElements({ flatten: true })];
-    slottedElements.forEach((el) => {
-      const index = slottedElements.indexOf(el);
-      const button = findButton(el);
-      if (button !== null) {
-        button.classList.add("sl-button-group__button");
-        button.classList.toggle("sl-button-group__button--first", index === 0);
-        button.classList.toggle("sl-button-group__button--inner", index > 0 && index < slottedElements.length - 1);
-        button.classList.toggle("sl-button-group__button--last", index === slottedElements.length - 1);
-        button.classList.toggle("sl-button-group__button--radio", button.tagName.toLowerCase() === "sl-radio-button");
-      }
-    });
-  }
-  render() {
-    return y$1`
-      <slot
-        part="base"
-        class="button-group"
-        role="${this.disableRole ? "presentation" : "group"}"
-        aria-label=${this.label}
-        @focusout=${this.handleBlur}
-        @focusin=${this.handleFocus}
-        @mouseover=${this.handleMouseOver}
-        @mouseout=${this.handleMouseOut}
-        @slotchange=${this.handleSlotChange}
-      ></slot>
-    `;
-  }
-};
-SlButtonGroup.styles = button_group_styles_default;
-__decorateClass([
-  i2$1("slot")
-], SlButtonGroup.prototype, "defaultSlot", 2);
-__decorateClass([
-  t$3()
-], SlButtonGroup.prototype, "disableRole", 2);
-__decorateClass([
-  e2$1()
-], SlButtonGroup.prototype, "label", 2);
-SlButtonGroup = __decorateClass([
-  e$6("sl-button-group")
-], SlButtonGroup);
-function findButton(el) {
-  var _a;
-  const selector = "sl-button, sl-radio-button";
-  return (_a = el.closest(selector)) != null ? _a : el.querySelector(selector);
-}
 
 // src/components/radio-group/radio-group.styles.ts
 var radio_group_styles_default = i$6`
@@ -3978,25 +3917,25 @@ var SlRadioGroup = class extends ShoelaceElement {
 };
 SlRadioGroup.styles = radio_group_styles_default;
 __decorateClass([
-  i2$1("slot:not([name])")
+  i2$2("slot:not([name])")
 ], SlRadioGroup.prototype, "defaultSlot", 2);
 __decorateClass([
-  i2$1(".radio-group__validation-input")
+  i2$2(".radio-group__validation-input")
 ], SlRadioGroup.prototype, "input", 2);
 __decorateClass([
-  t$3()
+  t$4()
 ], SlRadioGroup.prototype, "hasButtonGroup", 2);
 __decorateClass([
-  t$3()
+  t$4()
 ], SlRadioGroup.prototype, "errorMessage", 2);
 __decorateClass([
-  t$3()
+  t$4()
 ], SlRadioGroup.prototype, "customErrorMessage", 2);
 __decorateClass([
-  t$3()
+  t$4()
 ], SlRadioGroup.prototype, "defaultValue", 2);
 __decorateClass([
-  t$3()
+  t$4()
 ], SlRadioGroup.prototype, "invalid", 2);
 __decorateClass([
   e2$1()
@@ -4019,6 +3958,92 @@ __decorateClass([
 SlRadioGroup = __decorateClass([
   e$6("sl-radio-group")
 ], SlRadioGroup);
+
+// src/components/button-group/button-group.styles.ts
+var button_group_styles_default = i$6`
+  ${component_styles_default}
+
+  :host {
+    display: inline-block;
+  }
+
+  .button-group {
+    display: flex;
+    flex-wrap: nowrap;
+  }
+`;
+
+// src/components/button-group/button-group.ts
+var SlButtonGroup = class extends ShoelaceElement {
+  constructor() {
+    super(...arguments);
+    this.disableRole = false;
+    this.label = "";
+  }
+  handleFocus(event) {
+    const button = findButton(event.target);
+    button == null ? void 0 : button.classList.add("sl-button-group__button--focus");
+  }
+  handleBlur(event) {
+    const button = findButton(event.target);
+    button == null ? void 0 : button.classList.remove("sl-button-group__button--focus");
+  }
+  handleMouseOver(event) {
+    const button = findButton(event.target);
+    button == null ? void 0 : button.classList.add("sl-button-group__button--hover");
+  }
+  handleMouseOut(event) {
+    const button = findButton(event.target);
+    button == null ? void 0 : button.classList.remove("sl-button-group__button--hover");
+  }
+  handleSlotChange() {
+    const slottedElements = [...this.defaultSlot.assignedElements({ flatten: true })];
+    slottedElements.forEach((el) => {
+      const index = slottedElements.indexOf(el);
+      const button = findButton(el);
+      if (button !== null) {
+        button.classList.add("sl-button-group__button");
+        button.classList.toggle("sl-button-group__button--first", index === 0);
+        button.classList.toggle("sl-button-group__button--inner", index > 0 && index < slottedElements.length - 1);
+        button.classList.toggle("sl-button-group__button--last", index === slottedElements.length - 1);
+        button.classList.toggle("sl-button-group__button--radio", button.tagName.toLowerCase() === "sl-radio-button");
+      }
+    });
+  }
+  render() {
+    return y$1`
+      <slot
+        part="base"
+        class="button-group"
+        role="${this.disableRole ? "presentation" : "group"}"
+        aria-label=${this.label}
+        @focusout=${this.handleBlur}
+        @focusin=${this.handleFocus}
+        @mouseover=${this.handleMouseOver}
+        @mouseout=${this.handleMouseOut}
+        @slotchange=${this.handleSlotChange}
+      ></slot>
+    `;
+  }
+};
+SlButtonGroup.styles = button_group_styles_default;
+__decorateClass([
+  i2$2("slot")
+], SlButtonGroup.prototype, "defaultSlot", 2);
+__decorateClass([
+  t$4()
+], SlButtonGroup.prototype, "disableRole", 2);
+__decorateClass([
+  e2$1()
+], SlButtonGroup.prototype, "label", 2);
+SlButtonGroup = __decorateClass([
+  e$6("sl-button-group")
+], SlButtonGroup);
+function findButton(el) {
+  var _a;
+  const selector = "sl-button, sl-radio-button";
+  return (_a = el.closest(selector)) != null ? _a : el.querySelector(selector);
+}
 
 // src/components/radio-button/radio-button.styles.ts
 var radio_button_styles_default = i$6`
@@ -4088,7 +4113,7 @@ var SlRadioButton = class extends ShoelaceElement {
     this.emit("sl-focus");
   }
   render() {
-    return n$6`
+    return n$7`
       <div part="base" role="presentation">
         <button
           part="${`button${this.checked ? " button--checked" : ""}`}"
@@ -4111,7 +4136,7 @@ var SlRadioButton = class extends ShoelaceElement {
     })}
           aria-disabled=${this.disabled}
           type="button"
-          value=${l$4(this.value)}
+          value=${l$5(this.value)}
           tabindex="${this.checked ? "0" : "-1"}"
           @blur=${this.handleBlur}
           @focus=${this.handleFocus}
@@ -4127,16 +4152,16 @@ var SlRadioButton = class extends ShoelaceElement {
 };
 SlRadioButton.styles = radio_button_styles_default;
 __decorateClass([
-  i2$1(".button")
+  i2$2(".button")
 ], SlRadioButton.prototype, "input", 2);
 __decorateClass([
-  i2$1(".hidden-input")
+  i2$2(".hidden-input")
 ], SlRadioButton.prototype, "hiddenInput", 2);
 __decorateClass([
-  t$3()
+  t$4()
 ], SlRadioButton.prototype, "hasFocus", 2);
 __decorateClass([
-  t$3()
+  t$4()
 ], SlRadioButton.prototype, "checked", 2);
 __decorateClass([
   e2$1()
@@ -4406,7 +4431,7 @@ var SlAvatar = class extends ShoelaceElement {
 };
 SlAvatar.styles = avatar_styles_default;
 __decorateClass([
-  t$3()
+  t$4()
 ], SlAvatar.prototype, "hasError", 2);
 __decorateClass([
   e2$1()
@@ -4730,7 +4755,7 @@ var SlAlert = class extends ShoelaceElement {
 };
 SlAlert.styles = alert_styles_default;
 __decorateClass([
-  i2$1('[part~="base"]')
+  i2$2('[part~="base"]')
 ], SlAlert.prototype, "base", 2);
 __decorateClass([
   e2$1({ type: Boolean, reflect: true })
@@ -4854,7 +4879,7 @@ var SlIconButton = class extends ShoelaceElement {
   render() {
     const isLink = this.href ? true : false;
     const tag = isLink ? i$5`a` : i$5`button`;
-    return n$6`
+    return n$7`
       <${tag}
         part="base"
         class=${o$6({
@@ -4862,13 +4887,13 @@ var SlIconButton = class extends ShoelaceElement {
       "icon-button--disabled": !isLink && this.disabled,
       "icon-button--focused": this.hasFocus
     })}
-        ?disabled=${l$4(isLink ? void 0 : this.disabled)}
-        type=${l$4(isLink ? void 0 : "button")}
-        href=${l$4(isLink ? this.href : void 0)}
-        target=${l$4(isLink ? this.target : void 0)}
-        download=${l$4(isLink ? this.download : void 0)}
-        rel=${l$4(isLink && this.target ? "noreferrer noopener" : void 0)}
-        role=${l$4(isLink ? void 0 : "button")}
+        ?disabled=${l$5(isLink ? void 0 : this.disabled)}
+        type=${l$5(isLink ? void 0 : "button")}
+        href=${l$5(isLink ? this.href : void 0)}
+        target=${l$5(isLink ? this.target : void 0)}
+        download=${l$5(isLink ? this.download : void 0)}
+        rel=${l$5(isLink && this.target ? "noreferrer noopener" : void 0)}
+        role=${l$5(isLink ? void 0 : "button")}
         aria-disabled=${this.disabled ? "true" : "false"}
         aria-label="${this.label}"
         tabindex=${this.disabled ? "-1" : "0"}
@@ -4878,9 +4903,9 @@ var SlIconButton = class extends ShoelaceElement {
       >
         <sl-icon
           class="icon-button__icon"
-          name=${l$4(this.name)}
-          library=${l$4(this.library)}
-          src=${l$4(this.src)}
+          name=${l$5(this.name)}
+          library=${l$5(this.library)}
+          src=${l$5(this.src)}
           aria-hidden="true"
         ></sl-icon>
       </${tag}>
@@ -4889,10 +4914,10 @@ var SlIconButton = class extends ShoelaceElement {
 };
 SlIconButton.styles = icon_button_styles_default;
 __decorateClass([
-  t$3()
+  t$4()
 ], SlIconButton.prototype, "hasFocus", 2);
 __decorateClass([
-  i2$1(".icon-button")
+  i2$2(".icon-button")
 ], SlIconButton.prototype, "button", 2);
 __decorateClass([
   e2$1()
@@ -5408,21 +5433,21 @@ var SlTextarea = class extends ShoelaceElement {
               id="input"
               class="textarea__control"
               title=${this.title}
-              name=${l$4(this.name)}
-              .value=${l2(this.value)}
+              name=${l$5(this.name)}
+              .value=${l2$1(this.value)}
               ?disabled=${this.disabled}
               ?readonly=${this.readonly}
               ?required=${this.required}
-              placeholder=${l$4(this.placeholder)}
-              rows=${l$4(this.rows)}
-              minlength=${l$4(this.minlength)}
-              maxlength=${l$4(this.maxlength)}
-              autocapitalize=${l$4(this.autocapitalize)}
-              autocorrect=${l$4(this.autocorrect)}
+              placeholder=${l$5(this.placeholder)}
+              rows=${l$5(this.rows)}
+              minlength=${l$5(this.minlength)}
+              maxlength=${l$5(this.maxlength)}
+              autocapitalize=${l$5(this.autocapitalize)}
+              autocorrect=${l$5(this.autocorrect)}
               ?autofocus=${this.autofocus}
-              spellcheck=${l$4(this.spellcheck)}
-              enterkeyhint=${l$4(this.enterkeyhint)}
-              inputmode=${l$4(this.inputmode)}
+              spellcheck=${l$5(this.spellcheck)}
+              enterkeyhint=${l$5(this.enterkeyhint)}
+              inputmode=${l$5(this.inputmode)}
               aria-describedby="help-text"
               @change=${this.handleChange}
               @input=${this.handleInput}
@@ -5447,13 +5472,13 @@ var SlTextarea = class extends ShoelaceElement {
 };
 SlTextarea.styles = textarea_styles_default;
 __decorateClass([
-  i2$1(".textarea__control")
+  i2$2(".textarea__control")
 ], SlTextarea.prototype, "input", 2);
 __decorateClass([
-  t$3()
+  t$4()
 ], SlTextarea.prototype, "hasFocus", 2);
 __decorateClass([
-  t$3()
+  t$4()
 ], SlTextarea.prototype, "invalid", 2);
 __decorateClass([
   e2$1()
@@ -5542,6 +5567,2337 @@ __decorateClass([
 SlTextarea = __decorateClass([
   e$6("sl-textarea")
 ], SlTextarea);
+
+// src/components/select/select.styles.ts
+var select_styles_default = i$6`
+  ${component_styles_default}
+  ${form_control_styles_default}
+
+  :host {
+    display: block;
+  }
+
+  .select {
+    display: block;
+  }
+
+  .select::part(panel) {
+    overflow: hidden;
+  }
+
+  .select__control {
+    display: inline-flex;
+    align-items: center;
+    justify-content: start;
+    position: relative;
+    width: 100%;
+    font-family: var(--sl-input-font-family);
+    font-weight: var(--sl-input-font-weight);
+    letter-spacing: var(--sl-input-letter-spacing);
+    vertical-align: middle;
+    overflow: hidden;
+    transition: var(--sl-transition-fast) color, var(--sl-transition-fast) border, var(--sl-transition-fast) box-shadow;
+    cursor: pointer;
+  }
+
+  .select::part(panel) {
+    border-radius: var(--sl-border-radius-medium);
+  }
+
+  /* Standard selects */
+  .select--standard .select__control {
+    background-color: var(--sl-input-background-color);
+    border: solid var(--sl-input-border-width) var(--sl-input-border-color);
+    color: var(--sl-input-color);
+  }
+
+  .select--standard:not(.select--disabled) .select__control:hover {
+    background-color: var(--sl-input-background-color-hover);
+    border-color: var(--sl-input-border-color-hover);
+    color: var(--sl-input-color-hover);
+  }
+
+  .select--standard.select--focused:not(.select--disabled) .select__control {
+    background-color: var(--sl-input-background-color-focus);
+    border-color: var(--sl-input-border-color-focus);
+    color: var(--sl-input-color-focus);
+    box-shadow: 0 0 0 var(--sl-focus-ring-width) var(--sl-input-focus-ring-color);
+    outline: none;
+  }
+
+  .select--standard.select--disabled .select__control {
+    background-color: var(--sl-input-background-color-disabled);
+    border-color: var(--sl-input-border-color-disabled);
+    color: var(--sl-input-color-disabled);
+    opacity: 0.5;
+    cursor: not-allowed;
+    outline: none;
+  }
+
+  /* Filled selects */
+  .select--filled .select__control {
+    border: none;
+    background-color: var(--sl-input-filled-background-color);
+    color: var(--sl-input-color);
+  }
+
+  .select--filled:hover:not(.select--disabled) .select__control {
+    background-color: var(--sl-input-filled-background-color-hover);
+  }
+
+  .select--filled.select--focused:not(.select--disabled) .select__control {
+    background-color: var(--sl-input-filled-background-color-focus);
+    outline: var(--sl-focus-ring);
+    outline-offset: var(--sl-focus-ring-offset);
+  }
+
+  .select--filled.select--disabled .select__control {
+    background-color: var(--sl-input-filled-background-color-disabled);
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+
+  .select--disabled .select__tags,
+  .select--disabled .select__clear {
+    pointer-events: none;
+  }
+
+  .select__prefix {
+    display: inline-flex;
+    align-items: center;
+    color: var(--sl-input-placeholder-color);
+  }
+
+  .select__label {
+    flex: 1 1 auto;
+    display: flex;
+    align-items: center;
+    user-select: none;
+    overflow-x: auto;
+    overflow-y: hidden;
+    white-space: nowrap;
+
+    /* Hide scrollbar in Firefox */
+    scrollbar-width: none;
+  }
+
+  /* Hide scrollbar in Chrome/Safari */
+  .select__label::-webkit-scrollbar {
+    width: 0;
+    height: 0;
+  }
+
+  .select__clear {
+    flex: 0 0 auto;
+    display: inline-flex;
+    align-items: center;
+    width: 1.25em;
+    font-size: inherit;
+    color: var(--sl-input-icon-color);
+    border: none;
+    background: none;
+    padding: 0;
+    transition: var(--sl-transition-fast) color;
+    cursor: pointer;
+  }
+
+  .select__clear:hover {
+    color: var(--sl-input-icon-color-hover);
+  }
+
+  .select__suffix {
+    display: inline-flex;
+    align-items: center;
+    color: var(--sl-input-placeholder-color);
+  }
+
+  .select__icon {
+    flex: 0 0 auto;
+    display: inline-flex;
+    transition: var(--sl-transition-medium) rotate ease;
+  }
+
+  .select--open .select__icon {
+    rotate: -180deg;
+  }
+
+  /* Placeholder */
+  .select--placeholder-visible .select__label {
+    color: var(--sl-input-placeholder-color);
+  }
+
+  .select--disabled.select--placeholder-visible .select__label {
+    color: var(--sl-input-placeholder-color-disabled);
+  }
+
+  /* Tags */
+  .select__tags {
+    display: inline-flex;
+    align-items: center;
+    flex-wrap: wrap;
+    justify-content: left;
+    margin-inline-start: var(--sl-spacing-2x-small);
+  }
+
+  /* Hidden input (for form control validation to show) */
+  .select__hidden-select {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    clip: rect(0 0 0 0);
+    clip-path: inset(50%);
+    overflow: hidden;
+    white-space: nowrap;
+  }
+
+  /*
+   * Size modifiers
+   */
+
+  /* Small */
+  .select--small .select__control {
+    border-radius: var(--sl-input-border-radius-small);
+    font-size: var(--sl-input-font-size-small);
+    min-height: var(--sl-input-height-small);
+  }
+
+  .select--small .select__prefix::slotted(*) {
+    margin-inline-start: var(--sl-input-spacing-small);
+  }
+
+  .select--small .select__label {
+    margin: 0 var(--sl-input-spacing-small);
+  }
+
+  .select--small .select__clear {
+    margin-inline-end: var(--sl-input-spacing-small);
+  }
+
+  .select--small .select__suffix::slotted(*) {
+    margin-inline-end: var(--sl-input-spacing-small);
+  }
+
+  .select--small .select__icon {
+    margin-inline-end: var(--sl-input-spacing-small);
+  }
+
+  .select--small .select__tags {
+    padding-bottom: 2px;
+  }
+
+  .select--small .select__tags sl-tag {
+    padding-top: 2px;
+  }
+
+  .select--small .select__tags sl-tag:not(:last-of-type) {
+    margin-inline-end: var(--sl-spacing-2x-small);
+  }
+
+  .select--small.select--has-tags .select__label {
+    margin-inline-start: 0;
+  }
+
+  /* Medium */
+  .select--medium .select__control {
+    border-radius: var(--sl-input-border-radius-medium);
+    font-size: var(--sl-input-font-size-medium);
+    min-height: var(--sl-input-height-medium);
+  }
+
+  .select--medium .select__prefix::slotted(*) {
+    margin-inline-start: var(--sl-input-spacing-medium);
+  }
+
+  .select--medium .select__label {
+    margin: 0 var(--sl-input-spacing-medium);
+  }
+
+  .select--medium .select__clear {
+    margin-inline-end: var(--sl-input-spacing-medium);
+  }
+
+  .select--medium .select__suffix::slotted(*) {
+    margin-inline-end: var(--sl-input-spacing-medium);
+  }
+
+  .select--medium .select__icon {
+    margin-inline-end: var(--sl-input-spacing-medium);
+  }
+
+  .select--medium .select__tags {
+    padding-bottom: 3px;
+  }
+
+  .select--medium .select__tags sl-tag {
+    padding-top: 3px;
+  }
+
+  .select--medium .select__tags sl-tag:not(:last-of-type) {
+    margin-inline-end: var(--sl-spacing-2x-small);
+  }
+
+  .select--medium.select--has-tags .select__label {
+    margin-inline-start: 0;
+  }
+
+  /* Large */
+  .select--large .select__control {
+    border-radius: var(--sl-input-border-radius-large);
+    font-size: var(--sl-input-font-size-large);
+    min-height: var(--sl-input-height-large);
+  }
+
+  .select--large .select__prefix::slotted(*) {
+    margin-inline-start: var(--sl-input-spacing-large);
+  }
+
+  .select--large .select__label {
+    margin: 0 var(--sl-input-spacing-large);
+  }
+
+  .select--large .select__clear {
+    margin-inline-end: var(--sl-input-spacing-large);
+  }
+
+  .select--large .select__suffix::slotted(*) {
+    margin-inline-end: var(--sl-input-spacing-large);
+  }
+
+  .select--large .select__icon {
+    margin-inline-end: var(--sl-input-spacing-large);
+  }
+
+  .select--large .select__tags {
+    padding-bottom: 4px;
+  }
+  .select--large .select__tags sl-tag {
+    padding-top: 4px;
+  }
+
+  .select--large .select__tags sl-tag:not(:last-of-type) {
+    margin-inline-end: var(--sl-spacing-2x-small);
+  }
+
+  .select--large.select--has-tags .select__label {
+    margin-inline-start: 0;
+  }
+
+  /*
+   * Pill modifier
+   */
+  .select--pill.select--small .select__control {
+    border-radius: var(--sl-input-height-small);
+  }
+
+  .select--pill.select--medium .select__control {
+    border-radius: var(--sl-input-height-medium);
+  }
+
+  .select--pill.select--large .select__control {
+    border-radius: var(--sl-input-height-large);
+  }
+`;
+
+// src/components/select/select.ts
+var SlSelect = class extends ShoelaceElement {
+  constructor() {
+    super(...arguments);
+    this.formSubmitController = new FormSubmitController(this);
+    this.hasSlotController = new HasSlotController(this, "help-text", "label");
+    this.localize = new LocalizeController2(this);
+    this.menuItems = [];
+    this.hasFocus = false;
+    this.isOpen = false;
+    this.displayLabel = "";
+    this.displayTags = [];
+    this.invalid = false;
+    this.multiple = false;
+    this.maxTagsVisible = 3;
+    this.disabled = false;
+    this.name = "";
+    this.value = "";
+    this.placeholder = "";
+    this.size = "medium";
+    this.hoist = false;
+    this.filled = false;
+    this.pill = false;
+    this.label = "";
+    this.placement = "bottom";
+    this.helpText = "";
+    this.required = false;
+    this.clearable = false;
+    this.defaultValue = "";
+  }
+  connectedCallback() {
+    super.connectedCallback();
+    this.resizeObserver = new ResizeObserver(() => this.resizeMenu());
+    this.updateComplete.then(() => {
+      this.resizeObserver.observe(this);
+      this.syncItemsFromValue();
+    });
+  }
+  firstUpdated() {
+    this.invalid = !this.input.checkValidity();
+  }
+  disconnectedCallback() {
+    super.disconnectedCallback();
+    this.resizeObserver.unobserve(this);
+  }
+  checkValidity() {
+    return this.input.checkValidity();
+  }
+  reportValidity() {
+    return this.input.reportValidity();
+  }
+  setCustomValidity(message) {
+    this.input.setCustomValidity(message);
+    this.invalid = !this.input.checkValidity();
+  }
+  getValueAsArray() {
+    if (this.multiple && this.value === "") {
+      return [];
+    }
+    return Array.isArray(this.value) ? this.value : [this.value];
+  }
+  focus(options) {
+    this.control.focus(options);
+  }
+  blur() {
+    this.control.blur();
+  }
+  handleBlur() {
+    if (!this.isOpen) {
+      this.hasFocus = false;
+      this.emit("sl-blur");
+    }
+  }
+  handleClearClick(event) {
+    const oldValue = this.value;
+    event.stopPropagation();
+    this.value = this.multiple ? [] : "";
+    if (this.value !== oldValue) {
+      this.emit("sl-clear");
+      this.emit("sl-input");
+      this.emit("sl-change");
+    }
+    this.syncItemsFromValue();
+  }
+  handleDisabledChange() {
+    if (this.disabled && this.isOpen) {
+      this.dropdown.hide();
+    }
+    this.input.disabled = this.disabled;
+    this.invalid = !this.input.checkValidity();
+  }
+  handleFocus() {
+    if (!this.hasFocus) {
+      this.hasFocus = true;
+      this.emit("sl-focus");
+    }
+  }
+  handleKeyDown(event) {
+    const target = event.target;
+    const firstItem = this.menuItems[0];
+    const lastItem = this.menuItems[this.menuItems.length - 1];
+    if (target.tagName.toLowerCase() === "sl-tag") {
+      return;
+    }
+    if (event.key === "Tab") {
+      if (this.isOpen) {
+        this.dropdown.hide();
+      }
+      return;
+    }
+    if (["ArrowDown", "ArrowUp"].includes(event.key)) {
+      event.preventDefault();
+      if (!this.isOpen) {
+        this.dropdown.show();
+      }
+      if (event.key === "ArrowDown") {
+        this.menu.setCurrentItem(firstItem);
+        firstItem.focus();
+        return;
+      }
+      if (event.key === "ArrowUp") {
+        this.menu.setCurrentItem(lastItem);
+        lastItem.focus();
+        return;
+      }
+    }
+    if (event.ctrlKey || event.metaKey) {
+      return;
+    }
+    if (!this.isOpen && event.key.length === 1) {
+      event.stopPropagation();
+      event.preventDefault();
+      this.dropdown.show();
+      this.menu.typeToSelect(event);
+    }
+  }
+  handleLabelClick() {
+    this.focus();
+  }
+  handleMenuSelect(event) {
+    const item = event.detail.item;
+    const oldValue = this.value;
+    if (this.multiple) {
+      this.value = this.value.includes(item.value) ? this.value.filter((v) => v !== item.value) : [...this.value, item.value];
+    } else {
+      this.value = item.value;
+    }
+    if (this.value !== oldValue) {
+      this.emit("sl-change");
+      this.emit("sl-input");
+    }
+    this.syncItemsFromValue();
+  }
+  handleMenuShow() {
+    this.resizeMenu();
+    this.isOpen = true;
+  }
+  handleMenuHide() {
+    this.isOpen = false;
+    this.control.focus();
+  }
+  handleMenuItemLabelChange() {
+    if (!this.multiple) {
+      const checkedItem = this.menuItems.find((item) => item.value === this.value);
+      this.displayLabel = checkedItem ? checkedItem.getTextLabel() : "";
+    }
+  }
+  handleMultipleChange() {
+    var _a;
+    const value = this.getValueAsArray();
+    this.value = this.multiple ? value : (_a = value[0]) != null ? _a : "";
+    this.syncItemsFromValue();
+  }
+  async handleMenuSlotChange() {
+    this.menuItems = [...this.querySelectorAll("sl-menu-item")];
+    const values = [];
+    this.menuItems.forEach((item) => {
+      if (values.includes(item.value)) {
+        console.error(`Duplicate value found in <sl-select> menu item: '${item.value}'`, item);
+      }
+      values.push(item.value);
+    });
+    await Promise.all(this.menuItems.map((item) => item.render));
+    this.syncItemsFromValue();
+  }
+  handleTagInteraction(event) {
+    const path = event.composedPath();
+    const clearButton = path.find((el) => {
+      if (el instanceof HTMLElement) {
+        const element = el;
+        return element.classList.contains("tag__remove");
+      }
+      return false;
+    });
+    if (clearButton) {
+      event.stopPropagation();
+    }
+  }
+  async handleValueChange() {
+    this.syncItemsFromValue();
+    await this.updateComplete;
+    this.invalid = !this.input.checkValidity();
+  }
+  resizeMenu() {
+    this.menu.style.width = `${this.control.clientWidth}px`;
+    requestAnimationFrame(() => this.dropdown.reposition());
+  }
+  syncItemsFromValue() {
+    const value = this.getValueAsArray();
+    this.menuItems.forEach((item) => item.checked = value.includes(item.value));
+    if (this.multiple) {
+      const checkedItems = this.menuItems.filter((item) => value.includes(item.value));
+      this.displayLabel = checkedItems.length > 0 ? checkedItems[0].getTextLabel() : "";
+      this.displayTags = checkedItems.map((item) => {
+        return y$1`
+          <sl-tag
+            part="tag"
+            exportparts="
+              base:tag__base,
+              content:tag__content,
+              remove-button:tag__remove-button
+            "
+            variant="neutral"
+            size=${this.size}
+            ?pill=${this.pill}
+            removable
+            @click=${this.handleTagInteraction}
+            @keydown=${this.handleTagInteraction}
+            @sl-remove=${(event) => {
+          event.stopPropagation();
+          if (!this.disabled) {
+            item.checked = false;
+            this.syncValueFromItems();
+          }
+        }}
+          >
+            ${item.getTextLabel()}
+          </sl-tag>
+        `;
+      });
+      if (this.maxTagsVisible > 0 && this.displayTags.length > this.maxTagsVisible) {
+        const total = this.displayTags.length;
+        this.displayLabel = "";
+        this.displayTags = this.displayTags.slice(0, this.maxTagsVisible);
+        this.displayTags.push(y$1`
+          <sl-tag
+            part="tag"
+            exportparts="
+              base:tag__base,
+              content:tag__content,
+              remove-button:tag__remove-button
+            "
+            variant="neutral"
+            size=${this.size}
+          >
+            +${total - this.maxTagsVisible}
+          </sl-tag>
+        `);
+      }
+    } else {
+      const checkedItem = this.menuItems.find((item) => item.value === value[0]);
+      this.displayLabel = checkedItem ? checkedItem.getTextLabel() : "";
+      this.displayTags = [];
+    }
+  }
+  syncValueFromItems() {
+    const checkedItems = this.menuItems.filter((item) => item.checked);
+    const checkedValues = checkedItems.map((item) => item.value);
+    const oldValue = this.value;
+    if (this.multiple) {
+      this.value = this.value.filter((val) => checkedValues.includes(val));
+    } else {
+      this.value = checkedValues.length > 0 ? checkedValues[0] : "";
+    }
+    if (this.value !== oldValue) {
+      this.emit("sl-change");
+      this.emit("sl-input");
+    }
+  }
+  render() {
+    const hasLabelSlot = this.hasSlotController.test("label");
+    const hasHelpTextSlot = this.hasSlotController.test("help-text");
+    const hasSelection = this.multiple ? this.value.length > 0 : this.value !== "";
+    const hasLabel = this.label ? true : !!hasLabelSlot;
+    const hasHelpText = this.helpText ? true : !!hasHelpTextSlot;
+    const hasClearIcon = this.clearable && !this.disabled && hasSelection;
+    return y$1`
+      <div
+        part="form-control"
+        class=${o$6({
+      "form-control": true,
+      "form-control--small": this.size === "small",
+      "form-control--medium": this.size === "medium",
+      "form-control--large": this.size === "large",
+      "form-control--has-label": hasLabel,
+      "form-control--has-help-text": hasHelpText
+    })}
+      >
+        <label
+          part="form-control-label"
+          class="form-control__label"
+          for="input"
+          aria-hidden=${hasLabel ? "false" : "true"}
+          @click=${this.handleLabelClick}
+        >
+          <slot name="label">${this.label}</slot>
+        </label>
+
+        <div part="form-control-input" class="form-control-input">
+          <sl-dropdown
+            part="base"
+            .hoist=${this.hoist}
+            .placement=${this.placement === "bottom" ? "bottom-start" : "top-start"}
+            .stayOpenOnSelect=${this.multiple}
+            .containingElement=${this}
+            ?disabled=${this.disabled}
+            class=${o$6({
+      select: true,
+      "select--open": this.isOpen,
+      "select--empty": !this.value,
+      "select--focused": this.hasFocus,
+      "select--clearable": this.clearable,
+      "select--disabled": this.disabled,
+      "select--multiple": this.multiple,
+      "select--standard": !this.filled,
+      "select--filled": this.filled,
+      "select--has-tags": this.multiple && this.displayTags.length > 0,
+      "select--placeholder-visible": this.displayLabel === "",
+      "select--small": this.size === "small",
+      "select--medium": this.size === "medium",
+      "select--large": this.size === "large",
+      "select--pill": this.pill,
+      "select--invalid": this.invalid
+    })}
+            @sl-show=${this.handleMenuShow}
+            @sl-hide=${this.handleMenuHide}
+          >
+            <div
+              part="control"
+              slot="trigger"
+              id="input"
+              class="select__control"
+              role="combobox"
+              aria-describedby="help-text"
+              aria-haspopup="true"
+              aria-disabled=${this.disabled ? "true" : "false"}
+              aria-expanded=${this.isOpen ? "true" : "false"}
+              aria-controls="menu"
+              tabindex=${this.disabled ? "-1" : "0"}
+              @blur=${this.handleBlur}
+              @focus=${this.handleFocus}
+              @keydown=${this.handleKeyDown}
+            >
+              <slot name="prefix" part="prefix" class="select__prefix"></slot>
+
+              <div part="display-label" class="select__label">
+                ${this.displayTags.length > 0 ? y$1` <span part="tags" class="select__tags"> ${this.displayTags} </span> ` : this.displayLabel.length > 0 ? this.displayLabel : this.placeholder}
+              </div>
+
+              ${hasClearIcon ? y$1`
+                    <button
+                      part="clear-button"
+                      class="select__clear"
+                      @click=${this.handleClearClick}
+                      aria-label=${this.localize.term("clearEntry")}
+                      tabindex="-1"
+                    >
+                      <slot name="clear-icon">
+                        <sl-icon name="x-circle-fill" library="system"></sl-icon>
+                      </slot>
+                    </button>
+                  ` : ""}
+
+              <slot name="suffix" part="suffix" class="select__suffix"></slot>
+
+              <span part="icon" class="select__icon" aria-hidden="true">
+                <sl-icon name="chevron-down" library="system"></sl-icon>
+              </span>
+
+              <!-- The hidden input tricks the browser's built-in validation so it works as expected. We use an input
+              instead of a select because, otherwise, iOS will show a list of options during validation. The focus
+              handler is used to move focus to the primary control when it's marked invalid.  -->
+              <input
+                class="select__hidden-select"
+                aria-hidden="true"
+                ?required=${this.required}
+                .value=${hasSelection ? "1" : ""}
+                tabindex="-1"
+                @focus=${() => this.control.focus()}
+              />
+            </div>
+
+            <sl-menu part="menu" id="menu" class="select__menu" @sl-select=${this.handleMenuSelect}>
+              <slot @slotchange=${this.handleMenuSlotChange} @sl-label-change=${this.handleMenuItemLabelChange}></slot>
+            </sl-menu>
+          </sl-dropdown>
+        </div>
+
+        <slot
+          name="help-text"
+          part="form-control-help-text"
+          id="help-text"
+          class="form-control__help-text"
+          aria-hidden=${hasHelpText ? "false" : "true"}
+        >
+          ${this.helpText}
+        </slot>
+      </div>
+    `;
+  }
+};
+SlSelect.styles = select_styles_default;
+__decorateClass([
+  i2$2(".select")
+], SlSelect.prototype, "dropdown", 2);
+__decorateClass([
+  i2$2(".select__control")
+], SlSelect.prototype, "control", 2);
+__decorateClass([
+  i2$2(".select__hidden-select")
+], SlSelect.prototype, "input", 2);
+__decorateClass([
+  i2$2(".select__menu")
+], SlSelect.prototype, "menu", 2);
+__decorateClass([
+  t$4()
+], SlSelect.prototype, "hasFocus", 2);
+__decorateClass([
+  t$4()
+], SlSelect.prototype, "isOpen", 2);
+__decorateClass([
+  t$4()
+], SlSelect.prototype, "displayLabel", 2);
+__decorateClass([
+  t$4()
+], SlSelect.prototype, "displayTags", 2);
+__decorateClass([
+  t$4()
+], SlSelect.prototype, "invalid", 2);
+__decorateClass([
+  e2$1({ type: Boolean, reflect: true })
+], SlSelect.prototype, "multiple", 2);
+__decorateClass([
+  e2$1({ attribute: "max-tags-visible", type: Number })
+], SlSelect.prototype, "maxTagsVisible", 2);
+__decorateClass([
+  e2$1({ type: Boolean, reflect: true })
+], SlSelect.prototype, "disabled", 2);
+__decorateClass([
+  e2$1()
+], SlSelect.prototype, "name", 2);
+__decorateClass([
+  e2$1()
+], SlSelect.prototype, "value", 2);
+__decorateClass([
+  e2$1()
+], SlSelect.prototype, "placeholder", 2);
+__decorateClass([
+  e2$1()
+], SlSelect.prototype, "size", 2);
+__decorateClass([
+  e2$1({ type: Boolean })
+], SlSelect.prototype, "hoist", 2);
+__decorateClass([
+  e2$1({ type: Boolean, reflect: true })
+], SlSelect.prototype, "filled", 2);
+__decorateClass([
+  e2$1({ type: Boolean, reflect: true })
+], SlSelect.prototype, "pill", 2);
+__decorateClass([
+  e2$1()
+], SlSelect.prototype, "label", 2);
+__decorateClass([
+  e2$1()
+], SlSelect.prototype, "placement", 2);
+__decorateClass([
+  e2$1({ attribute: "help-text" })
+], SlSelect.prototype, "helpText", 2);
+__decorateClass([
+  e2$1({ type: Boolean, reflect: true })
+], SlSelect.prototype, "required", 2);
+__decorateClass([
+  e2$1({ type: Boolean })
+], SlSelect.prototype, "clearable", 2);
+__decorateClass([
+  defaultValue()
+], SlSelect.prototype, "defaultValue", 2);
+__decorateClass([
+  watch("disabled", { waitUntilFirstUpdate: true })
+], SlSelect.prototype, "handleDisabledChange", 1);
+__decorateClass([
+  watch("multiple")
+], SlSelect.prototype, "handleMultipleChange", 1);
+__decorateClass([
+  watch("value", { waitUntilFirstUpdate: true })
+], SlSelect.prototype, "handleValueChange", 1);
+SlSelect = __decorateClass([
+  e$6("sl-select")
+], SlSelect);
+
+// src/components/tag/tag.styles.ts
+var tag_styles_default = i$6`
+  ${component_styles_default}
+
+  :host {
+    display: inline-block;
+  }
+
+  .tag {
+    display: flex;
+    align-items: center;
+    border: solid 1px;
+    line-height: 1;
+    white-space: nowrap;
+    user-select: none;
+    cursor: default;
+  }
+
+  .tag__remove::part(base) {
+    color: inherit;
+    padding: 0;
+  }
+
+  /*
+   * Variant modifiers
+   */
+
+  .tag--primary {
+    background-color: var(--sl-color-primary-50);
+    border-color: var(--sl-color-primary-200);
+    color: var(--sl-color-primary-800);
+  }
+
+  .tag--success {
+    background-color: var(--sl-color-success-50);
+    border-color: var(--sl-color-success-200);
+    color: var(--sl-color-success-800);
+  }
+
+  .tag--neutral {
+    background-color: var(--sl-color-neutral-50);
+    border-color: var(--sl-color-neutral-200);
+    color: var(--sl-color-neutral-800);
+  }
+
+  .tag--warning {
+    background-color: var(--sl-color-warning-50);
+    border-color: var(--sl-color-warning-200);
+    color: var(--sl-color-warning-800);
+  }
+
+  .tag--danger {
+    background-color: var(--sl-color-danger-50);
+    border-color: var(--sl-color-danger-200);
+    color: var(--sl-color-danger-800);
+  }
+
+  /*
+   * Size modifiers
+   */
+
+  .tag--small {
+    font-size: var(--sl-button-font-size-small);
+    height: calc(var(--sl-input-height-small) * 0.8);
+    line-height: calc(var(--sl-input-height-small) - var(--sl-input-border-width) * 2);
+    border-radius: var(--sl-input-border-radius-small);
+    padding: 0 var(--sl-spacing-x-small);
+  }
+
+  .tag--medium {
+    font-size: var(--sl-button-font-size-medium);
+    height: calc(var(--sl-input-height-medium) * 0.8);
+    line-height: calc(var(--sl-input-height-medium) - var(--sl-input-border-width) * 2);
+    border-radius: var(--sl-input-border-radius-medium);
+    padding: 0 var(--sl-spacing-small);
+  }
+
+  .tag--large {
+    font-size: var(--sl-button-font-size-large);
+    height: calc(var(--sl-input-height-large) * 0.8);
+    line-height: calc(var(--sl-input-height-large) - var(--sl-input-border-width) * 2);
+    border-radius: var(--sl-input-border-radius-large);
+    padding: 0 var(--sl-spacing-medium);
+  }
+
+  .tag__remove {
+    margin-inline-start: var(--sl-spacing-x-small);
+  }
+
+  /*
+   * Pill modifier
+   */
+
+  .tag--pill {
+    border-radius: var(--sl-border-radius-pill);
+  }
+`;
+
+// src/components/tag/tag.ts
+var SlTag = class extends ShoelaceElement {
+  constructor() {
+    super(...arguments);
+    this.localize = new LocalizeController2(this);
+    this.variant = "neutral";
+    this.size = "medium";
+    this.pill = false;
+    this.removable = false;
+  }
+  handleRemoveClick() {
+    this.emit("sl-remove");
+  }
+  render() {
+    return y$1`
+      <span
+        part="base"
+        class=${o$6({
+      tag: true,
+      "tag--primary": this.variant === "primary",
+      "tag--success": this.variant === "success",
+      "tag--neutral": this.variant === "neutral",
+      "tag--warning": this.variant === "warning",
+      "tag--danger": this.variant === "danger",
+      "tag--text": this.variant === "text",
+      "tag--small": this.size === "small",
+      "tag--medium": this.size === "medium",
+      "tag--large": this.size === "large",
+      "tag--pill": this.pill,
+      "tag--removable": this.removable
+    })}
+      >
+        <slot part="content" class="tag__content"></slot>
+
+        ${this.removable ? y$1`
+              <sl-icon-button
+                part="remove-button"
+                exportparts="base:remove-button__base"
+                name="x-lg"
+                library="system"
+                label=${this.localize.term("remove")}
+                class="tag__remove"
+                @click=${this.handleRemoveClick}
+              ></sl-icon-button>
+            ` : ""}
+      </span>
+    `;
+  }
+};
+SlTag.styles = tag_styles_default;
+__decorateClass([
+  e2$1({ reflect: true })
+], SlTag.prototype, "variant", 2);
+__decorateClass([
+  e2$1({ reflect: true })
+], SlTag.prototype, "size", 2);
+__decorateClass([
+  e2$1({ type: Boolean, reflect: true })
+], SlTag.prototype, "pill", 2);
+__decorateClass([
+  e2$1({ type: Boolean })
+], SlTag.prototype, "removable", 2);
+SlTag = __decorateClass([
+  e$6("sl-tag")
+], SlTag);
+
+// src/components/menu/menu.styles.ts
+var menu_styles_default = i$6`
+  ${component_styles_default}
+
+  :host {
+    display: block;
+    position: relative;
+    background: var(--sl-panel-background-color);
+    border: solid var(--sl-panel-border-width) var(--sl-panel-border-color);
+    border-radius: var(--sl-border-radius-medium);
+    padding: var(--sl-spacing-x-small) 0;
+    overflow: auto;
+    overscroll-behavior: none;
+  }
+
+  ::slotted(sl-divider) {
+    --spacing: var(--sl-spacing-x-small);
+  }
+`;
+
+// src/components/menu/menu.ts
+var SlMenu = class extends ShoelaceElement {
+  constructor() {
+    super(...arguments);
+    this.typeToSelectString = "";
+  }
+  connectedCallback() {
+    super.connectedCallback();
+    this.setAttribute("role", "menu");
+  }
+  getAllItems(options = { includeDisabled: true }) {
+    return [...this.defaultSlot.assignedElements({ flatten: true })].filter((el) => {
+      if (el.getAttribute("role") !== "menuitem") {
+        return false;
+      }
+      if (!options.includeDisabled && el.disabled) {
+        return false;
+      }
+      return true;
+    });
+  }
+  getCurrentItem() {
+    return this.getAllItems({ includeDisabled: false }).find((i2) => i2.getAttribute("tabindex") === "0");
+  }
+  setCurrentItem(item) {
+    const items = this.getAllItems({ includeDisabled: false });
+    const activeItem = item.disabled ? items[0] : item;
+    items.forEach((i2) => {
+      i2.setAttribute("tabindex", i2 === activeItem ? "0" : "-1");
+    });
+  }
+  typeToSelect(event) {
+    var _a;
+    const items = this.getAllItems({ includeDisabled: false });
+    clearTimeout(this.typeToSelectTimeout);
+    this.typeToSelectTimeout = window.setTimeout(() => this.typeToSelectString = "", 1e3);
+    if (event.key === "Backspace") {
+      if (event.metaKey || event.ctrlKey) {
+        this.typeToSelectString = "";
+      } else {
+        this.typeToSelectString = this.typeToSelectString.slice(0, -1);
+      }
+    } else {
+      this.typeToSelectString += event.key.toLowerCase();
+    }
+    for (const item of items) {
+      const slot = (_a = item.shadowRoot) == null ? void 0 : _a.querySelector("slot:not([name])");
+      const label = getTextContent(slot).toLowerCase().trim();
+      if (label.startsWith(this.typeToSelectString)) {
+        this.setCurrentItem(item);
+        item.focus();
+        break;
+      }
+    }
+  }
+  handleClick(event) {
+    const target = event.target;
+    const item = target.closest("sl-menu-item");
+    if ((item == null ? void 0 : item.disabled) === false) {
+      this.emit("sl-select", { detail: { item } });
+    }
+  }
+  handleKeyDown(event) {
+    if (event.key === "Enter") {
+      const item = this.getCurrentItem();
+      event.preventDefault();
+      item == null ? void 0 : item.click();
+    }
+    if (event.key === " ") {
+      event.preventDefault();
+    }
+    if (["ArrowDown", "ArrowUp", "Home", "End"].includes(event.key)) {
+      const items = this.getAllItems({ includeDisabled: false });
+      const activeItem = this.getCurrentItem();
+      let index = activeItem ? items.indexOf(activeItem) : 0;
+      if (items.length > 0) {
+        event.preventDefault();
+        if (event.key === "ArrowDown") {
+          index++;
+        } else if (event.key === "ArrowUp") {
+          index--;
+        } else if (event.key === "Home") {
+          index = 0;
+        } else if (event.key === "End") {
+          index = items.length - 1;
+        }
+        if (index < 0) {
+          index = items.length - 1;
+        }
+        if (index > items.length - 1) {
+          index = 0;
+        }
+        this.setCurrentItem(items[index]);
+        items[index].focus();
+        return;
+      }
+    }
+    this.typeToSelect(event);
+  }
+  handleMouseDown(event) {
+    const target = event.target;
+    if (target.getAttribute("role") === "menuitem") {
+      this.setCurrentItem(target);
+    }
+  }
+  handleSlotChange() {
+    const items = this.getAllItems({ includeDisabled: false });
+    if (items.length > 0) {
+      this.setCurrentItem(items[0]);
+    }
+  }
+  render() {
+    return y$1`
+      <slot
+        @slotchange=${this.handleSlotChange}
+        @click=${this.handleClick}
+        @keydown=${this.handleKeyDown}
+        @mousedown=${this.handleMouseDown}
+      ></slot>
+    `;
+  }
+};
+SlMenu.styles = menu_styles_default;
+__decorateClass([
+  i2$2("slot")
+], SlMenu.prototype, "defaultSlot", 2);
+SlMenu = __decorateClass([
+  e$6("sl-menu")
+], SlMenu);
+
+// src/components/dropdown/dropdown.styles.ts
+var dropdown_styles_default = i$6`
+  ${component_styles_default}
+
+  :host {
+    display: inline-block;
+  }
+
+  .dropdown::part(popup) {
+    z-index: var(--sl-z-index-dropdown);
+  }
+
+  .dropdown[data-current-placement^='top']::part(popup) {
+    transform-origin: bottom;
+  }
+
+  .dropdown[data-current-placement^='bottom']::part(popup) {
+    transform-origin: top;
+  }
+
+  .dropdown[data-current-placement^='left']::part(popup) {
+    transform-origin: right;
+  }
+
+  .dropdown[data-current-placement^='right']::part(popup) {
+    transform-origin: left;
+  }
+
+  .dropdown__trigger {
+    display: block;
+  }
+
+  .dropdown__panel {
+    font-family: var(--sl-font-sans);
+    font-size: var(--sl-font-size-medium);
+    font-weight: var(--sl-font-weight-normal);
+    color: var(--color);
+    box-shadow: var(--sl-shadow-large);
+    border-radius: var(--sl-border-radius-medium);
+    pointer-events: none;
+  }
+
+  .dropdown--open .dropdown__panel {
+    display: block;
+    pointer-events: all;
+  }
+
+  /* When users slot a menu, make sure it conforms to the popup's auto-size */
+  ::slotted(sl-menu) {
+    max-width: var(--auto-size-available-width) !important;
+    max-height: var(--auto-size-available-height) !important;
+  }
+`;
+
+// src/internal/tabbable.ts
+function isTabbable(el) {
+  const tag = el.tagName.toLowerCase();
+  if (el.getAttribute("tabindex") === "-1") {
+    return false;
+  }
+  if (el.hasAttribute("disabled")) {
+    return false;
+  }
+  if (el.hasAttribute("aria-disabled") && el.getAttribute("aria-disabled") !== "false") {
+    return false;
+  }
+  if (tag === "input" && el.getAttribute("type") === "radio" && !el.hasAttribute("checked")) {
+    return false;
+  }
+  if (el.offsetParent === null) {
+    return false;
+  }
+  if (window.getComputedStyle(el).visibility === "hidden") {
+    return false;
+  }
+  if ((tag === "audio" || tag === "video") && el.hasAttribute("controls")) {
+    return true;
+  }
+  if (el.hasAttribute("tabindex")) {
+    return true;
+  }
+  if (el.hasAttribute("contenteditable") && el.getAttribute("contenteditable") !== "false") {
+    return true;
+  }
+  return ["button", "input", "select", "textarea", "a", "audio", "video", "summary"].includes(tag);
+}
+function getTabbableBoundary(root) {
+  var _a, _b;
+  const allElements = [];
+  function walk(el) {
+    if (el instanceof HTMLElement) {
+      allElements.push(el);
+      if (el.shadowRoot !== null && el.shadowRoot.mode === "open") {
+        walk(el.shadowRoot);
+      }
+    }
+    [...el.children].forEach((e) => walk(e));
+  }
+  walk(root);
+  const start = (_a = allElements.find((el) => isTabbable(el))) != null ? _a : null;
+  const end = (_b = allElements.reverse().find((el) => isTabbable(el))) != null ? _b : null;
+  return { start, end };
+}
+
+// src/internal/offset.ts
+function getOffset(element, parent) {
+  return {
+    top: Math.round(element.getBoundingClientRect().top - parent.getBoundingClientRect().top),
+    left: Math.round(element.getBoundingClientRect().left - parent.getBoundingClientRect().left)
+  };
+}
+function scrollIntoView(element, container, direction = "vertical", behavior = "smooth") {
+  const offset = getOffset(element, container);
+  const offsetTop = offset.top + container.scrollTop;
+  const offsetLeft = offset.left + container.scrollLeft;
+  const minX = container.scrollLeft;
+  const maxX = container.scrollLeft + container.offsetWidth;
+  const minY = container.scrollTop;
+  const maxY = container.scrollTop + container.offsetHeight;
+  if (direction === "horizontal" || direction === "both") {
+    if (offsetLeft < minX) {
+      container.scrollTo({ left: offsetLeft, behavior });
+    } else if (offsetLeft + element.clientWidth > maxX) {
+      container.scrollTo({ left: offsetLeft - container.offsetWidth + element.clientWidth, behavior });
+    }
+  }
+  if (direction === "vertical" || direction === "both") {
+    if (offsetTop < minY) {
+      container.scrollTo({ top: offsetTop, behavior });
+    } else if (offsetTop + element.clientHeight > maxY) {
+      container.scrollTo({ top: offsetTop - container.offsetHeight + element.clientHeight, behavior });
+    }
+  }
+}
+
+// src/components/dropdown/dropdown.ts
+var SlDropdown = class extends ShoelaceElement {
+  constructor() {
+    super(...arguments);
+    this.localize = new LocalizeController2(this);
+    this.open = false;
+    this.placement = "bottom-start";
+    this.disabled = false;
+    this.stayOpenOnSelect = false;
+    this.distance = 0;
+    this.skidding = 0;
+    this.hoist = false;
+  }
+  connectedCallback() {
+    super.connectedCallback();
+    this.handleMenuItemActivate = this.handleMenuItemActivate.bind(this);
+    this.handlePanelSelect = this.handlePanelSelect.bind(this);
+    this.handleKeyDown = this.handleKeyDown.bind(this);
+    this.handleDocumentKeyDown = this.handleDocumentKeyDown.bind(this);
+    this.handleDocumentMouseDown = this.handleDocumentMouseDown.bind(this);
+    if (!this.containingElement) {
+      this.containingElement = this;
+    }
+  }
+  firstUpdated() {
+    this.panel.hidden = !this.open;
+    if (this.open) {
+      this.addOpenListeners();
+      this.popup.active = true;
+    }
+  }
+  disconnectedCallback() {
+    super.disconnectedCallback();
+    this.removeOpenListeners();
+    this.hide();
+  }
+  focusOnTrigger() {
+    const trigger = this.trigger.assignedElements({ flatten: true })[0];
+    if (typeof (trigger == null ? void 0 : trigger.focus) === "function") {
+      trigger.focus();
+    }
+  }
+  getMenu() {
+    return this.panel.assignedElements({ flatten: true }).find((el) => el.tagName.toLowerCase() === "sl-menu");
+  }
+  handleKeyDown(event) {
+    if (this.open && event.key === "Escape") {
+      event.stopPropagation();
+      this.hide();
+      this.focusOnTrigger();
+    }
+  }
+  handleDocumentKeyDown(event) {
+    var _a;
+    if (event.key === "Tab") {
+      if (this.open && ((_a = document.activeElement) == null ? void 0 : _a.tagName.toLowerCase()) === "sl-menu-item") {
+        event.preventDefault();
+        this.hide();
+        this.focusOnTrigger();
+        return;
+      }
+      setTimeout(() => {
+        var _a2, _b, _c;
+        const activeElement = ((_a2 = this.containingElement) == null ? void 0 : _a2.getRootNode()) instanceof ShadowRoot ? (_c = (_b = document.activeElement) == null ? void 0 : _b.shadowRoot) == null ? void 0 : _c.activeElement : document.activeElement;
+        if (!this.containingElement || (activeElement == null ? void 0 : activeElement.closest(this.containingElement.tagName.toLowerCase())) !== this.containingElement) {
+          this.hide();
+        }
+      });
+    }
+  }
+  handleDocumentMouseDown(event) {
+    const path = event.composedPath();
+    if (this.containingElement && !path.includes(this.containingElement)) {
+      this.hide();
+    }
+  }
+  handleMenuItemActivate(event) {
+    const item = event.target;
+    scrollIntoView(item, this.panel);
+  }
+  handlePanelSelect(event) {
+    const target = event.target;
+    if (!this.stayOpenOnSelect && target.tagName.toLowerCase() === "sl-menu") {
+      this.hide();
+      this.focusOnTrigger();
+    }
+  }
+  handleTriggerClick() {
+    if (this.open) {
+      this.hide();
+    } else {
+      this.show();
+    }
+  }
+  handleTriggerKeyDown(event) {
+    if (event.key === "Escape" && this.open) {
+      event.stopPropagation();
+      this.focusOnTrigger();
+      this.hide();
+      return;
+    }
+    if ([" ", "Enter"].includes(event.key)) {
+      event.preventDefault();
+      this.handleTriggerClick();
+      return;
+    }
+    const menu = this.getMenu();
+    if (menu) {
+      const menuItems = menu.defaultSlot.assignedElements({ flatten: true });
+      const firstMenuItem = menuItems[0];
+      const lastMenuItem = menuItems[menuItems.length - 1];
+      if (["ArrowDown", "ArrowUp", "Home", "End"].includes(event.key)) {
+        event.preventDefault();
+        if (!this.open) {
+          this.show();
+        }
+        if (menuItems.length > 0) {
+          requestAnimationFrame(() => {
+            if (event.key === "ArrowDown" || event.key === "Home") {
+              menu.setCurrentItem(firstMenuItem);
+              firstMenuItem.focus();
+            }
+            if (event.key === "ArrowUp" || event.key === "End") {
+              menu.setCurrentItem(lastMenuItem);
+              lastMenuItem.focus();
+            }
+          });
+        }
+      }
+      const ignoredKeys = ["Tab", "Shift", "Meta", "Ctrl", "Alt"];
+      if (this.open && !ignoredKeys.includes(event.key)) {
+        menu.typeToSelect(event);
+      }
+    }
+  }
+  handleTriggerKeyUp(event) {
+    if (event.key === " ") {
+      event.preventDefault();
+    }
+  }
+  handleTriggerSlotChange() {
+    this.updateAccessibleTrigger();
+  }
+  updateAccessibleTrigger() {
+    const assignedElements = this.trigger.assignedElements({ flatten: true });
+    const accessibleTrigger = assignedElements.find((el) => getTabbableBoundary(el).start);
+    let target;
+    if (accessibleTrigger) {
+      switch (accessibleTrigger.tagName.toLowerCase()) {
+        case "sl-button":
+        case "sl-icon-button":
+          target = accessibleTrigger.button;
+          break;
+        default:
+          target = accessibleTrigger;
+      }
+      target.setAttribute("aria-haspopup", "true");
+      target.setAttribute("aria-expanded", this.open ? "true" : "false");
+    }
+  }
+  async show() {
+    if (this.open) {
+      return void 0;
+    }
+    this.open = true;
+    return waitForEvent(this, "sl-after-show");
+  }
+  async hide() {
+    if (!this.open) {
+      return void 0;
+    }
+    this.open = false;
+    return waitForEvent(this, "sl-after-hide");
+  }
+  reposition() {
+    this.popup.reposition();
+  }
+  addOpenListeners() {
+    this.panel.addEventListener("sl-activate", this.handleMenuItemActivate);
+    this.panel.addEventListener("sl-select", this.handlePanelSelect);
+    this.panel.addEventListener("keydown", this.handleKeyDown);
+    document.addEventListener("keydown", this.handleDocumentKeyDown);
+    document.addEventListener("mousedown", this.handleDocumentMouseDown);
+  }
+  removeOpenListeners() {
+    if (this.panel) {
+      this.panel.removeEventListener("sl-activate", this.handleMenuItemActivate);
+      this.panel.removeEventListener("sl-select", this.handlePanelSelect);
+      this.panel.removeEventListener("keydown", this.handleKeyDown);
+    }
+    document.removeEventListener("keydown", this.handleDocumentKeyDown);
+    document.removeEventListener("mousedown", this.handleDocumentMouseDown);
+  }
+  async handleOpenChange() {
+    if (this.disabled) {
+      this.open = false;
+      return;
+    }
+    this.updateAccessibleTrigger();
+    if (this.open) {
+      this.emit("sl-show");
+      this.addOpenListeners();
+      await stopAnimations(this);
+      this.panel.hidden = false;
+      this.popup.active = true;
+      const { keyframes, options } = getAnimation(this, "dropdown.show", { dir: this.localize.dir() });
+      await animateTo(this.popup.popup, keyframes, options);
+      this.emit("sl-after-show");
+    } else {
+      this.emit("sl-hide");
+      this.removeOpenListeners();
+      await stopAnimations(this);
+      const { keyframes, options } = getAnimation(this, "dropdown.hide", { dir: this.localize.dir() });
+      await animateTo(this.popup.popup, keyframes, options);
+      this.panel.hidden = true;
+      this.popup.active = false;
+      this.emit("sl-after-hide");
+    }
+  }
+  render() {
+    return y$1`
+      <sl-popup
+        part="base"
+        id="dropdown"
+        placement=${this.placement}
+        distance=${this.distance}
+        skidding=${this.skidding}
+        strategy=${this.hoist ? "fixed" : "absolute"}
+        flip
+        shift
+        auto-size="vertical"
+        auto-size-padding="10"
+        class=${o$6({
+      dropdown: true,
+      "dropdown--open": this.open
+    })}
+      >
+        <slot
+          name="trigger"
+          slot="anchor"
+          part="trigger"
+          class="dropdown__trigger"
+          @click=${this.handleTriggerClick}
+          @keydown=${this.handleTriggerKeyDown}
+          @keyup=${this.handleTriggerKeyUp}
+          @slotchange=${this.handleTriggerSlotChange}
+        ></slot>
+
+        <slot
+          part="panel"
+          class="dropdown__panel"
+          aria-hidden=${this.open ? "false" : "true"}
+          aria-labelledby="dropdown"
+        ></slot>
+      </sl-popup>
+    `;
+  }
+};
+SlDropdown.styles = dropdown_styles_default;
+__decorateClass([
+  i2$2(".dropdown")
+], SlDropdown.prototype, "popup", 2);
+__decorateClass([
+  i2$2(".dropdown__trigger")
+], SlDropdown.prototype, "trigger", 2);
+__decorateClass([
+  i2$2(".dropdown__panel")
+], SlDropdown.prototype, "panel", 2);
+__decorateClass([
+  e2$1({ type: Boolean, reflect: true })
+], SlDropdown.prototype, "open", 2);
+__decorateClass([
+  e2$1({ reflect: true })
+], SlDropdown.prototype, "placement", 2);
+__decorateClass([
+  e2$1({ type: Boolean, reflect: true })
+], SlDropdown.prototype, "disabled", 2);
+__decorateClass([
+  e2$1({ attribute: "stay-open-on-select", type: Boolean, reflect: true })
+], SlDropdown.prototype, "stayOpenOnSelect", 2);
+__decorateClass([
+  e2$1({ attribute: false })
+], SlDropdown.prototype, "containingElement", 2);
+__decorateClass([
+  e2$1({ type: Number })
+], SlDropdown.prototype, "distance", 2);
+__decorateClass([
+  e2$1({ type: Number })
+], SlDropdown.prototype, "skidding", 2);
+__decorateClass([
+  e2$1({ type: Boolean })
+], SlDropdown.prototype, "hoist", 2);
+__decorateClass([
+  watch("open", { waitUntilFirstUpdate: true })
+], SlDropdown.prototype, "handleOpenChange", 1);
+SlDropdown = __decorateClass([
+  e$6("sl-dropdown")
+], SlDropdown);
+setDefaultAnimation("dropdown.show", {
+  keyframes: [
+    { opacity: 0, scale: 0.9 },
+    { opacity: 1, scale: 1 }
+  ],
+  options: { duration: 100, easing: "ease" }
+});
+setDefaultAnimation("dropdown.hide", {
+  keyframes: [
+    { opacity: 1, scale: 1 },
+    { opacity: 0, scale: 0.9 }
+  ],
+  options: { duration: 100, easing: "ease" }
+});
+
+// src/components/popup/popup.styles.ts
+var popup_styles_default = i$6`
+  ${component_styles_default}
+
+  :host {
+    --arrow-color: var(--sl-color-neutral-1000);
+    --arrow-size: 6px;
+
+    /*
+     * These properties are computed to account for the arrow's dimensions after being rotated 45º. The constant
+     * 0.7071 is derived from sin(45), which is the diagonal size of the arrow's container after rotating.
+     */
+    --arrow-size-diagonal: calc(var(--arrow-size) * 0.7071);
+    --arrow-padding-offset: calc(var(--arrow-size-diagonal) - var(--arrow-size));
+
+    display: contents;
+  }
+
+  .popup {
+    position: absolute;
+    isolation: isolate;
+    max-width: var(--auto-size-available-width, none);
+    max-height: var(--auto-size-available-height, none);
+  }
+
+  .popup--fixed {
+    position: fixed;
+  }
+
+  .popup:not(.popup--active) {
+    display: none;
+  }
+
+  .popup__arrow {
+    position: absolute;
+    width: calc(var(--arrow-size-diagonal) * 2);
+    height: calc(var(--arrow-size-diagonal) * 2);
+    rotate: 45deg;
+    background: var(--arrow-color);
+    z-index: -1;
+  }
+`;
+
+// node_modules/@floating-ui/core/dist/floating-ui.core.browser.min.mjs
+function t$3(t2) {
+  return t2.split("-")[0];
+}
+function e3(t2) {
+  return t2.split("-")[1];
+}
+function n$5(e4) {
+  return ["top", "bottom"].includes(t$3(e4)) ? "x" : "y";
+}
+function r$4(t2) {
+  return "y" === t2 ? "height" : "width";
+}
+function i2(i4, o4, a3) {
+  let { reference: l3, floating: s3 } = i4;
+  const c3 = l3.x + l3.width / 2 - s3.width / 2, f3 = l3.y + l3.height / 2 - s3.height / 2, u3 = n$5(o4), m3 = r$4(u3), g3 = l3[m3] / 2 - s3[m3] / 2, d3 = "x" === u3;
+  let p3;
+  switch (t$3(o4)) {
+    case "top":
+      p3 = { x: c3, y: l3.y - s3.height };
+      break;
+    case "bottom":
+      p3 = { x: c3, y: l3.y + l3.height };
+      break;
+    case "right":
+      p3 = { x: l3.x + l3.width, y: f3 };
+      break;
+    case "left":
+      p3 = { x: l3.x - s3.width, y: f3 };
+      break;
+    default:
+      p3 = { x: l3.x, y: l3.y };
+  }
+  switch (e3(o4)) {
+    case "start":
+      p3[u3] -= g3 * (a3 && d3 ? -1 : 1);
+      break;
+    case "end":
+      p3[u3] += g3 * (a3 && d3 ? -1 : 1);
+  }
+  return p3;
+}
+var o2 = async (t2, e4, n3) => {
+  const { placement: r3 = "bottom", strategy: o4 = "absolute", middleware: a3 = [], platform: l3 } = n3, s3 = a3.filter(Boolean), c3 = await (null == l3.isRTL ? void 0 : l3.isRTL(e4));
+  let f3 = await l3.getElementRects({ reference: t2, floating: e4, strategy: o4 }), { x: u3, y: m3 } = i2(f3, r3, c3), g3 = r3, d3 = {}, p3 = 0;
+  for (let n4 = 0; n4 < s3.length; n4++) {
+    const { name: a4, fn: h3 } = s3[n4], { x: y4, y: x3, data: w3, reset: v3 } = await h3({ x: u3, y: m3, initialPlacement: r3, placement: g3, strategy: o4, middlewareData: d3, rects: f3, platform: l3, elements: { reference: t2, floating: e4 } });
+    u3 = null != y4 ? y4 : u3, m3 = null != x3 ? x3 : m3, d3 = __spreadProps(__spreadValues({}, d3), { [a4]: __spreadValues(__spreadValues({}, d3[a4]), w3) }), v3 && p3 <= 50 && (p3++, "object" == typeof v3 && (v3.placement && (g3 = v3.placement), v3.rects && (f3 = true === v3.rects ? await l3.getElementRects({ reference: t2, floating: e4, strategy: o4 }) : v3.rects), { x: u3, y: m3 } = i2(f3, g3, c3)), n4 = -1);
+  }
+  return { x: u3, y: m3, placement: g3, strategy: o4, middlewareData: d3 };
+};
+function a$2(t2) {
+  return "number" != typeof t2 ? function(t3) {
+    return __spreadValues({ top: 0, right: 0, bottom: 0, left: 0 }, t3);
+  }(t2) : { top: t2, right: t2, bottom: t2, left: t2 };
+}
+function l$4(t2) {
+  return __spreadProps(__spreadValues({}, t2), { top: t2.y, left: t2.x, right: t2.x + t2.width, bottom: t2.y + t2.height });
+}
+async function s$5(t2, e4) {
+  var n3;
+  void 0 === e4 && (e4 = {});
+  const { x: r3, y: i4, platform: o4, rects: s3, elements: c3, strategy: f3 } = t2, { boundary: u3 = "clippingAncestors", rootBoundary: m3 = "viewport", elementContext: g3 = "floating", altBoundary: d3 = false, padding: p3 = 0 } = e4, h3 = a$2(p3), y4 = c3[d3 ? "floating" === g3 ? "reference" : "floating" : g3], x3 = l$4(await o4.getClippingRect({ element: null == (n3 = await (null == o4.isElement ? void 0 : o4.isElement(y4))) || n3 ? y4 : y4.contextElement || await (null == o4.getDocumentElement ? void 0 : o4.getDocumentElement(c3.floating)), boundary: u3, rootBoundary: m3, strategy: f3 })), w3 = l$4(o4.convertOffsetParentRelativeRectToViewportRelativeRect ? await o4.convertOffsetParentRelativeRectToViewportRelativeRect({ rect: "floating" === g3 ? __spreadProps(__spreadValues({}, s3.floating), { x: r3, y: i4 }) : s3.reference, offsetParent: await (null == o4.getOffsetParent ? void 0 : o4.getOffsetParent(c3.floating)), strategy: f3 }) : s3[g3]);
+  return { top: x3.top - w3.top + h3.top, bottom: w3.bottom - x3.bottom + h3.bottom, left: x3.left - w3.left + h3.left, right: w3.right - x3.right + h3.right };
+}
+var c$4 = Math.min;
+var f$2 = Math.max;
+function u$3(t2, e4, n3) {
+  return f$2(t2, c$4(e4, n3));
+}
+var m$2 = (t2) => ({ name: "arrow", options: t2, async fn(i4) {
+  const { element: o4, padding: l3 = 0 } = null != t2 ? t2 : {}, { x: s3, y: c3, placement: f3, rects: m3, platform: g3 } = i4;
+  if (null == o4)
+    return {};
+  const d3 = a$2(l3), p3 = { x: s3, y: c3 }, h3 = n$5(f3), y4 = e3(f3), x3 = r$4(h3), w3 = await g3.getDimensions(o4), v3 = "y" === h3 ? "top" : "left", b3 = "y" === h3 ? "bottom" : "right", R2 = m3.reference[x3] + m3.reference[h3] - p3[h3] - m3.floating[x3], A2 = p3[h3] - m3.reference[h3], P2 = await (null == g3.getOffsetParent ? void 0 : g3.getOffsetParent(o4));
+  let T3 = P2 ? "y" === h3 ? P2.clientHeight || 0 : P2.clientWidth || 0 : 0;
+  0 === T3 && (T3 = m3.floating[x3]);
+  const O3 = R2 / 2 - A2 / 2, L3 = d3[v3], D3 = T3 - w3[x3] - d3[b3], k2 = T3 / 2 - w3[x3] / 2 + O3, E3 = u$3(L3, k2, D3), B = ("start" === y4 ? d3[v3] : d3[b3]) > 0 && k2 !== E3 && m3.reference[x3] <= m3.floating[x3];
+  return { [h3]: p3[h3] - (B ? k2 < L3 ? L3 - k2 : D3 - k2 : 0), data: { [h3]: E3, centerOffset: k2 - E3 } };
+} });
+var g$1 = { left: "right", right: "left", bottom: "top", top: "bottom" };
+function d$2(t2) {
+  return t2.replace(/left|right|bottom|top/g, (t3) => g$1[t3]);
+}
+function p$2(t2, i4, o4) {
+  void 0 === o4 && (o4 = false);
+  const a3 = e3(t2), l3 = n$5(t2), s3 = r$4(l3);
+  let c3 = "x" === l3 ? a3 === (o4 ? "end" : "start") ? "right" : "left" : "start" === a3 ? "bottom" : "top";
+  return i4.reference[s3] > i4.floating[s3] && (c3 = d$2(c3)), { main: c3, cross: d$2(c3) };
+}
+var h$2 = { start: "end", end: "start" };
+function y2(t2) {
+  return t2.replace(/start|end/g, (t3) => h$2[t3]);
+}
+var x$1 = ["top", "right", "bottom", "left"];
+x$1.reduce((t2, e4) => t2.concat(e4, e4 + "-start", e4 + "-end"), []);
+var b$1 = function(e4) {
+  return void 0 === e4 && (e4 = {}), { name: "flip", options: e4, async fn(n3) {
+    var r3;
+    const { placement: i4, middlewareData: o4, rects: a3, initialPlacement: l3, platform: c3, elements: f3 } = n3, _a = e4, { mainAxis: u3 = true, crossAxis: m3 = true, fallbackPlacements: g3, fallbackStrategy: h3 = "bestFit", flipAlignment: x3 = true } = _a, w3 = __objRest(_a, ["mainAxis", "crossAxis", "fallbackPlacements", "fallbackStrategy", "flipAlignment"]), v3 = t$3(i4), b3 = g3 || (v3 === l3 || !x3 ? [d$2(l3)] : function(t2) {
+      const e5 = d$2(t2);
+      return [y2(t2), e5, y2(e5)];
+    }(l3)), R2 = [l3, ...b3], A2 = await s$5(n3, w3), P2 = [];
+    let T3 = (null == (r3 = o4.flip) ? void 0 : r3.overflows) || [];
+    if (u3 && P2.push(A2[v3]), m3) {
+      const { main: t2, cross: e5 } = p$2(i4, a3, await (null == c3.isRTL ? void 0 : c3.isRTL(f3.floating)));
+      P2.push(A2[t2], A2[e5]);
+    }
+    if (T3 = [...T3, { placement: i4, overflows: P2 }], !P2.every((t2) => t2 <= 0)) {
+      var O3, L3;
+      const t2 = (null != (O3 = null == (L3 = o4.flip) ? void 0 : L3.index) ? O3 : 0) + 1, e5 = R2[t2];
+      if (e5)
+        return { data: { index: t2, overflows: T3 }, reset: { placement: e5 } };
+      let n4 = "bottom";
+      switch (h3) {
+        case "bestFit": {
+          var D3;
+          const t3 = null == (D3 = T3.map((t4) => [t4, t4.overflows.filter((t5) => t5 > 0).reduce((t5, e6) => t5 + e6, 0)]).sort((t4, e6) => t4[1] - e6[1])[0]) ? void 0 : D3[0].placement;
+          t3 && (n4 = t3);
+          break;
+        }
+        case "initialPlacement":
+          n4 = l3;
+      }
+      if (i4 !== n4)
+        return { reset: { placement: n4 } };
+    }
+    return {};
+  } };
+};
+var T$1 = function(r3) {
+  return void 0 === r3 && (r3 = 0), { name: "offset", options: r3, async fn(i4) {
+    const { x: o4, y: a3 } = i4, l3 = await async function(r4, i5) {
+      const { placement: o5, platform: a4, elements: l4 } = r4, s3 = await (null == a4.isRTL ? void 0 : a4.isRTL(l4.floating)), c3 = t$3(o5), f3 = e3(o5), u3 = "x" === n$5(o5), m3 = ["left", "top"].includes(c3) ? -1 : 1, g3 = s3 && u3 ? -1 : 1, d3 = "function" == typeof i5 ? i5(r4) : i5;
+      let { mainAxis: p3, crossAxis: h3, alignmentAxis: y4 } = "number" == typeof d3 ? { mainAxis: d3, crossAxis: 0, alignmentAxis: null } : __spreadValues({ mainAxis: 0, crossAxis: 0, alignmentAxis: null }, d3);
+      return f3 && "number" == typeof y4 && (h3 = "end" === f3 ? -1 * y4 : y4), u3 ? { x: h3 * g3, y: p3 * m3 } : { x: p3 * m3, y: h3 * g3 };
+    }(i4, r3);
+    return { x: o4 + l3.x, y: a3 + l3.y, data: l3 };
+  } };
+};
+function O(t2) {
+  return "x" === t2 ? "y" : "x";
+}
+var L$1 = function(e4) {
+  return void 0 === e4 && (e4 = {}), { name: "shift", options: e4, async fn(r3) {
+    const { x: i4, y: o4, placement: a3 } = r3, _a = e4, { mainAxis: l3 = true, crossAxis: c3 = false, limiter: f3 = { fn: (t2) => {
+      let { x: e5, y: n3 } = t2;
+      return { x: e5, y: n3 };
+    } } } = _a, m3 = __objRest(_a, ["mainAxis", "crossAxis", "limiter"]), g3 = { x: i4, y: o4 }, d3 = await s$5(r3, m3), p3 = n$5(t$3(a3)), h3 = O(p3);
+    let y4 = g3[p3], x3 = g3[h3];
+    if (l3) {
+      const t2 = "y" === p3 ? "bottom" : "right";
+      y4 = u$3(y4 + d3["y" === p3 ? "top" : "left"], y4, y4 - d3[t2]);
+    }
+    if (c3) {
+      const t2 = "y" === h3 ? "bottom" : "right";
+      x3 = u$3(x3 + d3["y" === h3 ? "top" : "left"], x3, x3 - d3[t2]);
+    }
+    const w3 = f3.fn(__spreadProps(__spreadValues({}, r3), { [p3]: y4, [h3]: x3 }));
+    return __spreadProps(__spreadValues({}, w3), { data: { x: w3.x - i4, y: w3.y - o4 } });
+  } };
+};
+var k$1 = function(n3) {
+  return void 0 === n3 && (n3 = {}), { name: "size", options: n3, async fn(r3) {
+    const { placement: i4, rects: o4, platform: a3, elements: l3 } = r3, _a = n3, { apply: c3 = () => {
+    } } = _a, u3 = __objRest(_a, ["apply"]), m3 = await s$5(r3, u3), g3 = t$3(i4), d3 = e3(i4);
+    let p3, h3;
+    "top" === g3 || "bottom" === g3 ? (p3 = g3, h3 = d3 === (await (null == a3.isRTL ? void 0 : a3.isRTL(l3.floating)) ? "start" : "end") ? "left" : "right") : (h3 = g3, p3 = "end" === d3 ? "top" : "bottom");
+    const y4 = f$2(m3.left, 0), x3 = f$2(m3.right, 0), w3 = f$2(m3.top, 0), v3 = f$2(m3.bottom, 0), b3 = { availableHeight: o4.floating.height - (["left", "right"].includes(i4) ? 2 * (0 !== w3 || 0 !== v3 ? w3 + v3 : f$2(m3.top, m3.bottom)) : m3[p3]), availableWidth: o4.floating.width - (["top", "bottom"].includes(i4) ? 2 * (0 !== y4 || 0 !== x3 ? y4 + x3 : f$2(m3.left, m3.right)) : m3[h3]) };
+    await c3(__spreadValues(__spreadValues({}, r3), b3));
+    const R2 = await a3.getDimensions(l3.floating);
+    return o4.floating.width !== R2.width || o4.floating.height !== R2.height ? { reset: { rects: true } } : {};
+  } };
+};
+
+// node_modules/@floating-ui/dom/dist/floating-ui.dom.browser.min.mjs
+function n2(t2) {
+  return t2 && t2.document && t2.location && t2.alert && t2.setInterval;
+}
+function o3(t2) {
+  if (null == t2)
+    return window;
+  if (!n2(t2)) {
+    const e4 = t2.ownerDocument;
+    return e4 && e4.defaultView || window;
+  }
+  return t2;
+}
+function i3(t2) {
+  return o3(t2).getComputedStyle(t2);
+}
+function r2(t2) {
+  return n2(t2) ? "" : t2 ? (t2.nodeName || "").toLowerCase() : "";
+}
+function l2() {
+  const t2 = navigator.userAgentData;
+  return t2 && Array.isArray(t2.brands) ? t2.brands.map((t3) => t3.brand + "/" + t3.version).join(" ") : navigator.userAgent;
+}
+function c2(t2) {
+  return t2 instanceof o3(t2).HTMLElement;
+}
+function s2(t2) {
+  return t2 instanceof o3(t2).Element;
+}
+function f2(t2) {
+  if ("undefined" == typeof ShadowRoot)
+    return false;
+  return t2 instanceof o3(t2).ShadowRoot || t2 instanceof ShadowRoot;
+}
+function u2(t2) {
+  const { overflow: e4, overflowX: n3, overflowY: o4, display: r3 } = i3(t2);
+  return /auto|scroll|overlay|hidden/.test(e4 + o4 + n3) && !["inline", "contents"].includes(r3);
+}
+function a2(t2) {
+  return ["table", "td", "th"].includes(r2(t2));
+}
+function d2(t2) {
+  const e4 = /firefox/i.test(l2()), n3 = i3(t2), o4 = n3.backdropFilter || n3.WebkitBackdropFilter;
+  return "none" !== n3.transform || "none" !== n3.perspective || !!o4 && "none" !== o4 || e4 && "filter" === n3.willChange || e4 && !!n3.filter && "none" !== n3.filter || ["transform", "perspective"].some((t3) => n3.willChange.includes(t3)) || ["paint", "layout", "strict", "content"].some((t3) => {
+    const e5 = n3.contain;
+    return null != e5 && e5.includes(t3);
+  });
+}
+function h2$1() {
+  return !/^((?!chrome|android).)*safari/i.test(l2());
+}
+function g2(t2) {
+  return ["html", "body", "#document"].includes(r2(t2));
+}
+var m2 = Math.min;
+var p2 = Math.max;
+var w2 = Math.round;
+function v2(t2, e4, n3) {
+  var i4, r3, l3, f3;
+  void 0 === e4 && (e4 = false), void 0 === n3 && (n3 = false);
+  const u3 = t2.getBoundingClientRect();
+  let a3 = 1, d3 = 1;
+  e4 && c2(t2) && (a3 = t2.offsetWidth > 0 && w2(u3.width) / t2.offsetWidth || 1, d3 = t2.offsetHeight > 0 && w2(u3.height) / t2.offsetHeight || 1);
+  const g3 = s2(t2) ? o3(t2) : window, m3 = !h2$1() && n3, p3 = (u3.left + (m3 && null != (i4 = null == (r3 = g3.visualViewport) ? void 0 : r3.offsetLeft) ? i4 : 0)) / a3, v3 = (u3.top + (m3 && null != (l3 = null == (f3 = g3.visualViewport) ? void 0 : f3.offsetTop) ? l3 : 0)) / d3, y4 = u3.width / a3, x3 = u3.height / d3;
+  return { width: y4, height: x3, top: v3, right: p3 + y4, bottom: v3 + x3, left: p3, x: p3, y: v3 };
+}
+function y3(t2) {
+  return (e4 = t2, (e4 instanceof o3(e4).Node ? t2.ownerDocument : t2.document) || window.document).documentElement;
+  var e4;
+}
+function x2(t2) {
+  return s2(t2) ? { scrollLeft: t2.scrollLeft, scrollTop: t2.scrollTop } : { scrollLeft: t2.pageXOffset, scrollTop: t2.pageYOffset };
+}
+function b2(t2) {
+  return v2(y3(t2)).left + x2(t2).scrollLeft;
+}
+function L2(t2, e4, n3) {
+  const o4 = c2(e4), i4 = y3(e4), l3 = v2(t2, o4 && function(t3) {
+    const e5 = v2(t3);
+    return w2(e5.width) !== t3.offsetWidth || w2(e5.height) !== t3.offsetHeight;
+  }(e4), "fixed" === n3);
+  let s3 = { scrollLeft: 0, scrollTop: 0 };
+  const f3 = { x: 0, y: 0 };
+  if (o4 || !o4 && "fixed" !== n3)
+    if (("body" !== r2(e4) || u2(i4)) && (s3 = x2(e4)), c2(e4)) {
+      const t3 = v2(e4, true);
+      f3.x = t3.x + e4.clientLeft, f3.y = t3.y + e4.clientTop;
+    } else
+      i4 && (f3.x = b2(i4));
+  return { x: l3.left + s3.scrollLeft - f3.x, y: l3.top + s3.scrollTop - f3.y, width: l3.width, height: l3.height };
+}
+function E2(t2) {
+  if ("html" === r2(t2))
+    return t2;
+  const e4 = t2.assignedSlot || t2.parentNode || (f2(t2) ? t2.host : null) || y3(t2);
+  return f2(e4) ? e4.host : e4;
+}
+function R$1(t2) {
+  return c2(t2) && "fixed" !== i3(t2).position ? t2.offsetParent : null;
+}
+function T2(t2) {
+  const e4 = o3(t2);
+  let n3 = R$1(t2);
+  for (; n3 && a2(n3) && "static" === i3(n3).position; )
+    n3 = R$1(n3);
+  return n3 && ("html" === r2(n3) || "body" === r2(n3) && "static" === i3(n3).position && !d2(n3)) ? e4 : n3 || function(t3) {
+    let e5 = E2(t3);
+    for (; c2(e5) && !g2(e5); ) {
+      if (d2(e5))
+        return e5;
+      e5 = E2(e5);
+    }
+    return null;
+  }(t2) || e4;
+}
+function W(t2) {
+  const e4 = E2(t2);
+  return g2(e4) ? t2.ownerDocument.body : c2(e4) && u2(e4) ? e4 : W(e4);
+}
+function H$1(t2, e4) {
+  var n3;
+  void 0 === e4 && (e4 = []);
+  const i4 = W(t2), r3 = i4 === (null == (n3 = t2.ownerDocument) ? void 0 : n3.body), l3 = o3(i4), c3 = r3 ? [l3].concat(l3.visualViewport || [], u2(i4) ? i4 : []) : i4, s3 = e4.concat(c3);
+  return r3 ? s3 : s3.concat(H$1(c3));
+}
+function D2(e4, n3, r3) {
+  return "viewport" === n3 ? l$4(function(t2, e5) {
+    const n4 = o3(t2), i4 = y3(t2), r4 = n4.visualViewport;
+    let l3 = i4.clientWidth, c3 = i4.clientHeight, s3 = 0, f3 = 0;
+    if (r4) {
+      l3 = r4.width, c3 = r4.height;
+      const t3 = h2$1();
+      (t3 || !t3 && "fixed" === e5) && (s3 = r4.offsetLeft, f3 = r4.offsetTop);
+    }
+    return { width: l3, height: c3, x: s3, y: f3 };
+  }(e4, r3)) : s2(n3) ? function(t2, e5) {
+    const n4 = v2(t2, false, "fixed" === e5), o4 = n4.top + t2.clientTop, i4 = n4.left + t2.clientLeft;
+    return { top: o4, left: i4, x: i4, y: o4, right: i4 + t2.clientWidth, bottom: o4 + t2.clientHeight, width: t2.clientWidth, height: t2.clientHeight };
+  }(n3, r3) : l$4(function(t2) {
+    var e5;
+    const n4 = y3(t2), o4 = x2(t2), r4 = null == (e5 = t2.ownerDocument) ? void 0 : e5.body, l3 = p2(n4.scrollWidth, n4.clientWidth, r4 ? r4.scrollWidth : 0, r4 ? r4.clientWidth : 0), c3 = p2(n4.scrollHeight, n4.clientHeight, r4 ? r4.scrollHeight : 0, r4 ? r4.clientHeight : 0);
+    let s3 = -o4.scrollLeft + b2(t2);
+    const f3 = -o4.scrollTop;
+    return "rtl" === i3(r4 || n4).direction && (s3 += p2(n4.clientWidth, r4 ? r4.clientWidth : 0) - l3), { width: l3, height: c3, x: s3, y: f3 };
+  }(y3(e4)));
+}
+var A$1 = { getClippingRect: function(t2) {
+  let { element: e4, boundary: n3, rootBoundary: o4, strategy: l3 } = t2;
+  const c3 = "clippingAncestors" === n3 ? function(t3) {
+    let e5 = H$1(t3).filter((t4) => s2(t4) && "body" !== r2(t4)), n4 = null;
+    const o5 = "fixed" === i3(t3).position;
+    let l4 = o5 ? E2(t3) : t3;
+    for (; s2(l4) && !g2(l4); ) {
+      const t4 = i3(l4), r3 = d2(l4);
+      (o5 ? r3 || n4 : r3 || "static" !== t4.position || !n4 || !["absolute", "fixed"].includes(n4.position)) ? n4 = t4 : e5 = e5.filter((t5) => t5 !== l4), l4 = E2(l4);
+    }
+    return e5;
+  }(e4) : [].concat(n3), f3 = [...c3, o4], u3 = f3[0], a3 = f3.reduce((t3, n4) => {
+    const o5 = D2(e4, n4, l3);
+    return t3.top = p2(o5.top, t3.top), t3.right = m2(o5.right, t3.right), t3.bottom = m2(o5.bottom, t3.bottom), t3.left = p2(o5.left, t3.left), t3;
+  }, D2(e4, u3, l3));
+  return { width: a3.right - a3.left, height: a3.bottom - a3.top, x: a3.left, y: a3.top };
+}, convertOffsetParentRelativeRectToViewportRelativeRect: function(t2) {
+  let { rect: e4, offsetParent: n3, strategy: o4 } = t2;
+  const i4 = c2(n3), l3 = y3(n3);
+  if (n3 === l3)
+    return e4;
+  let s3 = { scrollLeft: 0, scrollTop: 0 };
+  const f3 = { x: 0, y: 0 };
+  if ((i4 || !i4 && "fixed" !== o4) && (("body" !== r2(n3) || u2(l3)) && (s3 = x2(n3)), c2(n3))) {
+    const t3 = v2(n3, true);
+    f3.x = t3.x + n3.clientLeft, f3.y = t3.y + n3.clientTop;
+  }
+  return __spreadProps(__spreadValues({}, e4), { x: e4.x - s3.scrollLeft + f3.x, y: e4.y - s3.scrollTop + f3.y });
+}, isElement: s2, getDimensions: function(t2) {
+  if (c2(t2))
+    return { width: t2.offsetWidth, height: t2.offsetHeight };
+  const e4 = v2(t2);
+  return { width: e4.width, height: e4.height };
+}, getOffsetParent: T2, getDocumentElement: y3, async getElementRects(t2) {
+  let { reference: e4, floating: n3, strategy: o4 } = t2;
+  const i4 = this.getOffsetParent || T2, r3 = this.getDimensions;
+  return { reference: L2(e4, await i4(n3), o4), floating: __spreadValues({ x: 0, y: 0 }, await r3(n3)) };
+}, getClientRects: (t2) => Array.from(t2.getClientRects()), isRTL: (t2) => "rtl" === i3(t2).direction };
+function C$1(t2, e4, n3, o4) {
+  void 0 === o4 && (o4 = {});
+  const { ancestorScroll: i4 = true, ancestorResize: r3 = true, elementResize: l3 = true, animationFrame: c3 = false } = o4, f3 = i4 && !c3, u3 = f3 || r3 ? [...s2(t2) ? H$1(t2) : t2.contextElement ? H$1(t2.contextElement) : [], ...H$1(e4)] : [];
+  u3.forEach((t3) => {
+    f3 && t3.addEventListener("scroll", n3, { passive: true }), r3 && t3.addEventListener("resize", n3);
+  });
+  let a3, d3 = null;
+  if (l3) {
+    let o5 = true;
+    d3 = new ResizeObserver(() => {
+      o5 || n3(), o5 = false;
+    }), s2(t2) && !c3 && d3.observe(t2), s2(t2) || !t2.contextElement || c3 || d3.observe(t2.contextElement), d3.observe(e4);
+  }
+  let h3 = c3 ? v2(t2) : null;
+  return c3 && function e5() {
+    const o5 = v2(t2);
+    !h3 || o5.x === h3.x && o5.y === h3.y && o5.width === h3.width && o5.height === h3.height || n3();
+    h3 = o5, a3 = requestAnimationFrame(e5);
+  }(), n3(), () => {
+    var t3;
+    u3.forEach((t4) => {
+      f3 && t4.removeEventListener("scroll", n3), r3 && t4.removeEventListener("resize", n3);
+    }), null == (t3 = d3) || t3.disconnect(), d3 = null, c3 && cancelAnimationFrame(a3);
+  };
+}
+var O2 = (t2, n3, o4) => o2(t2, n3, __spreadValues({ platform: A$1 }, o4));
+
+// src/components/popup/popup.ts
+var SlPopup = class extends ShoelaceElement {
+  constructor() {
+    super(...arguments);
+    this.active = false;
+    this.placement = "top";
+    this.strategy = "absolute";
+    this.distance = 0;
+    this.skidding = 0;
+    this.arrow = false;
+    this.arrowPlacement = "anchor";
+    this.arrowPadding = 10;
+    this.flip = false;
+    this.flipFallbackPlacements = "";
+    this.flipFallbackStrategy = "best-fit";
+    this.flipPadding = 0;
+    this.shift = false;
+    this.shiftPadding = 0;
+    this.autoSizePadding = 0;
+  }
+  async connectedCallback() {
+    super.connectedCallback();
+    await this.updateComplete;
+    this.start();
+  }
+  disconnectedCallback() {
+    this.stop();
+  }
+  async handleAnchorChange() {
+    await this.stop();
+    if (this.anchor && typeof this.anchor === "string") {
+      const root = this.getRootNode();
+      this.anchorEl = root.getElementById(this.anchor);
+    } else if (this.anchor instanceof HTMLElement) {
+      this.anchorEl = this.anchor;
+    } else {
+      this.anchorEl = this.querySelector('[slot="anchor"]');
+    }
+    if (this.anchorEl instanceof HTMLSlotElement) {
+      this.anchorEl = this.anchorEl.assignedElements({ flatten: true })[0];
+    }
+    if (!this.anchorEl) {
+      throw new Error(
+        "Invalid anchor element: no anchor could be found using the anchor slot or the anchor attribute."
+      );
+    }
+    this.start();
+  }
+  start() {
+    if (!this.anchorEl) {
+      return;
+    }
+    this.cleanup = C$1(this.anchorEl, this.popup, () => {
+      this.reposition();
+    });
+  }
+  async stop() {
+    return new Promise((resolve) => {
+      if (this.cleanup) {
+        this.cleanup();
+        this.cleanup = void 0;
+        this.removeAttribute("data-current-placement");
+        this.style.removeProperty("--auto-size-available-width");
+        this.style.removeProperty("--auto-size-available-height");
+        requestAnimationFrame(() => resolve());
+      } else {
+        resolve();
+      }
+    });
+  }
+  async updated(changedProps) {
+    super.updated(changedProps);
+    if (changedProps.has("active")) {
+      if (this.active) {
+        this.start();
+      } else {
+        this.stop();
+      }
+    }
+    if (changedProps.has("anchor")) {
+      this.handleAnchorChange();
+    }
+    if (this.active) {
+      await this.updateComplete;
+      this.reposition();
+    }
+  }
+  reposition() {
+    if (!this.active || !this.anchorEl) {
+      return;
+    }
+    const middleware = [
+      T$1({ mainAxis: this.distance, crossAxis: this.skidding })
+    ];
+    if (this.sync) {
+      middleware.push(
+        k$1({
+          apply: ({ rects }) => {
+            const syncWidth = this.sync === "width" || this.sync === "both";
+            const syncHeight = this.sync === "height" || this.sync === "both";
+            this.popup.style.width = syncWidth ? `${rects.reference.width}px` : "";
+            this.popup.style.height = syncHeight ? `${rects.reference.height}px` : "";
+          }
+        })
+      );
+    } else {
+      this.popup.style.width = "";
+      this.popup.style.height = "";
+    }
+    if (this.flip) {
+      middleware.push(
+        b$1({
+          boundary: this.flipBoundary,
+          fallbackPlacements: this.flipFallbackPlacements,
+          fallbackStrategy: this.flipFallbackStrategy === "best-fit" ? "bestFit" : "initialPlacement",
+          padding: this.flipPadding
+        })
+      );
+    }
+    if (this.shift) {
+      middleware.push(
+        L$1({
+          boundary: this.shiftBoundary,
+          padding: this.shiftPadding
+        })
+      );
+    }
+    if (this.autoSize) {
+      middleware.push(
+        k$1({
+          boundary: this.autoSizeBoundary,
+          padding: this.autoSizePadding,
+          apply: ({ availableWidth, availableHeight }) => {
+            if (this.autoSize === "vertical" || this.autoSize === "both") {
+              this.style.setProperty("--auto-size-available-height", `${availableHeight}px`);
+            } else {
+              this.style.removeProperty("--auto-size-available-height");
+            }
+            if (this.autoSize === "horizontal" || this.autoSize === "both") {
+              this.style.setProperty("--auto-size-available-width", `${availableWidth}px`);
+            } else {
+              this.style.removeProperty("--auto-size-available-width");
+            }
+          }
+        })
+      );
+    } else {
+      this.style.removeProperty("--auto-size-available-width");
+      this.style.removeProperty("--auto-size-available-height");
+    }
+    if (this.arrow) {
+      middleware.push(
+        m$2({
+          element: this.arrowEl,
+          padding: this.arrowPadding
+        })
+      );
+    }
+    O2(this.anchorEl, this.popup, {
+      placement: this.placement,
+      middleware,
+      strategy: this.strategy
+    }).then(({ x: x3, y: y4, middlewareData, placement }) => {
+      const isRtl = getComputedStyle(this).direction === "rtl";
+      const staticSide = { top: "bottom", right: "left", bottom: "top", left: "right" }[placement.split("-")[0]];
+      this.setAttribute("data-current-placement", placement);
+      Object.assign(this.popup.style, {
+        left: `${x3}px`,
+        top: `${y4}px`
+      });
+      if (this.arrow) {
+        const arrowX = middlewareData.arrow.x;
+        const arrowY = middlewareData.arrow.y;
+        let top = "";
+        let right = "";
+        let bottom = "";
+        let left = "";
+        if (this.arrowPlacement === "start") {
+          const value = typeof arrowX === "number" ? `calc(${this.arrowPadding}px - var(--arrow-padding-offset))` : "";
+          top = typeof arrowY === "number" ? `calc(${this.arrowPadding}px - var(--arrow-padding-offset))` : "";
+          right = isRtl ? value : "";
+          left = isRtl ? "" : value;
+        } else if (this.arrowPlacement === "end") {
+          const value = typeof arrowX === "number" ? `calc(${this.arrowPadding}px - var(--arrow-padding-offset))` : "";
+          right = isRtl ? "" : value;
+          left = isRtl ? value : "";
+          bottom = typeof arrowY === "number" ? `calc(${this.arrowPadding}px - var(--arrow-padding-offset))` : "";
+        } else if (this.arrowPlacement === "center") {
+          left = typeof arrowX === "number" ? `calc(50% - var(--arrow-size-diagonal))` : "";
+          top = typeof arrowY === "number" ? `calc(50% - var(--arrow-size-diagonal))` : "";
+        } else {
+          left = typeof arrowX === "number" ? `${arrowX}px` : "";
+          top = typeof arrowY === "number" ? `${arrowY}px` : "";
+        }
+        Object.assign(this.arrowEl.style, {
+          top,
+          right,
+          bottom,
+          left,
+          [staticSide]: "calc(var(--arrow-size-diagonal) * -1)"
+        });
+      }
+    });
+    this.emit("sl-reposition");
+  }
+  render() {
+    return y$1`
+      <slot name="anchor" @slotchange=${this.handleAnchorChange}></slot>
+
+      <div
+        part="popup"
+        class=${o$6({
+      popup: true,
+      "popup--active": this.active,
+      "popup--fixed": this.strategy === "fixed",
+      "popup--has-arrow": this.arrow
+    })}
+      >
+        <slot></slot>
+        ${this.arrow ? y$1`<div part="arrow" class="popup__arrow" role="presentation"></div>` : ""}
+      </div>
+    `;
+  }
+};
+SlPopup.styles = popup_styles_default;
+__decorateClass([
+  i2$2(".popup")
+], SlPopup.prototype, "popup", 2);
+__decorateClass([
+  i2$2(".popup__arrow")
+], SlPopup.prototype, "arrowEl", 2);
+__decorateClass([
+  e2$1()
+], SlPopup.prototype, "anchor", 2);
+__decorateClass([
+  e2$1({ type: Boolean, reflect: true })
+], SlPopup.prototype, "active", 2);
+__decorateClass([
+  e2$1({ reflect: true })
+], SlPopup.prototype, "placement", 2);
+__decorateClass([
+  e2$1({ reflect: true })
+], SlPopup.prototype, "strategy", 2);
+__decorateClass([
+  e2$1({ type: Number })
+], SlPopup.prototype, "distance", 2);
+__decorateClass([
+  e2$1({ type: Number })
+], SlPopup.prototype, "skidding", 2);
+__decorateClass([
+  e2$1({ type: Boolean })
+], SlPopup.prototype, "arrow", 2);
+__decorateClass([
+  e2$1({ attribute: "arrow-placement" })
+], SlPopup.prototype, "arrowPlacement", 2);
+__decorateClass([
+  e2$1({ attribute: "arrow-padding", type: Number })
+], SlPopup.prototype, "arrowPadding", 2);
+__decorateClass([
+  e2$1({ type: Boolean })
+], SlPopup.prototype, "flip", 2);
+__decorateClass([
+  e2$1({
+    attribute: "flip-fallback-placements",
+    converter: {
+      fromAttribute: (value) => {
+        return value.split(" ").map((p3) => p3.trim()).filter((p3) => p3 !== "");
+      },
+      toAttribute: (value) => {
+        return value.join(" ");
+      }
+    }
+  })
+], SlPopup.prototype, "flipFallbackPlacements", 2);
+__decorateClass([
+  e2$1({ attribute: "flip-fallback-strategy" })
+], SlPopup.prototype, "flipFallbackStrategy", 2);
+__decorateClass([
+  e2$1({ type: Object })
+], SlPopup.prototype, "flipBoundary", 2);
+__decorateClass([
+  e2$1({ attribute: "flip-padding", type: Number })
+], SlPopup.prototype, "flipPadding", 2);
+__decorateClass([
+  e2$1({ type: Boolean })
+], SlPopup.prototype, "shift", 2);
+__decorateClass([
+  e2$1({ type: Object })
+], SlPopup.prototype, "shiftBoundary", 2);
+__decorateClass([
+  e2$1({ attribute: "shift-padding", type: Number })
+], SlPopup.prototype, "shiftPadding", 2);
+__decorateClass([
+  e2$1({ attribute: "auto-size" })
+], SlPopup.prototype, "autoSize", 2);
+__decorateClass([
+  e2$1()
+], SlPopup.prototype, "sync", 2);
+__decorateClass([
+  e2$1({ type: Object })
+], SlPopup.prototype, "autoSizeBoundary", 2);
+__decorateClass([
+  e2$1({ attribute: "auto-size-padding", type: Number })
+], SlPopup.prototype, "autoSizePadding", 2);
+SlPopup = __decorateClass([
+  e$6("sl-popup")
+], SlPopup);
 
 /**
  * @license
@@ -8824,9 +11180,9 @@ function capBezierPoints(points, area) {
     }
     return valueInPixels;
 }
-const getComputedStyle = (element)=>element.ownerDocument.defaultView.getComputedStyle(element, null);
+const getComputedStyle$1 = (element)=>element.ownerDocument.defaultView.getComputedStyle(element, null);
 function getStyle(el, property) {
-    return getComputedStyle(el).getPropertyValue(property);
+    return getComputedStyle$1(el).getPropertyValue(property);
 }
 const positions = [
     'top',
@@ -8881,7 +11237,7 @@ const useOffsetPos = (x, y, target)=>(x > 0 || y > 0) && (!target || !target.sha
         return event;
     }
     const { canvas , currentDevicePixelRatio  } = chart;
-    const style = getComputedStyle(canvas);
+    const style = getComputedStyle$1(canvas);
     const borderBox = style.boxSizing === 'border-box';
     const paddings = getPositionedStyle(style, 'padding');
     const borders = getPositionedStyle(style, 'border', 'width');
@@ -8907,7 +11263,7 @@ function getContainerSize(canvas, width, height) {
             height = canvas.clientHeight;
         } else {
             const rect = container.getBoundingClientRect(); // this is the border box of the container
-            const containerStyle = getComputedStyle(container);
+            const containerStyle = getComputedStyle$1(container);
             const containerBorder = getPositionedStyle(containerStyle, 'border', 'width');
             const containerPadding = getPositionedStyle(containerStyle, 'padding');
             width = rect.width - containerPadding.width - containerBorder.width;
@@ -8926,7 +11282,7 @@ function getContainerSize(canvas, width, height) {
 const round1 = (v)=>Math.round(v * 10) / 10;
 // eslint-disable-next-line complexity
 function getMaximumSize(canvas, bbWidth, bbHeight, aspectRatio) {
-    const style = getComputedStyle(canvas);
+    const style = getComputedStyle$1(canvas);
     const margins = getPositionedStyle(style, 'margin');
     const maxWidth = parseMaxStyle(style.maxWidth, canvas, 'clientWidth') || INFINITY;
     const maxHeight = parseMaxStyle(style.maxHeight, canvas, 'clientHeight') || INFINITY;
@@ -20864,17 +23220,20 @@ let ProfileView = class ProfileView extends ViewLayout$1 {
         localStorage.setItem('lang', value);
         document.querySelector('html')?.setAttribute('lang', value);
     }
-    #renderRows() {
+    #renderLanguageSelect() {
         const lang = localStorage.getItem('lang') || languages[0].code;
-        const languageGroup = y ` <sl-radio-group
+        return y ` <sl-select
+            size="small"
             @click="${this.#changeEvent}"
             label="${capitalize(msg('language'))}"
             value="${lang}"
         >
             ${c(languages, function ({ name, code }) {
-            return y ` <sl-radio-button size="small" value="${code}">${name}</sl-radio-button> `;
+            return y ` <sl-menu-item size="small" value="${code}">${name}</sl-menu-item>`;
         })}
-        </sl-radio-group>`;
+        </sl-select>`;
+    }
+    #renderRows() {
         const row1 = y `<div class="grid gap-4 grid-cols-1 md:grid-cols-1fr-auto ">
                 <div>
                     <sl-input label="${capitalize(msg('username'))}" size="small"></sl-input>
@@ -20891,7 +23250,7 @@ let ProfileView = class ProfileView extends ViewLayout$1 {
                 </div>
             </div>
             <sl-divider style="--width: 2px;"></sl-divider>
-            ${languageGroup}
+            ${this.#renderLanguageSelect()}
             <sl-divider style="--width: 2px;"></sl-divider>
             <div>
                 <sl-button size="small" variant="primary"> ${msg('save')} </sl-button>
@@ -21021,7 +23380,7 @@ AppLayout = __decorate([
 document.addEventListener('DOMContentLoaded', function () {
     const app = document.querySelector('app-layout');
     app.bootstrapActiveMenu();
-    console.log('v:0.0.1 at: "2022-12-23T11:09:30.739Z" ');
+    console.log('v:0.0.1 at: "2022-12-23T11:21:45.115Z" ');
 });
 
 /* CSS */

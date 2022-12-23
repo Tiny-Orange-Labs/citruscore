@@ -34,17 +34,22 @@ export default class ProfileView extends ViewLayout {
         document.querySelector('html')?.setAttribute('lang', value);
     }
 
-    #renderRows() {
+    #renderLanguageSelect() {
         const lang: string = localStorage.getItem('lang') || languages[0].code;
-        const languageGroup = html` <sl-radio-group
+
+        return html` <sl-select
+            size="small"
             @click="${this.#changeEvent}"
             label="${capitalize(msg('language'))}"
             value="${lang}"
         >
             ${repeat(languages, function ({ name, code }) {
-                return html` <sl-radio-button size="small" value="${code}">${name}</sl-radio-button> `;
+                return html` <sl-menu-item size="small" value="${code}">${name}</sl-menu-item>`;
             })}
-        </sl-radio-group>`;
+        </sl-select>`;
+    }
+
+    #renderRows() {
         const row1 = html`<div class="grid gap-4 grid-cols-1 md:grid-cols-1fr-auto ">
                 <div>
                     <sl-input label="${capitalize(msg('username'))}" size="small"></sl-input>
@@ -61,7 +66,7 @@ export default class ProfileView extends ViewLayout {
                 </div>
             </div>
             <sl-divider style="--width: 2px;"></sl-divider>
-            ${languageGroup}
+            ${this.#renderLanguageSelect()}
             <sl-divider style="--width: 2px;"></sl-divider>
             <div>
                 <sl-button size="small" variant="primary"> ${msg('save')} </sl-button>
