@@ -5022,6 +5022,527 @@ SlCard = __decorateClass([
   e$6("sl-card")
 ], SlCard);
 
+// src/components/divider/divider.styles.ts
+var divider_styles_default = i$6`
+  ${component_styles_default}
+
+  :host {
+    --color: var(--sl-panel-border-color);
+    --width: var(--sl-panel-border-width);
+    --spacing: var(--sl-spacing-medium);
+  }
+
+  :host(:not([vertical])) {
+    display: block;
+    border-top: solid var(--width) var(--color);
+    margin: var(--spacing) 0;
+  }
+
+  :host([vertical]) {
+    display: inline-block;
+    height: 100%;
+    border-left: solid var(--width) var(--color);
+    margin: 0 var(--spacing);
+  }
+`;
+
+// src/components/divider/divider.ts
+var SlDivider = class extends ShoelaceElement {
+  constructor() {
+    super(...arguments);
+    this.vertical = false;
+  }
+  connectedCallback() {
+    super.connectedCallback();
+    this.setAttribute("role", "separator");
+  }
+  handleVerticalChange() {
+    this.setAttribute("aria-orientation", this.vertical ? "vertical" : "horizontal");
+  }
+};
+SlDivider.styles = divider_styles_default;
+__decorateClass([
+  e2$1({ type: Boolean, reflect: true })
+], SlDivider.prototype, "vertical", 2);
+__decorateClass([
+  watch("vertical")
+], SlDivider.prototype, "handleVerticalChange", 1);
+SlDivider = __decorateClass([
+  e$6("sl-divider")
+], SlDivider);
+
+// src/components/textarea/textarea.styles.ts
+var textarea_styles_default = i$6`
+  ${component_styles_default}
+  ${form_control_styles_default}
+
+  :host {
+    display: block;
+  }
+
+  .textarea {
+    display: flex;
+    align-items: center;
+    position: relative;
+    width: 100%;
+    font-family: var(--sl-input-font-family);
+    font-weight: var(--sl-input-font-weight);
+    line-height: var(--sl-line-height-normal);
+    letter-spacing: var(--sl-input-letter-spacing);
+    vertical-align: middle;
+    transition: var(--sl-transition-fast) color, var(--sl-transition-fast) border, var(--sl-transition-fast) box-shadow,
+      var(--sl-transition-fast) background-color;
+    cursor: text;
+  }
+
+  /* Standard textareas */
+  .textarea--standard {
+    background-color: var(--sl-input-background-color);
+    border: solid var(--sl-input-border-width) var(--sl-input-border-color);
+  }
+
+  .textarea--standard:hover:not(.textarea--disabled) {
+    background-color: var(--sl-input-background-color-hover);
+    border-color: var(--sl-input-border-color-hover);
+  }
+  .textarea--standard:hover:not(.textarea--disabled) .textarea__control {
+    color: var(--sl-input-color-hover);
+  }
+
+  .textarea--standard.textarea--focused:not(.textarea--disabled) {
+    background-color: var(--sl-input-background-color-focus);
+    border-color: var(--sl-input-border-color-focus);
+    color: var(--sl-input-color-focus);
+    box-shadow: 0 0 0 var(--sl-focus-ring-width) var(--sl-input-focus-ring-color);
+  }
+
+  .textarea--standard.textarea--focused:not(.textarea--disabled) .textarea__control {
+    color: var(--sl-input-color-focus);
+  }
+
+  .textarea--standard.textarea--disabled {
+    background-color: var(--sl-input-background-color-disabled);
+    border-color: var(--sl-input-border-color-disabled);
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+
+  .textarea--standard.textarea--disabled .textarea__control {
+    color: var(--sl-input-color-disabled);
+  }
+
+  .textarea--standard.textarea--disabled .textarea__control::placeholder {
+    color: var(--sl-input-placeholder-color-disabled);
+  }
+
+  /* Filled textareas */
+  .textarea--filled {
+    border: none;
+    background-color: var(--sl-input-filled-background-color);
+    color: var(--sl-input-color);
+  }
+
+  .textarea--filled:hover:not(.textarea--disabled) {
+    background-color: var(--sl-input-filled-background-color-hover);
+  }
+
+  .textarea--filled.textarea--focused:not(.textarea--disabled) {
+    background-color: var(--sl-input-filled-background-color-focus);
+    outline: var(--sl-focus-ring);
+    outline-offset: var(--sl-focus-ring-offset);
+  }
+
+  .textarea--filled.textarea--disabled {
+    background-color: var(--sl-input-filled-background-color-disabled);
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+
+  .textarea__control {
+    flex: 1 1 auto;
+    font-family: inherit;
+    font-size: inherit;
+    font-weight: inherit;
+    line-height: 1.4;
+    color: var(--sl-input-color);
+    border: none;
+    background: none;
+    box-shadow: none;
+    cursor: inherit;
+    -webkit-appearance: none;
+  }
+
+  .textarea__control::-webkit-search-decoration,
+  .textarea__control::-webkit-search-cancel-button,
+  .textarea__control::-webkit-search-results-button,
+  .textarea__control::-webkit-search-results-decoration {
+    -webkit-appearance: none;
+  }
+
+  .textarea__control::placeholder {
+    color: var(--sl-input-placeholder-color);
+    user-select: none;
+  }
+
+  .textarea__control:focus {
+    outline: none;
+  }
+
+  /*
+   * Size modifiers
+   */
+
+  .textarea--small {
+    border-radius: var(--sl-input-border-radius-small);
+    font-size: var(--sl-input-font-size-small);
+  }
+
+  .textarea--small .textarea__control {
+    padding: 0.5em var(--sl-input-spacing-small);
+  }
+
+  .textarea--medium {
+    border-radius: var(--sl-input-border-radius-medium);
+    font-size: var(--sl-input-font-size-medium);
+  }
+
+  .textarea--medium .textarea__control {
+    padding: 0.5em var(--sl-input-spacing-medium);
+  }
+
+  .textarea--large {
+    border-radius: var(--sl-input-border-radius-large);
+    font-size: var(--sl-input-font-size-large);
+  }
+
+  .textarea--large .textarea__control {
+    padding: 0.5em var(--sl-input-spacing-large);
+  }
+
+  /*
+   * Resize types
+   */
+
+  .textarea--resize-none .textarea__control {
+    resize: none;
+  }
+
+  .textarea--resize-vertical .textarea__control {
+    resize: vertical;
+  }
+
+  .textarea--resize-auto .textarea__control {
+    height: auto;
+    resize: none;
+  }
+`;
+
+// src/components/textarea/textarea.ts
+var SlTextarea = class extends ShoelaceElement {
+  constructor() {
+    super(...arguments);
+    this.formSubmitController = new FormSubmitController(this);
+    this.hasSlotController = new HasSlotController(this, "help-text", "label");
+    this.hasFocus = false;
+    this.invalid = false;
+    this.title = "";
+    this.name = "";
+    this.value = "";
+    this.size = "medium";
+    this.filled = false;
+    this.label = "";
+    this.helpText = "";
+    this.placeholder = "";
+    this.rows = 4;
+    this.resize = "vertical";
+    this.disabled = false;
+    this.readonly = false;
+    this.required = false;
+    this.spellcheck = true;
+    this.defaultValue = "";
+  }
+  connectedCallback() {
+    super.connectedCallback();
+    this.resizeObserver = new ResizeObserver(() => this.setTextareaHeight());
+    this.updateComplete.then(() => {
+      this.setTextareaHeight();
+      this.resizeObserver.observe(this.input);
+    });
+  }
+  firstUpdated() {
+    this.invalid = !this.input.checkValidity();
+  }
+  disconnectedCallback() {
+    super.disconnectedCallback();
+    this.resizeObserver.unobserve(this.input);
+  }
+  focus(options) {
+    this.input.focus(options);
+  }
+  blur() {
+    this.input.blur();
+  }
+  select() {
+    this.input.select();
+  }
+  scrollPosition(position) {
+    if (position) {
+      if (typeof position.top === "number")
+        this.input.scrollTop = position.top;
+      if (typeof position.left === "number")
+        this.input.scrollLeft = position.left;
+      return void 0;
+    }
+    return {
+      top: this.input.scrollTop,
+      left: this.input.scrollTop
+    };
+  }
+  setSelectionRange(selectionStart, selectionEnd, selectionDirection = "none") {
+    this.input.setSelectionRange(selectionStart, selectionEnd, selectionDirection);
+  }
+  setRangeText(replacement, start, end, selectMode) {
+    this.input.setRangeText(replacement, start, end, selectMode);
+    if (this.value !== this.input.value) {
+      this.value = this.input.value;
+    }
+    if (this.value !== this.input.value) {
+      this.value = this.input.value;
+      this.setTextareaHeight();
+    }
+  }
+  checkValidity() {
+    return this.input.checkValidity();
+  }
+  reportValidity() {
+    return this.input.reportValidity();
+  }
+  setCustomValidity(message) {
+    this.input.setCustomValidity(message);
+    this.invalid = !this.input.checkValidity();
+  }
+  handleBlur() {
+    this.hasFocus = false;
+    this.emit("sl-blur");
+  }
+  handleChange() {
+    this.value = this.input.value;
+    this.setTextareaHeight();
+    this.emit("sl-change");
+  }
+  handleDisabledChange() {
+    this.input.disabled = this.disabled;
+    this.invalid = !this.input.checkValidity();
+  }
+  handleFocus() {
+    this.hasFocus = true;
+    this.emit("sl-focus");
+  }
+  handleInput() {
+    this.value = this.input.value;
+    this.emit("sl-input");
+  }
+  handleRowsChange() {
+    this.setTextareaHeight();
+  }
+  handleValueChange() {
+    this.input.value = this.value;
+    this.invalid = !this.input.checkValidity();
+    this.updateComplete.then(() => this.setTextareaHeight());
+  }
+  setTextareaHeight() {
+    if (this.resize === "auto") {
+      this.input.style.height = "auto";
+      this.input.style.height = `${this.input.scrollHeight}px`;
+    } else {
+      this.input.style.height = void 0;
+    }
+  }
+  render() {
+    const hasLabelSlot = this.hasSlotController.test("label");
+    const hasHelpTextSlot = this.hasSlotController.test("help-text");
+    const hasLabel = this.label ? true : !!hasLabelSlot;
+    const hasHelpText = this.helpText ? true : !!hasHelpTextSlot;
+    return y$1`
+      <div
+        part="form-control"
+        class=${o$6({
+      "form-control": true,
+      "form-control--small": this.size === "small",
+      "form-control--medium": this.size === "medium",
+      "form-control--large": this.size === "large",
+      "form-control--has-label": hasLabel,
+      "form-control--has-help-text": hasHelpText
+    })}
+      >
+        <label
+          part="form-control-label"
+          class="form-control__label"
+          for="input"
+          aria-hidden=${hasLabel ? "false" : "true"}
+        >
+          <slot name="label">${this.label}</slot>
+        </label>
+
+        <div part="form-control-input" class="form-control-input">
+          <div
+            part="base"
+            class=${o$6({
+      textarea: true,
+      "textarea--small": this.size === "small",
+      "textarea--medium": this.size === "medium",
+      "textarea--large": this.size === "large",
+      "textarea--standard": !this.filled,
+      "textarea--filled": this.filled,
+      "textarea--disabled": this.disabled,
+      "textarea--focused": this.hasFocus,
+      "textarea--empty": !this.value,
+      "textarea--invalid": this.invalid,
+      "textarea--resize-none": this.resize === "none",
+      "textarea--resize-vertical": this.resize === "vertical",
+      "textarea--resize-auto": this.resize === "auto"
+    })}
+          >
+            <textarea
+              part="textarea"
+              id="input"
+              class="textarea__control"
+              title=${this.title}
+              name=${l$4(this.name)}
+              .value=${l2(this.value)}
+              ?disabled=${this.disabled}
+              ?readonly=${this.readonly}
+              ?required=${this.required}
+              placeholder=${l$4(this.placeholder)}
+              rows=${l$4(this.rows)}
+              minlength=${l$4(this.minlength)}
+              maxlength=${l$4(this.maxlength)}
+              autocapitalize=${l$4(this.autocapitalize)}
+              autocorrect=${l$4(this.autocorrect)}
+              ?autofocus=${this.autofocus}
+              spellcheck=${l$4(this.spellcheck)}
+              enterkeyhint=${l$4(this.enterkeyhint)}
+              inputmode=${l$4(this.inputmode)}
+              aria-describedby="help-text"
+              @change=${this.handleChange}
+              @input=${this.handleInput}
+              @focus=${this.handleFocus}
+              @blur=${this.handleBlur}
+            ></textarea>
+          </div>
+        </div>
+
+        <slot
+          name="help-text"
+          part="form-control-help-text"
+          id="help-text"
+          class="form-control__help-text"
+          aria-hidden=${hasHelpText ? "false" : "true"}
+        >
+          ${this.helpText}
+        </slot>
+      </div>
+    `;
+  }
+};
+SlTextarea.styles = textarea_styles_default;
+__decorateClass([
+  i2$1(".textarea__control")
+], SlTextarea.prototype, "input", 2);
+__decorateClass([
+  t$3()
+], SlTextarea.prototype, "hasFocus", 2);
+__decorateClass([
+  t$3()
+], SlTextarea.prototype, "invalid", 2);
+__decorateClass([
+  e2$1()
+], SlTextarea.prototype, "title", 2);
+__decorateClass([
+  e2$1()
+], SlTextarea.prototype, "name", 2);
+__decorateClass([
+  e2$1()
+], SlTextarea.prototype, "value", 2);
+__decorateClass([
+  e2$1({ reflect: true })
+], SlTextarea.prototype, "size", 2);
+__decorateClass([
+  e2$1({ type: Boolean, reflect: true })
+], SlTextarea.prototype, "filled", 2);
+__decorateClass([
+  e2$1()
+], SlTextarea.prototype, "label", 2);
+__decorateClass([
+  e2$1({ attribute: "help-text" })
+], SlTextarea.prototype, "helpText", 2);
+__decorateClass([
+  e2$1()
+], SlTextarea.prototype, "placeholder", 2);
+__decorateClass([
+  e2$1({ type: Number })
+], SlTextarea.prototype, "rows", 2);
+__decorateClass([
+  e2$1()
+], SlTextarea.prototype, "resize", 2);
+__decorateClass([
+  e2$1({ type: Boolean, reflect: true })
+], SlTextarea.prototype, "disabled", 2);
+__decorateClass([
+  e2$1({ type: Boolean, reflect: true })
+], SlTextarea.prototype, "readonly", 2);
+__decorateClass([
+  e2$1({ type: Number })
+], SlTextarea.prototype, "minlength", 2);
+__decorateClass([
+  e2$1({ type: Number })
+], SlTextarea.prototype, "maxlength", 2);
+__decorateClass([
+  e2$1({ type: Boolean, reflect: true })
+], SlTextarea.prototype, "required", 2);
+__decorateClass([
+  e2$1()
+], SlTextarea.prototype, "autocapitalize", 2);
+__decorateClass([
+  e2$1()
+], SlTextarea.prototype, "autocorrect", 2);
+__decorateClass([
+  e2$1()
+], SlTextarea.prototype, "autocomplete", 2);
+__decorateClass([
+  e2$1({ type: Boolean })
+], SlTextarea.prototype, "autofocus", 2);
+__decorateClass([
+  e2$1()
+], SlTextarea.prototype, "enterkeyhint", 2);
+__decorateClass([
+  e2$1({
+    type: Boolean,
+    converter: {
+      fromAttribute: (value) => !value || value === "false" ? false : true,
+      toAttribute: (value) => value ? "true" : "false"
+    }
+  })
+], SlTextarea.prototype, "spellcheck", 2);
+__decorateClass([
+  e2$1()
+], SlTextarea.prototype, "inputmode", 2);
+__decorateClass([
+  defaultValue()
+], SlTextarea.prototype, "defaultValue", 2);
+__decorateClass([
+  watch("disabled", { waitUntilFirstUpdate: true })
+], SlTextarea.prototype, "handleDisabledChange", 1);
+__decorateClass([
+  watch("rows", { waitUntilFirstUpdate: true })
+], SlTextarea.prototype, "handleRowsChange", 1);
+__decorateClass([
+  watch("value", { waitUntilFirstUpdate: true })
+], SlTextarea.prototype, "handleValueChange", 1);
+SlTextarea = __decorateClass([
+  e$6("sl-textarea")
+], SlTextarea);
+
 /**
  * @license
  * Copyright 2019 Google LLC
@@ -20345,15 +20866,36 @@ let ProfileView = class ProfileView extends ViewLayout$1 {
     }
     #renderRows() {
         const lang = localStorage.getItem('lang') || languages[0].code;
-        const row1 = y `<sl-radio-group
+        const languageGroup = y ` <sl-radio-group
             @click="${this.#changeEvent}"
             label="${capitalize(msg('language'))}"
             value="${lang}"
         >
             ${c(languages, function ({ name, code }) {
-            return y `<sl-radio-button value="${code}">${name}</sl-radio-button>`;
+            return y ` <sl-radio-button size="small" value="${code}">${name}</sl-radio-button> `;
         })}
         </sl-radio-group>`;
+        const row1 = y `<div class="grid gap-4 grid-cols-1 md:grid-cols-1fr-auto ">
+                <div>
+                    <sl-input label="${capitalize(msg('username'))}" size="small"></sl-input>
+                    <sl-textarea
+                        resize="none"
+                        size="small"
+                        help-text="${msg('write something about you')}"
+                        label="${capitalize(msg('about'))}"
+                    ></sl-textarea>
+                </div>
+                <div>
+                    <p>${capitalize(msg('photo'))}</p>
+                    <img class="rounded-full w-40" src="./assets/img/fallbacks/avatar.png" />
+                </div>
+            </div>
+            <sl-divider style="--width: 2px;"></sl-divider>
+            ${languageGroup}
+            <sl-divider style="--width: 2px;"></sl-divider>
+            <div>
+                <sl-button size="small" variant="primary"> ${msg('save')} </sl-button>
+            </div>`;
         return [row1];
     }
     render() {
@@ -20479,7 +21021,7 @@ AppLayout = __decorate([
 document.addEventListener('DOMContentLoaded', function () {
     const app = document.querySelector('app-layout');
     app.bootstrapActiveMenu();
-    console.log('v:0.0.1 at: "2022-12-22T15:36:20.389Z" ');
+    console.log('v:0.0.1 at: "2022-12-23T11:09:30.739Z" ');
 });
 
 /* CSS */

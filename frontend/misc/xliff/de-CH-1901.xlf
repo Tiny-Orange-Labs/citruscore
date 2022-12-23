@@ -52,6 +52,18 @@
   <source>language</source>
   <target>sprache</target>
 </trans-unit>
+<trans-unit id="sc94935514840c766">
+  <source>write something about you</source>
+</trans-unit>
+<trans-unit id="s3f74142d6181ea7e">
+  <source>about</source>
+</trans-unit>
+<trans-unit id="s31e7a66bde741263">
+  <source>photo</source>
+</trans-unit>
+<trans-unit id="s096a5e18bf857c28">
+  <source>save</source>
+</trans-unit>
 </body>
 </file>
 </xliff>

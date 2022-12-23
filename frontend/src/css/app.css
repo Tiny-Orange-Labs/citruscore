@@ -93,6 +93,10 @@
     @apply hidden;
 }
 
+.view[name='profile'] .view-container {
+    @apply max-w-[1000px];
+}
+
 .view-container {
     @apply h-full p-12 pt-0 flex flex-col;
 }
@@ -106,9 +110,14 @@
 }
 
 .view-row {
-    @apply h-full border-dashed border-4 rounded-md;
+    @apply h-full;
 }
 
 .graph-cards {
     width: 450px;
+}
+
+/* quick fix */
+sl-divider {
+    border-top: solid var(--width) var(--color) !important;
 }

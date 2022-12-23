@@ -17,6 +17,9 @@ import '@shoelace-style/shoelace/dist/components/badge/badge.js';
 import '@shoelace-style/shoelace/dist/components/avatar/avatar.js';
 import '@shoelace-style/shoelace/dist/components/alert/alert.js';
 import '@shoelace-style/shoelace/dist/components/card/card.js';
+import '@shoelace-style/shoelace/dist/components/divider/divider.js';
+import '@shoelace-style/shoelace/dist/components/textarea/textarea.js';
+
 import { setBasePath } from '@shoelace-style/shoelace/dist/utilities/base-path.js';
 
 /* log code */

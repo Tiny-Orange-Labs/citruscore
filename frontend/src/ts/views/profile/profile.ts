@@ -36,16 +36,36 @@ export default class ProfileView extends ViewLayout {
 
     #renderRows() {
         const lang: string = localStorage.getItem('lang') || languages[0].code;
-
-        const row1 = html`<sl-radio-group
+        const languageGroup = html` <sl-radio-group
             @click="${this.#changeEvent}"
             label="${capitalize(msg('language'))}"
             value="${lang}"
         >
             ${repeat(languages, function ({ name, code }) {
-                return html`<sl-radio-button value="${code}">${name}</sl-radio-button>`;
+                return html` <sl-radio-button size="small" value="${code}">${name}</sl-radio-button> `;
             })}
         </sl-radio-group>`;
+        const row1 = html`<div class="grid gap-4 grid-cols-1 md:grid-cols-1fr-auto ">
+                <div>
+                    <sl-input label="${capitalize(msg('username'))}" size="small"></sl-input>
+                    <sl-textarea
+                        resize="none"
+                        size="small"
+                        help-text="${msg('write something about you')}"
+                        label="${capitalize(msg('about'))}"
+                    ></sl-textarea>
+                </div>
+                <div>
+                    <p>${capitalize(msg('photo'))}</p>
+                    <img class="rounded-full w-40" src="./assets/img/fallbacks/avatar.png" />
+                </div>
+            </div>
+            <sl-divider style="--width: 2px;"></sl-divider>
+            ${languageGroup}
+            <sl-divider style="--width: 2px;"></sl-divider>
+            <div>
+                <sl-button size="small" variant="primary"> ${msg('save')} </sl-button>
+            </div>`;
         return [row1];
     }
 

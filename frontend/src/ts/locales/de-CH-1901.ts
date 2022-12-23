@@ -22,5 +22,9 @@
 'sd2fd35287f0a935b': `sprache`,
 'sebf7bfdc93f34404': `Wrong Password or Username`,
 'sf0034e5a35beb589': `Your Username or Password is wrong`,
+'sc94935514840c766': `write something about you`,
+'s3f74142d6181ea7e': `about`,
+'s31e7a66bde741263': `photo`,
+'s096a5e18bf857c28': `save`,
     };
   

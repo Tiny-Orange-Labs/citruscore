@@ -11,6 +11,8 @@ I build the same stuff over and over again:
 -   settings
 -   design systems
 -   building systems
+-   charts
+-   accessibility
 
 thats pretty boring so I am creating this gigantic overengineering boilerplate.
 This abomination includes hapi, db(? not sure yet), typescript, rollup (and of course rollup plugins), lit, lit-localize, tailwind, shoelace, chartjs, fontawesome and maybe more in the near future.
@@ -81,6 +83,7 @@ Note:
 
 > You can run both `npm run extract` and `npm run build` via `npm run translate-all`
 > Running `npm run generate` also triggers translate-all
+> Do not capitalize single words, styling of single words is handled by code
 
 ## Tests
 
