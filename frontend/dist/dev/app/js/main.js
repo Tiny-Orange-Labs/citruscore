@@ -2482,6 +2482,160 @@ SlIcon = __decorateClass([
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
+// src/components/icon-button/icon-button.styles.ts
+var icon_button_styles_default = i$6`
+  ${component_styles_default}
+
+  :host {
+    display: inline-block;
+    color: var(--sl-color-neutral-600);
+  }
+
+  .icon-button {
+    flex: 0 0 auto;
+    display: flex;
+    align-items: center;
+    background: none;
+    border: none;
+    border-radius: var(--sl-border-radius-medium);
+    font-size: inherit;
+    color: inherit;
+    padding: var(--sl-spacing-x-small);
+    cursor: pointer;
+    transition: var(--sl-transition-medium) color;
+    -webkit-appearance: none;
+  }
+
+  .icon-button:hover:not(.icon-button--disabled),
+  .icon-button:focus-visible:not(.icon-button--disabled) {
+    color: var(--sl-color-primary-600);
+  }
+
+  .icon-button:active:not(.icon-button--disabled) {
+    color: var(--sl-color-primary-700);
+  }
+
+  .icon-button:focus {
+    outline: none;
+  }
+
+  .icon-button--disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+
+  .icon-button:focus-visible {
+    outline: var(--sl-focus-ring);
+    outline-offset: var(--sl-focus-ring-offset);
+  }
+
+  .icon-button__icon {
+    pointer-events: none;
+  }
+`;
+
+// src/components/icon-button/icon-button.ts
+var SlIconButton = class extends ShoelaceElement {
+  constructor() {
+    super(...arguments);
+    this.hasFocus = false;
+    this.label = "";
+    this.disabled = false;
+  }
+  click() {
+    this.button.click();
+  }
+  focus(options) {
+    this.button.focus(options);
+  }
+  blur() {
+    this.button.blur();
+  }
+  handleBlur() {
+    this.hasFocus = false;
+    this.emit("sl-blur");
+  }
+  handleFocus() {
+    this.hasFocus = true;
+    this.emit("sl-focus");
+  }
+  handleClick(event) {
+    if (this.disabled) {
+      event.preventDefault();
+      event.stopPropagation();
+    }
+  }
+  render() {
+    const isLink = this.href ? true : false;
+    const tag = isLink ? i$5`a` : i$5`button`;
+    return n$7`
+      <${tag}
+        part="base"
+        class=${o$6({
+      "icon-button": true,
+      "icon-button--disabled": !isLink && this.disabled,
+      "icon-button--focused": this.hasFocus
+    })}
+        ?disabled=${l$5(isLink ? void 0 : this.disabled)}
+        type=${l$5(isLink ? void 0 : "button")}
+        href=${l$5(isLink ? this.href : void 0)}
+        target=${l$5(isLink ? this.target : void 0)}
+        download=${l$5(isLink ? this.download : void 0)}
+        rel=${l$5(isLink && this.target ? "noreferrer noopener" : void 0)}
+        role=${l$5(isLink ? void 0 : "button")}
+        aria-disabled=${this.disabled ? "true" : "false"}
+        aria-label="${this.label}"
+        tabindex=${this.disabled ? "-1" : "0"}
+        @blur=${this.handleBlur}
+        @focus=${this.handleFocus}
+        @click=${this.handleClick}
+      >
+        <sl-icon
+          class="icon-button__icon"
+          name=${l$5(this.name)}
+          library=${l$5(this.library)}
+          src=${l$5(this.src)}
+          aria-hidden="true"
+        ></sl-icon>
+      </${tag}>
+    `;
+  }
+};
+SlIconButton.styles = icon_button_styles_default;
+__decorateClass([
+  t$4()
+], SlIconButton.prototype, "hasFocus", 2);
+__decorateClass([
+  i2$2(".icon-button")
+], SlIconButton.prototype, "button", 2);
+__decorateClass([
+  e2$1()
+], SlIconButton.prototype, "name", 2);
+__decorateClass([
+  e2$1()
+], SlIconButton.prototype, "library", 2);
+__decorateClass([
+  e2$1()
+], SlIconButton.prototype, "src", 2);
+__decorateClass([
+  e2$1()
+], SlIconButton.prototype, "href", 2);
+__decorateClass([
+  e2$1()
+], SlIconButton.prototype, "target", 2);
+__decorateClass([
+  e2$1()
+], SlIconButton.prototype, "download", 2);
+__decorateClass([
+  e2$1()
+], SlIconButton.prototype, "label", 2);
+__decorateClass([
+  e2$1({ type: Boolean, reflect: true })
+], SlIconButton.prototype, "disabled", 2);
+SlIconButton = __decorateClass([
+  e$6("sl-icon-button")
+], SlIconButton);
+
 // src/styles/form-control.styles.ts
 var form_control_styles_default = i$6`
   .form-control .form-control__label {
@@ -4792,160 +4946,6 @@ setDefaultAnimation("alert.hide", {
   ],
   options: { duration: 250, easing: "ease" }
 });
-
-// src/components/icon-button/icon-button.styles.ts
-var icon_button_styles_default = i$6`
-  ${component_styles_default}
-
-  :host {
-    display: inline-block;
-    color: var(--sl-color-neutral-600);
-  }
-
-  .icon-button {
-    flex: 0 0 auto;
-    display: flex;
-    align-items: center;
-    background: none;
-    border: none;
-    border-radius: var(--sl-border-radius-medium);
-    font-size: inherit;
-    color: inherit;
-    padding: var(--sl-spacing-x-small);
-    cursor: pointer;
-    transition: var(--sl-transition-medium) color;
-    -webkit-appearance: none;
-  }
-
-  .icon-button:hover:not(.icon-button--disabled),
-  .icon-button:focus-visible:not(.icon-button--disabled) {
-    color: var(--sl-color-primary-600);
-  }
-
-  .icon-button:active:not(.icon-button--disabled) {
-    color: var(--sl-color-primary-700);
-  }
-
-  .icon-button:focus {
-    outline: none;
-  }
-
-  .icon-button--disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
-  }
-
-  .icon-button:focus-visible {
-    outline: var(--sl-focus-ring);
-    outline-offset: var(--sl-focus-ring-offset);
-  }
-
-  .icon-button__icon {
-    pointer-events: none;
-  }
-`;
-
-// src/components/icon-button/icon-button.ts
-var SlIconButton = class extends ShoelaceElement {
-  constructor() {
-    super(...arguments);
-    this.hasFocus = false;
-    this.label = "";
-    this.disabled = false;
-  }
-  click() {
-    this.button.click();
-  }
-  focus(options) {
-    this.button.focus(options);
-  }
-  blur() {
-    this.button.blur();
-  }
-  handleBlur() {
-    this.hasFocus = false;
-    this.emit("sl-blur");
-  }
-  handleFocus() {
-    this.hasFocus = true;
-    this.emit("sl-focus");
-  }
-  handleClick(event) {
-    if (this.disabled) {
-      event.preventDefault();
-      event.stopPropagation();
-    }
-  }
-  render() {
-    const isLink = this.href ? true : false;
-    const tag = isLink ? i$5`a` : i$5`button`;
-    return n$7`
-      <${tag}
-        part="base"
-        class=${o$6({
-      "icon-button": true,
-      "icon-button--disabled": !isLink && this.disabled,
-      "icon-button--focused": this.hasFocus
-    })}
-        ?disabled=${l$5(isLink ? void 0 : this.disabled)}
-        type=${l$5(isLink ? void 0 : "button")}
-        href=${l$5(isLink ? this.href : void 0)}
-        target=${l$5(isLink ? this.target : void 0)}
-        download=${l$5(isLink ? this.download : void 0)}
-        rel=${l$5(isLink && this.target ? "noreferrer noopener" : void 0)}
-        role=${l$5(isLink ? void 0 : "button")}
-        aria-disabled=${this.disabled ? "true" : "false"}
-        aria-label="${this.label}"
-        tabindex=${this.disabled ? "-1" : "0"}
-        @blur=${this.handleBlur}
-        @focus=${this.handleFocus}
-        @click=${this.handleClick}
-      >
-        <sl-icon
-          class="icon-button__icon"
-          name=${l$5(this.name)}
-          library=${l$5(this.library)}
-          src=${l$5(this.src)}
-          aria-hidden="true"
-        ></sl-icon>
-      </${tag}>
-    `;
-  }
-};
-SlIconButton.styles = icon_button_styles_default;
-__decorateClass([
-  t$4()
-], SlIconButton.prototype, "hasFocus", 2);
-__decorateClass([
-  i2$2(".icon-button")
-], SlIconButton.prototype, "button", 2);
-__decorateClass([
-  e2$1()
-], SlIconButton.prototype, "name", 2);
-__decorateClass([
-  e2$1()
-], SlIconButton.prototype, "library", 2);
-__decorateClass([
-  e2$1()
-], SlIconButton.prototype, "src", 2);
-__decorateClass([
-  e2$1()
-], SlIconButton.prototype, "href", 2);
-__decorateClass([
-  e2$1()
-], SlIconButton.prototype, "target", 2);
-__decorateClass([
-  e2$1()
-], SlIconButton.prototype, "download", 2);
-__decorateClass([
-  e2$1()
-], SlIconButton.prototype, "label", 2);
-__decorateClass([
-  e2$1({ type: Boolean, reflect: true })
-], SlIconButton.prototype, "disabled", 2);
-SlIconButton = __decorateClass([
-  e$6("sl-icon-button")
-], SlIconButton);
 
 // src/components/card/card.styles.ts
 var card_styles_default = i$6`
@@ -7898,6 +7898,182 @@ __decorateClass([
 SlPopup = __decorateClass([
   e$6("sl-popup")
 ], SlPopup);
+
+// src/components/menu-item/menu-item.styles.ts
+var menu_item_styles_default = i$6`
+  ${component_styles_default}
+
+  :host {
+    display: block;
+  }
+
+  .menu-item {
+    position: relative;
+    display: flex;
+    align-items: stretch;
+    font-family: var(--sl-font-sans);
+    font-size: var(--sl-font-size-medium);
+    font-weight: var(--sl-font-weight-normal);
+    line-height: var(--sl-line-height-normal);
+    letter-spacing: var(--sl-letter-spacing-normal);
+    color: var(--sl-color-neutral-700);
+    padding: var(--sl-spacing-2x-small) var(--sl-spacing-2x-small);
+    transition: var(--sl-transition-fast) fill;
+    user-select: none;
+    white-space: nowrap;
+    cursor: pointer;
+  }
+
+  .menu-item.menu-item--disabled {
+    outline: none;
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+
+  .menu-item .menu-item__label {
+    flex: 1 1 auto;
+    display: inline-block;
+  }
+
+  .menu-item .menu-item__prefix {
+    flex: 0 0 auto;
+    display: flex;
+    align-items: center;
+  }
+
+  .menu-item .menu-item__prefix::slotted(*) {
+    margin-inline-end: var(--sl-spacing-x-small);
+  }
+
+  .menu-item .menu-item__suffix {
+    flex: 0 0 auto;
+    display: flex;
+    align-items: center;
+  }
+
+  .menu-item .menu-item__suffix::slotted(*) {
+    margin-inline-start: var(--sl-spacing-x-small);
+  }
+
+  :host(:focus) {
+    outline: none;
+  }
+
+  :host(:hover:not([aria-disabled='true'])) .menu-item,
+  :host(:focus-visible:not(.sl-focus-invisible):not([aria-disabled='true'])) .menu-item {
+    outline: none;
+    background-color: var(--sl-color-primary-600);
+    color: var(--sl-color-neutral-0);
+  }
+
+  .menu-item .menu-item__check,
+  .menu-item .menu-item__chevron {
+    flex: 0 0 auto;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 1.5em;
+    visibility: hidden;
+  }
+
+  .menu-item--checked .menu-item__check,
+  .menu-item--has-submenu .menu-item__chevron {
+    visibility: visible;
+  }
+
+  @media (forced-colors: active) {
+    :host(:hover:not([aria-disabled='true'])) .menu-item,
+    :host(:focus-visible:not(.sl-focus-invisible):not([aria-disabled='true'])) .menu-item {
+      outline: dashed 1px SelectedItem;
+      outline-offset: -1px;
+    }
+  }
+`;
+
+// src/components/menu-item/menu-item.ts
+var SlMenuItem = class extends ShoelaceElement {
+  constructor() {
+    super(...arguments);
+    this.checked = false;
+    this.value = "";
+    this.disabled = false;
+  }
+  firstUpdated() {
+    this.setAttribute("role", "menuitem");
+  }
+  getTextLabel() {
+    return getTextContent(this.defaultSlot);
+  }
+  handleCheckedChange() {
+    this.setAttribute("aria-checked", this.checked ? "true" : "false");
+  }
+  handleDisabledChange() {
+    this.setAttribute("aria-disabled", this.disabled ? "true" : "false");
+  }
+  handleDefaultSlotChange() {
+    const textLabel = this.getTextLabel();
+    if (typeof this.cachedTextLabel === "undefined") {
+      this.cachedTextLabel = textLabel;
+      return;
+    }
+    if (textLabel !== this.cachedTextLabel) {
+      this.cachedTextLabel = textLabel;
+      this.emit("sl-label-change");
+    }
+  }
+  render() {
+    return y$1`
+      <div
+        part="base"
+        class=${o$6({
+      "menu-item": true,
+      "menu-item--checked": this.checked,
+      "menu-item--disabled": this.disabled,
+      "menu-item--has-submenu": false
+    })}
+      >
+        <span part="checked-icon" class="menu-item__check">
+          <sl-icon name="check" library="system" aria-hidden="true"></sl-icon>
+        </span>
+
+        <slot name="prefix" part="prefix" class="menu-item__prefix"></slot>
+
+        <slot part="label" class="menu-item__label" @slotchange=${this.handleDefaultSlotChange}></slot>
+
+        <slot name="suffix" part="suffix" class="menu-item__suffix"></slot>
+
+        <span class="menu-item__chevron">
+          <sl-icon name="chevron-right" library="system" aria-hidden="true"></sl-icon>
+        </span>
+      </div>
+    `;
+  }
+};
+SlMenuItem.styles = menu_item_styles_default;
+__decorateClass([
+  i2$2("slot:not([name])")
+], SlMenuItem.prototype, "defaultSlot", 2);
+__decorateClass([
+  i2$2(".menu-item")
+], SlMenuItem.prototype, "menuItem", 2);
+__decorateClass([
+  e2$1({ type: Boolean, reflect: true })
+], SlMenuItem.prototype, "checked", 2);
+__decorateClass([
+  e2$1()
+], SlMenuItem.prototype, "value", 2);
+__decorateClass([
+  e2$1({ type: Boolean, reflect: true })
+], SlMenuItem.prototype, "disabled", 2);
+__decorateClass([
+  watch("checked")
+], SlMenuItem.prototype, "handleCheckedChange", 1);
+__decorateClass([
+  watch("disabled")
+], SlMenuItem.prototype, "handleDisabledChange", 1);
+SlMenuItem = __decorateClass([
+  e$6("sl-menu-item")
+], SlMenuItem);
 
 /**
  * @license
@@ -23215,6 +23391,17 @@ let ProfileView = class ProfileView extends ViewLayout$1 {
     createRenderRoot() {
         return this; // prevents creating a shadow root
     }
+    #save() { }
+    async #logout() {
+        await fetch('/logout', {
+            method: 'GET',
+            mode: 'cors',
+            cache: 'no-cache',
+            credentials: 'same-origin',
+            headers: { 'Content-Type': 'application/json' },
+        });
+        return location.reload();
+    }
     #changeEvent({ target: { value } }) {
         setLocale(value);
         localStorage.setItem('lang', value);
@@ -23227,6 +23414,7 @@ let ProfileView = class ProfileView extends ViewLayout$1 {
             @click="${this.#changeEvent}"
             label="${capitalize(msg('language'))}"
             value="${lang}"
+            class="md:w-1/4"
         >
             ${c(languages, function ({ name, code }) {
             return y ` <sl-menu-item size="small" value="${code}">${name}</sl-menu-item>`;
@@ -23234,9 +23422,15 @@ let ProfileView = class ProfileView extends ViewLayout$1 {
         </sl-select>`;
     }
     #renderRows() {
-        const row1 = y `<div class="grid gap-4 grid-cols-1 md:grid-cols-1fr-auto ">
+        const row1 = y `<div class="flex column flex-col-reverse gap-4 mb-4 md:grid-cols-1fr-auto md:grid">
                 <div>
-                    <sl-input label="${capitalize(msg('username'))}" size="small"></sl-input>
+                    <div class="grid grid-rows-1 md:grid-cols-2 md:gap-4">
+                        <sl-input label="${capitalize(msg('username'))}" size="small"></sl-input>
+                        <sl-input label="${capitalize(msg('Email address'))}" type="email" size="small">
+                            <sl-icon name="envelope-at" slot="prefix"></sl-icon>
+                        </sl-input>
+                    </div>
+
                     <sl-textarea
                         resize="none"
                         size="small"
@@ -23253,7 +23447,10 @@ let ProfileView = class ProfileView extends ViewLayout$1 {
             ${this.#renderLanguageSelect()}
             <sl-divider style="--width: 2px;"></sl-divider>
             <div>
-                <sl-button size="small" variant="primary"> ${msg('save')} </sl-button>
+                <sl-button size="small" variant="danger" @click="${this.#logout}">logout</sl-button>
+                <sl-button size="small" variant="primary" class="float-right" @click="${this.#save}"
+                    >${msg('save')}</sl-button
+                >
             </div>`;
         return [row1];
     }
@@ -23380,7 +23577,7 @@ AppLayout = __decorate([
 document.addEventListener('DOMContentLoaded', function () {
     const app = document.querySelector('app-layout');
     app.bootstrapActiveMenu();
-    console.log('v:0.0.1 at: "2022-12-23T11:21:45.115Z" ');
+    console.log('v:0.0.1 at: "2022-12-23T21:00:14.341Z" ');
 });
 
 /* CSS */

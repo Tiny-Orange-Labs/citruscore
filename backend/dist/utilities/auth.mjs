@@ -1,5 +1,6 @@
 import Bcrypt from 'bcrypt';
 import cokie from '@hapi/cookie';
+//* Need database */
 const users = [
     {
         username: 'john',
@@ -19,7 +20,6 @@ export default async function auth(server) {
         redirectTo: '/login/',
         validate: function (request, session) {
             const account = users.find(user => user.id === session?.id);
-            console.log(session);
             if (!account) {
                 return { isValid: false };
             }
@@ -27,24 +27,34 @@ export default async function auth(server) {
         },
     });
     server.auth.default('session');
-    server.route({
-        method: 'POST',
-        path: '/login',
-        handler: async (request, h) => {
-            const payload = request.payload;
-            const { username, password } = payload.data;
-            const account = users.find(user => user.username === username);
-            if (!account || !(await Bcrypt.compare(password, account.password))) {
-                return { auth: false };
-            }
-            request.cookieAuth.set({ id: account.id });
-            return h.redirect('/');
-        },
-        options: {
-            auth: {
-                mode: 'try',
-                strategy: 'session',
+    server.route([
+        {
+            method: 'POST',
+            path: '/login',
+            handler: async (request, h) => {
+                const payload = request.payload;
+                const { username, password } = payload.data;
+                const account = users.find(user => user.username === username);
+                if (!account || !(await Bcrypt.compare(password, account.password))) {
+                    return { auth: false };
+                }
+                request.cookieAuth.set({ id: account.id });
+                return { auth: true };
+            },
+            options: {
+                auth: {
+                    mode: 'try',
+                    strategy: 'session',
+                },
             },
         },
-    });
+        {
+            method: 'GET',
+            path: '/logout',
+            handler: async (request, h) => {
+                request.cookieAuth.clear();
+                return h.redirect('/login/');
+            },
+        },
+    ]);
 }

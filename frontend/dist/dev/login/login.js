@@ -4101,7 +4101,7 @@
       createRenderRoot() {
           return this; // prevents creating a shadow root
       }
-      async #sendRequest(username, password) {
+      async #sendLogin(username, password) {
           const request = await fetch('/login', {
               method: 'POST',
               mode: 'cors',
@@ -4120,7 +4120,7 @@
           if (!json.auth) {
               return toast('danger', msg('Wrong Password or Username'), msg('Your Username or Password is wrong'));
           }
-          console.log(json);
+          window.location.href = new URL(window.location.href).origin;
       }
       async #loginClick() {
           const unsernameInput = this.querySelector('#username');
@@ -4128,7 +4128,7 @@
           const passwordInput = this.querySelector('#password');
           const password = passwordInput?.value || '';
           if (username !== '' && password !== '') {
-              return this.#sendRequest(username, password);
+              return this.#sendLogin(username, password);
           }
           else {
               toast('warning', msg('Credentials are Empty'), msg('Please fill in Username and Password'));
@@ -4145,13 +4145,7 @@
                 <sl-input id="username" label="${capitalize(msg('username'))}:" autofocus>
                     <sl-icon name="person-circle" placeholder="Max Musterman" slot="prefix"></sl-icon>
                 </sl-input>
-                <sl-input
-                    id="password"
-                    label="${capitalize(msg('password'))}:"
-                    placeholder="*****"
-                    type="password"
-                    password-toggle
-                >
+                <sl-input id="password" label="${capitalize(msg('password'))}:" type="password" password-toggle>
                     <sl-icon name="unlock" slot="prefix"></sl-icon>
                 </sl-input>
 

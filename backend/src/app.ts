@@ -1,6 +1,6 @@
 import Hapi, { Server } from '@hapi/hapi';
 import host from './staticfiles/app';
-import auth from './utilities/auth';
+import auth from './routes/auth';
 
 const server: Server = Hapi.server({
     port: 3000,
