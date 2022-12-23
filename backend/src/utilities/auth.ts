@@ -2,6 +2,7 @@ import Bcrypt from 'bcrypt';
 import { Server } from '@hapi/hapi';
 import cokie from '@hapi/cookie';
 
+//* Need database */
 const users = [
     {
         username: 'john',
@@ -25,10 +26,10 @@ export default async function auth(server: Server) {
             const account = users.find(user => user.id === session?.id);
 
             if (!account) {
-                return { valid: false };
+                return { isValid: false };
             }
 
-            return { valid: true, credentials: account };
+            return { isValid: true, credentials: account };
         },
     });
     server.auth.default('session');
@@ -36,7 +37,8 @@ export default async function auth(server: Server) {
         method: 'POST',
         path: '/login',
         handler: async (request, h) => {
-            const { username, password } = request.payload as any;
+            const payload = request.payload as any;
+            const { username, password } = payload.data;
             const account = users.find(user => user.username === username);
 
             if (!account || !(await Bcrypt.compare(password, account.password))) {

@@ -19,10 +19,11 @@ export default async function auth(server) {
         redirectTo: '/login/',
         validate: function (request, session) {
             const account = users.find(user => user.id === session?.id);
+            console.log(session);
             if (!account) {
-                return { valid: false };
+                return { isValid: false };
             }
-            return { valid: true, credentials: account };
+            return { isValid: true, credentials: account };
         },
     });
     server.auth.default('session');
@@ -30,7 +31,8 @@ export default async function auth(server) {
         method: 'POST',
         path: '/login',
         handler: async (request, h) => {
-            const { username, password } = request.payload;
+            const payload = request.payload;
+            const { username, password } = payload.data;
             const account = users.find(user => user.username === username);
             if (!account || !(await Bcrypt.compare(password, account.password))) {
                 return { auth: false };
