@@ -9,7 +9,7 @@ const server = Hapi.server({
 await auth(server);
 await host(server);
 await server.start();
-console.log('server running on %s %s', server.info.uri, address);
+console.log('server running on %s %s %s', server.info.uri, address, process.env.ENV);
 process.on('unhandledRejection', err => {
     console.log(err);
     process.exit(1);
