@@ -2,9 +2,10 @@ import Hapi, { Server } from '@hapi/hapi';
 import host from './staticfiles/app';
 import auth from './routes/auth';
 
+const address: string = process.env.ENV === 'production' ? '0.0.0.0' : 'localhost';
 const server: Server = Hapi.server({
     port: 3000,
-    host: 'localhost',
+    host: address,
 });
 
 await auth(server);

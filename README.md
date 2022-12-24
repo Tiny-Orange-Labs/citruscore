@@ -100,18 +100,7 @@ To check your coverage with an UI run:
 npm run coverage
 ```
 
-## Translate
-
-```bash
-npm run translate-extract
-npm run translate-build
-```
-
-or
-
-```bash
-npm run translate-all
-```
+## env variables
 
 ## ToDo
 
