@@ -15,7 +15,22 @@ I build the same stuff over and over again:
 -   accessibility
 
 thats pretty boring so I am creating this gigantic overengineering boilerplate.
-This abomination includes hapi, db(? not sure yet), typescript, rollup (and of course rollup plugins), lit, lit-localize, tailwind, shoelace, chartjs, fontawesome and maybe more in the near future.
+This abomination includes:
+
+-   hapi
+-   db(? not sure yet)
+-   typescript
+-   lit
+-   lit-localize
+-   tailwind
+-   shoelace
+-   chartjs
+-   fontawesome
+-   rollup (and of course rollup plugins)
+-   railway
+-   cypress (I am pretty sure in the near future)
+
+and maybe more in the near future.
 
 ## Install
 

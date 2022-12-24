@@ -12,7 +12,7 @@ await auth(server);
 await host(server);
 await server.start();
 
-console.log('server running on %s', server.info.uri);
+console.log('server running on %s %s', server.info.uri, address);
 
 process.on('unhandledRejection', err => {
     console.log(err);
