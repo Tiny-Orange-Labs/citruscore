@@ -18,7 +18,7 @@ thats pretty boring so I am creating this gigantic overengineering boilerplate.
 This abomination includes:
 
 -   hapi
--   db(? not sure yet)
+-   mongodb
 -   typescript
 -   lit
 -   lit-localize
@@ -37,6 +37,7 @@ and maybe more in the near future.
 You need the following things on your pc
 
 -   [Node v18+](https://nodejs.org/en/)
+-   [mongo](https://www.mongodb.com/docs/manual/tutorial/install-mongodb-on-os-x/s)
 
 ```bash
 npm install -g live-server

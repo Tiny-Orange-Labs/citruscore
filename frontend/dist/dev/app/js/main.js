@@ -23425,13 +23425,19 @@ let ProfileView = class ProfileView extends ViewLayout$1 {
         const row1 = y `<div class="flex column flex-col-reverse gap-4 mb-4 md:grid-cols-1fr-auto md:grid">
                 <div>
                     <div class="grid grid-rows-1 md:grid-cols-2 md:gap-4">
-                        <sl-input label="${capitalize(msg('username'))}" size="small"></sl-input>
+                        <sl-input
+                            minlength="3"
+                            maxlength="20"
+                            label="${capitalize(msg('username'))}"
+                            size="small"
+                        ></sl-input>
                         <sl-input label="${capitalize(msg('Email address'))}" type="email" size="small">
                             <sl-icon name="envelope-at" slot="prefix"></sl-icon>
                         </sl-input>
                     </div>
 
                     <sl-textarea
+                        maxlength="140"
                         resize="none"
                         size="small"
                         help-text="${msg('write something about you')}"
@@ -23577,7 +23583,7 @@ AppLayout = __decorate([
 document.addEventListener('DOMContentLoaded', function () {
     const app = document.querySelector('app-layout');
     app.bootstrapActiveMenu();
-    console.log('v:0.0.1 at: "2022-12-23T21:00:14.341Z" ');
+    console.log('v:0.0.1 at: "2022-12-26T12:43:15.202Z" ');
 });
 
 /* CSS */

@@ -45,6 +45,7 @@
         "@types/hapi": "^18.0.7",
         "@types/hapi__cookie": "^12.0.1",
         "@types/hapi__inert": "^5.2.3",
+        "@types/mongoose": "^5.11.97",
         "@web/dev-server-esbuild": "^0.3.3",
         "@web/test-runner": "^0.15.0",
         "@web/test-runner-playwright": "^0.9.0",
@@ -66,6 +67,7 @@
         "@hapi/cookie": "^12.0.0",
         "@hapi/hapi": "^21.1.0",
         "@hapi/inert": "^7.0.0",
-        "bcrypt": "^5.1.0"
+        "bcrypt": "^5.1.0",
+        "mongoose": "^6.8.1"
     }
 }

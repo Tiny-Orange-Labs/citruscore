@@ -61,13 +61,19 @@ let ProfileView = class ProfileView extends ViewLayout {
         const row1 = html `<div class="flex column flex-col-reverse gap-4 mb-4 md:grid-cols-1fr-auto md:grid">
                 <div>
                     <div class="grid grid-rows-1 md:grid-cols-2 md:gap-4">
-                        <sl-input label="${capitalize(msg('username'))}" size="small"></sl-input>
+                        <sl-input
+                            minlength="3"
+                            maxlength="20"
+                            label="${capitalize(msg('username'))}"
+                            size="small"
+                        ></sl-input>
                         <sl-input label="${capitalize(msg('Email address'))}" type="email" size="small">
                             <sl-icon name="envelope-at" slot="prefix"></sl-icon>
                         </sl-input>
                     </div>
 
                     <sl-textarea
+                        maxlength="140"
                         resize="none"
                         size="small"
                         help-text="${msg('write something about you')}"

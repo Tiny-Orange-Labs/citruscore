@@ -3165,13 +3165,19 @@ function on(t){return t+.5|0}sn=function(t,e,i,s){var o,n=arguments.length,r=n<3
         </sl-select>`}#r(){return[Ws`<div class="flex column flex-col-reverse gap-4 mb-4 md:grid-cols-1fr-auto md:grid">
                 <div>
                     <div class="grid grid-rows-1 md:grid-cols-2 md:gap-4">
-                        <sl-input label="${en(Qo("username"))}" size="small"></sl-input>
+                        <sl-input
+                            minlength="3"
+                            maxlength="20"
+                            label="${en(Qo("username"))}"
+                            size="small"
+                        ></sl-input>
                         <sl-input label="${en(Qo("Email address"))}" type="email" size="small">
                             <sl-icon name="envelope-at" slot="prefix"></sl-icon>
                         </sl-input>
                     </div>
 
                     <sl-textarea
+                        maxlength="140"
                         resize="none"
                         size="small"
                         help-text="${Qo("write something about you")}"
