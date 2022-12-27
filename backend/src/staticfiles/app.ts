@@ -2,6 +2,7 @@ import { Server } from '@hapi/hapi';
 import inert from '@hapi/inert';
 
 export default async function host(server: Server) {
+    const directory: string = process.env.SERVE === 'production' ? 'prod' : 'dev';
     await server.register(inert);
 
     // Login Staticfiles
@@ -10,7 +11,7 @@ export default async function host(server: Server) {
         path: '/login/{param*}',
         handler: {
             directory: {
-                path: './frontend/dist/prod/login/',
+                path: `./frontend/dist/${directory}/login/`,
                 index: ['login.html'],
             },
         },
@@ -28,7 +29,7 @@ export default async function host(server: Server) {
         path: '/{param*}',
         handler: {
             directory: {
-                path: './frontend/dist/prod/app/',
+                path: `./frontend/dist/${directory}/app/`,
                 index: ['index.html'],
             },
         },

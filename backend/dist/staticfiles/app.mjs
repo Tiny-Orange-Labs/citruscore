@@ -1,5 +1,6 @@
 import inert from '@hapi/inert';
 export default async function host(server) {
+    const directory = process.env.SERVE === 'production' ? 'prod' : 'dev';
     await server.register(inert);
     // Login Staticfiles
     server.route({
@@ -7,7 +8,7 @@ export default async function host(server) {
         path: '/login/{param*}',
         handler: {
             directory: {
-                path: './frontend/dist/prod/login/',
+                path: `./frontend/dist/${directory}/login/`,
                 index: ['login.html'],
             },
         },
@@ -24,7 +25,7 @@ export default async function host(server) {
         path: '/{param*}',
         handler: {
             directory: {
-                path: './frontend/dist/prod/app/',
+                path: `./frontend/dist/${directory}/app/`,
                 index: ['index.html'],
             },
         },

@@ -64,11 +64,12 @@ options.forEach(function ({ options, path, write }) {
         const applauseOutput = applause.replace(rawContent);
         const minifyOutput = minify.minify(applauseOutput.content || rawContent, minifyOptions);
         const output = options.dev ? applauseOutput.content : minifyOutput;
-
+        console.log(output);
+        console.log(err);
         if (err) {
             return console.log(err);
         }
-
+        console.log(write);
         fs.writeFile(write, output, function (err) {
             if (err) {
                 return console.log(err);

@@ -2,9 +2,13 @@ import SlInput from '@shoelace-style/shoelace/dist/components/input/input';
 import { LitElement, html } from 'lit';
 import { customElement } from 'lit/decorators.js';
 import { client } from '../data/misc';
-import toast from '../misc/toast';
+import toast from '../utilities/toast/toast';
 import { localized, msg } from '@lit/localize';
 import { capitalize } from '../utilities/text/text';
+
+interface KeyboardEvent {
+    key: string;
+}
 
 @localized()
 @customElement('login-layout')
@@ -54,6 +58,14 @@ export default class LoginLayout extends LitElement {
         }
     }
 
+    #keydown(e: any) {
+        const password = this.querySelector('#password');
+
+        if (e.key === 'Enter') {
+            this.#loginClick();
+        }
+    }
+
     render() {
         return html`<div></div>
             <div class="flex flex-col justify-center gap-2">
@@ -62,10 +74,16 @@ export default class LoginLayout extends LitElement {
                     <p>Your Account</p>
                 </div>
 
-                <sl-input id="username" label="${capitalize(msg('username'))}:" autofocus>
+                <sl-input id="username" label="${capitalize(msg('username'))}:" maxlength="20" minlength="3" autofocus>
                     <sl-icon name="person-circle" placeholder="Max Musterman" slot="prefix"></sl-icon>
                 </sl-input>
-                <sl-input id="password" label="${capitalize(msg('password'))}:" type="password" password-toggle>
+                <sl-input
+                    id="password"
+                    label="${capitalize(msg('password'))}:"
+                    type="password"
+                    @keydown="${this.#keydown}"
+                    password-toggle
+                >
                     <sl-icon name="unlock" slot="prefix"></sl-icon>
                 </sl-input>
 

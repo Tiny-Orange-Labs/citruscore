@@ -8,7 +8,7 @@ export type navData = {
 };
 export const navElements = Object.freeze({
     logo: {
-        src: 'logo.png',
+        src: 'logo_56x56.png',
     },
     items: [
         {

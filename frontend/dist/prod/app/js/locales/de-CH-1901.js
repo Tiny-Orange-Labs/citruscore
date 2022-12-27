@@ -3,6 +3,7 @@
 /* eslint-disable no-irregular-whitespace */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 export const templates = {
+    's092736ff8c67345f': `Profil Update`,
     's096a5e18bf857c28': `speichern`,
     's0a7cf666efcba93f': `kalender`,
     's17d6e088af315c6a': `Zugangsdaten sind Leer`,
@@ -12,6 +13,7 @@ export const templates = {
     's38887b94b3320533': `E-Mail Adresse`,
     's3f74142d6181ea7e': `über dich`,
     's4b1a493507b3a318': `passwort`,
+    's8920110bb80735a3': `Ändere deine Profildaten um ein update durchzuführen`,
     's8add349e618ba10e': `profil`,
     's8c82b2a3a1dd23b1': `Bitte gib einen Benutzername und ein Passwort ein`,
     's94a644b5e0880579': `benutzername`,

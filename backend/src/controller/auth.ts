@@ -8,15 +8,6 @@ type LoginData = {
 };
 const sessionIDs: Set<string> = new Set<string>();
 
-//* Need database */
-const users = [
-    {
-        username: 'john',
-        password: '$2a$10$iqJSHD.BGr0E2IxQwYgJmeP3NvhPrXAeLSaGCj6IR/XU5QtjVu5Tm', // 'secret'
-        id: '2133d32a',
-    },
-];
-
 export async function login(request: any) {
     const { username, password }: LoginData = request.payload.data;
     const userData: UserType = await userModel.findOne({ username }).lean();
@@ -35,12 +26,7 @@ export async function login(request: any) {
 
 export function validate(request: any, session: { id: string }) {
     const account = sessionIDs.has(session.id);
-
-    if (!account) {
-        return { isValid: false };
-    }
-
-    return { isValid: true, credentials: account };
+    return !account ? { isValid: false } : { isValid: true, credentials: account };
 }
 
 export function logout(request: any, h: any) {

@@ -55,16 +55,11 @@ const config = [
                         dest: 'frontend/dist/dev/app',
                     },
                     {
-                        src: 'frontend/assets/',
-                        dest: 'frontend/dist/dev/app',
-                    },
-                    {
                         src: 'frontend/dist/dev/app/js/bundle.css',
                         dest: 'frontend/dist/dev/app/css/',
                     },
                 ],
                 copyOnce: true,
-
                 hook: 'buildEnd',
             }),
         ],
@@ -136,6 +131,10 @@ const config = [
                         src: shoelaceAssets,
                         dest: './frontend/dist/dev/login/assets/shoelace',
                     },
+                    {
+                        src: 'frontend/assets/',
+                        dest: 'frontend/dist/dev/login',
+                    },
                 ],
             }),
         ],
@@ -163,6 +162,10 @@ const config = [
                     {
                         src: shoelaceAssets,
                         dest: './frontend/dist/prod/login/assets/shoelace',
+                    },
+                    {
+                        src: 'frontend/assets/',
+                        dest: 'frontend/dist/prod/login',
                     },
                 ],
             }),

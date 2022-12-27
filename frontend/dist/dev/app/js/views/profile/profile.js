@@ -13,6 +13,9 @@ import { setLocale } from '../../utilities/language/language';
 import { capitalize } from '../../utilities/text/text';
 import { languages } from '../../data/langs';
 import { repeat } from 'lit/directives/repeat.js';
+import { until } from 'lit/directives/until.js';
+import { client } from '../../data/misc';
+import toast from '../../utilities/toast/toast';
 let ProfileView = class ProfileView extends ViewLayout {
     constructor() {
         super();
@@ -27,7 +30,43 @@ let ProfileView = class ProfileView extends ViewLayout {
     createRenderRoot() {
         return this; // prevents creating a shadow root
     }
-    #save() { }
+    async #hasUserDataChanged(newData) {
+        const userRequest = await fetch('/user', { method: 'GET' });
+        const user = await userRequest.json();
+        const sameUsername = newData.username === user.username;
+        const sameEmail = newData.email === user.email;
+        const sameAbout = newData.about === user.about || '';
+        if (sameUsername && sameEmail && sameAbout) {
+            return false;
+        }
+        return true;
+    }
+    async #save() {
+        const usernameElem = this.querySelector('#username');
+        const emailElem = this.querySelector('#mail');
+        const aboutElem = this.querySelector('#about');
+        const newData = {
+            username: usernameElem.value,
+            email: emailElem.value,
+            about: aboutElem.value,
+        };
+        if (await !this.#hasUserDataChanged(newData)) {
+            return toast('neutral', msg('User Update'), msg('Change user details to trigger an update'));
+        }
+        const request = await fetch('/user', {
+            method: 'POST',
+            mode: 'cors',
+            cache: 'no-cache',
+            credentials: 'same-origin',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                client,
+                data: newData,
+            }),
+        });
+        const json = request.json();
+        console.log(json);
+    }
     async #logout() {
         await fetch('/logout', {
             method: 'GET',
@@ -58,26 +97,45 @@ let ProfileView = class ProfileView extends ViewLayout {
         </sl-select>`;
     }
     #renderRows() {
+        const content = fetch('/user', {
+            method: 'GET',
+        }).then(r => r.json());
         const row1 = html `<div class="flex column flex-col-reverse gap-4 mb-4 md:grid-cols-1fr-auto md:grid">
                 <div>
                     <div class="grid grid-rows-1 md:grid-cols-2 md:gap-4">
                         <sl-input
+                            id="username"
                             minlength="3"
                             maxlength="20"
                             label="${capitalize(msg('username'))}"
                             size="small"
+                            value="${until(content.then(function (data) {
+            return data.username;
+        }), 'Loading...')}"
                         ></sl-input>
-                        <sl-input label="${capitalize(msg('Email address'))}" type="email" size="small">
+                        <sl-input
+                            id="mail"
+                            label="${capitalize(msg('Email address'))}"
+                            type="email"
+                            size="small"
+                            value="${until(content.then(function (data) {
+            return data.email;
+        }), 'Loading...')}"
+                        >
                             <sl-icon name="envelope-at" slot="prefix"></sl-icon>
                         </sl-input>
                     </div>
 
                     <sl-textarea
+                        id="about"
                         maxlength="140"
                         resize="none"
                         size="small"
                         help-text="${msg('write something about you')}"
                         label="${capitalize(msg('about'))}"
+                        value="${until(content.then(function (data) {
+            return data.about;
+        }), '')}"
                     ></sl-textarea>
                 </div>
                 <div>

@@ -50,6 +50,14 @@
   <source>profile</source>
   <target>profil</target>
 </trans-unit>
+<trans-unit id="s092736ff8c67345f">
+  <source>User Update</source>
+  <target>Profil Update</target>
+</trans-unit>
+<trans-unit id="s8920110bb80735a3">
+  <source>Change user details to trigger an update</source>
+  <target>Ändere deine Profildaten um ein update durchzuführen</target>
+</trans-unit>
 <trans-unit id="sd2fd35287f0a935b">
   <source>language</source>
   <target>sprache</target>

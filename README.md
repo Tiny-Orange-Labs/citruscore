@@ -118,6 +118,9 @@ npm run coverage
 
 ## env variables
 
+-   RUNTIME triggers the address for the server
+-   SERVE triggers if the production or dev version of the files are statically served
+
 ## ToDo
 
 1. bootstrap the whole backend parts

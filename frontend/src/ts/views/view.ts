@@ -25,9 +25,7 @@ export default class ViewLayout extends LitElement {
     }
 
     // triggers after some one click on the menu
-    setActive() {
-        console.log(this.name);
-    }
+    setActive() {}
 
     render(ROWS: any = '') {
         const viewData: navData = navElements.items.find(i => i.name === this.name) as navData;
