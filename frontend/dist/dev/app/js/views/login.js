@@ -51,7 +51,6 @@ let LoginLayout = class LoginLayout extends LitElement {
         }
     }
     #keydown(e) {
-        const password = this.querySelector('#password');
         if (e.key === 'Enter') {
             this.#loginClick();
         }

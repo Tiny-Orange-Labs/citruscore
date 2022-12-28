@@ -56,7 +56,11 @@
 </trans-unit>
 <trans-unit id="s8920110bb80735a3">
   <source>Change user details to trigger an update</source>
-  <target>Ändere deine Profildaten um ein update durchzuführen</target>
+  <target>Ändere deine Profildaten um ein Update durchzuführen</target>
+</trans-unit>
+<trans-unit id="sf1992e3514447d4d">
+  <source>Changes saved</source>
+  <target>Änderungen gespeichert</target>
 </trans-unit>
 <trans-unit id="sd2fd35287f0a935b">
   <source>language</source>
@@ -81,6 +85,33 @@
 <trans-unit id="s096a5e18bf857c28">
   <source>save</source>
   <target>speichern</target>
+</trans-unit>
+<trans-unit id="s8563c5a14e9a42f2">
+  <source>New Password</source>
+  <target>Neues Passwort</target>
+</trans-unit>
+<trans-unit id="s7dcd0ead91674605">
+  <source>New password doesn't match</source>
+  <target>Neues passwort ist nicht gleich</target>
+</trans-unit>
+<trans-unit id="sabe8b86feae6da6f">
+  <source>Old Password</source>
+  <target>Altes Passwort</target>
+</trans-unit>
+<trans-unit id="s6727aa948e017eea">
+  <source>Confirm New Password</source>
+  <target>Neues Passwort bestätigen</target>
+</trans-unit>
+<trans-unit id="s8671c2b9d8b6efcd">
+  <source>update password</source>
+</trans-unit>
+<trans-unit id="sa23fd2965dc429bc">
+  <source>account</source>
+  <target>account</target>
+</trans-unit>
+<trans-unit id="sfa23d9ef19afc32c">
+  <source>team</source>
+  <target>team</target>
 </trans-unit>
 </body>
 </file>

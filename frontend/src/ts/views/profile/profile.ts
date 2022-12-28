@@ -37,7 +37,7 @@ export default class ProfileView extends ViewLayout {
         const user = await userRequest.json();
         const sameUsername = newData.username === user.username;
         const sameEmail = newData.email === user.email;
-        const sameAbout = newData.about === user.about || '';
+        const sameAbout = newData.about === (user.about || '');
 
         if (sameUsername && sameEmail && sameAbout) {
             return false;
@@ -51,12 +51,13 @@ export default class ProfileView extends ViewLayout {
         const emailElem = this.querySelector('#mail') as SlInput;
         const aboutElem = this.querySelector('#about') as SlInput;
         const newData = {
-            username: usernameElem.value,
+            username: usernameElem.value.trim(),
             email: emailElem.value,
-            about: aboutElem.value,
+            about: aboutElem.value.trim(),
         };
+        const hasDataChanged = await this.#hasUserDataChanged(newData);
 
-        if (await !this.#hasUserDataChanged(newData)) {
+        if (!hasDataChanged) {
             return toast('neutral', msg('User Update'), msg('Change user details to trigger an update'));
         }
 
@@ -71,8 +72,11 @@ export default class ProfileView extends ViewLayout {
                 data: newData,
             }),
         });
-        const json = request.json();
-        console.log(json);
+        const json = await request.json();
+
+        if (json.acknowledged) {
+            return toast('success', msg('User Update'), msg('Changes saved'));
+        }
     }
 
     async #logout() {
@@ -108,12 +112,8 @@ export default class ProfileView extends ViewLayout {
         </sl-select>`;
     }
 
-    #renderRows() {
-        const content = fetch('/user', {
-            method: 'GET',
-        }).then(r => r.json());
-
-        const row1 = html`<div class="flex column flex-col-reverse gap-4 mb-4 md:grid-cols-1fr-auto md:grid">
+    #renderAccountSection(content: Promise<any>) {
+        return html` <div class="account-section">
                 <div>
                     <div class="grid grid-rows-1 md:grid-cols-2 md:gap-4">
                         <sl-input
@@ -174,6 +174,68 @@ export default class ProfileView extends ViewLayout {
                     >${msg('save')}</sl-button
                 >
             </div>`;
+    }
+
+    async #changePassword() {
+        const oldPasswordElem = this.querySelector('#oldpassword') as SlInput;
+        const newPasswordElem = this.querySelector('#newpassword') as SlInput;
+        const newPasswordconfirmElem = this.querySelector('#newpasswordconfirm') as SlInput;
+        const oldPassword = oldPasswordElem.value;
+        const newPassword = newPasswordElem.value;
+        const newPasswordConfirm = newPasswordconfirmElem.value;
+        const samePassword = newPassword === newPasswordConfirm;
+        console.log(samePassword);
+        if (!samePassword) {
+            return toast('warning', msg('New Password'), msg("New password doesn't match"));
+        }
+
+        console.log(oldPassword);
+    }
+
+    #renderPasswordSection() {
+        return html`<div class="password-section">
+            <sl-input
+                id="oldpassword"
+                size="small"
+                label="${capitalize(msg('Old Password'))}:"
+                type="password"
+                password-toggle
+            >
+            </sl-input>
+            <sl-input
+                id="newpassword"
+                size="small"
+                label="${capitalize(msg('New Password'))}:"
+                type="password"
+                password-toggle
+            ></sl-input>
+            <sl-input
+                id="newpasswordconfirm"
+                size="small"
+                label="${capitalize(msg('Confirm New Password'))}:"
+                type="password"
+                password-toggle
+            ></sl-input>
+            <sl-button @click="${this.#changePassword}" class="mt-4" size="small" variant="danger"
+                >${msg('update password')}</sl-button
+            >
+        </div>`;
+    }
+
+    #renderRows() {
+        const content = fetch('/user', {
+            method: 'GET',
+        }).then(r => r.json());
+
+        const row1 = html`<sl-tab-group>
+            <sl-tab slot="nav" panel="account">${capitalize(msg('account'))}</sl-tab>
+            <sl-tab slot="nav" panel="password">${capitalize(msg('password'))}</sl-tab>
+            <sl-tab slot="nav" panel="team">${capitalize(msg('team'))}</sl-tab>
+
+            <sl-tab-panel name="account">${this.#renderAccountSection(content)}</sl-tab-panel>
+            <sl-tab-panel name="password">${this.#renderPasswordSection()}</sl-tab-panel>
+            <sl-tab-panel name="team">team</sl-tab-panel>
+        </sl-tab-group> `;
         return [row1];
     }
 

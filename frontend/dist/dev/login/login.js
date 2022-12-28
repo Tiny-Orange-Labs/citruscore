@@ -4135,7 +4135,6 @@
           }
       }
       #keydown(e) {
-          this.querySelector('#password');
           if (e.key === 'Enter') {
               this.#loginClick();
           }

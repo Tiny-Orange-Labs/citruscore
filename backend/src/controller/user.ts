@@ -8,5 +8,6 @@ export async function getUser(request: any) {
 export async function setUser(request: any) {
     const sessionID: string = request.state['log-cookie'].id;
     const data = request.payload.data;
-    return await userModel.updateOne({ sessionID }, { data }, { password: 0 });
+
+    return await userModel.updateOne({ sessionID }, { ...data }, { password: 0 });
 }

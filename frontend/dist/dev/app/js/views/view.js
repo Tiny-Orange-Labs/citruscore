@@ -23,9 +23,7 @@ let ViewLayout = class ViewLayout extends LitElement {
         });
     }
     // triggers after some one click on the menu
-    setActive() {
-        console.log(this.name);
-    }
+    setActive() { }
     render(ROWS = '') {
         const viewData = navElements.items.find(i => i.name === this.name);
         // Workaround for localized, because it only compiles statically

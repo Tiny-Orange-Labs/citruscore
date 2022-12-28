@@ -6,10 +6,6 @@ import toast from '../utilities/toast/toast';
 import { localized, msg } from '@lit/localize';
 import { capitalize } from '../utilities/text/text';
 
-interface KeyboardEvent {
-    key: string;
-}
-
 @localized()
 @customElement('login-layout')
 export default class LoginLayout extends LitElement {
@@ -59,8 +55,6 @@ export default class LoginLayout extends LitElement {
     }
 
     #keydown(e: any) {
-        const password = this.querySelector('#password');
-
         if (e.key === 'Enter') {
             this.#loginClick();
         }

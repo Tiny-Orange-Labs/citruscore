@@ -8075,6 +8075,767 @@ SlMenuItem = __decorateClass([
   e$7("sl-menu-item")
 ], SlMenuItem);
 
+// src/components/tab-group/tab-group.styles.ts
+var tab_group_styles_default = i$7`
+  ${component_styles_default}
+
+  :host {
+    --indicator-color: var(--sl-color-primary-600);
+    --track-color: var(--sl-color-neutral-200);
+    --track-width: 2px;
+
+    display: block;
+  }
+
+  .tab-group {
+    display: flex;
+    border-radius: 0;
+  }
+
+  .tab-group__tabs {
+    display: flex;
+    position: relative;
+  }
+
+  .tab-group__indicator {
+    position: absolute;
+    transition: var(--sl-transition-fast) translate ease, var(--sl-transition-fast) width ease;
+  }
+
+  .tab-group--has-scroll-controls .tab-group__nav-container {
+    position: relative;
+    padding: 0 var(--sl-spacing-x-large);
+  }
+
+  .tab-group__body {
+    display: block;
+    overflow: auto;
+  }
+
+  .tab-group__scroll-button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    width: var(--sl-spacing-x-large);
+  }
+
+  .tab-group__scroll-button--start {
+    left: 0;
+  }
+
+  .tab-group__scroll-button--end {
+    right: 0;
+  }
+
+  .tab-group--rtl .tab-group__scroll-button--start {
+    left: auto;
+    right: 0;
+  }
+
+  .tab-group--rtl .tab-group__scroll-button--end {
+    left: 0;
+    right: auto;
+  }
+
+  /*
+   * Top
+   */
+
+  .tab-group--top {
+    flex-direction: column;
+  }
+
+  .tab-group--top .tab-group__nav-container {
+    order: 1;
+  }
+
+  .tab-group--top .tab-group__nav {
+    display: flex;
+    overflow-x: auto;
+
+    /* Hide scrollbar in Firefox */
+    scrollbar-width: none;
+  }
+
+  /* Hide scrollbar in Chrome/Safari */
+  .tab-group--top .tab-group__nav::-webkit-scrollbar {
+    width: 0;
+    height: 0;
+  }
+
+  .tab-group--top .tab-group__tabs {
+    flex: 1 1 auto;
+    position: relative;
+    flex-direction: row;
+    border-bottom: solid var(--track-width) var(--track-color);
+  }
+
+  .tab-group--top .tab-group__indicator {
+    bottom: calc(-1 * var(--track-width));
+    border-bottom: solid var(--track-width) var(--indicator-color);
+  }
+
+  .tab-group--top .tab-group__body {
+    order: 2;
+  }
+
+  .tab-group--top ::slotted(sl-tab-panel) {
+    --padding: var(--sl-spacing-medium) 0;
+  }
+
+  /*
+   * Bottom
+   */
+
+  .tab-group--bottom {
+    flex-direction: column;
+  }
+
+  .tab-group--bottom .tab-group__nav-container {
+    order: 2;
+  }
+
+  .tab-group--bottom .tab-group__nav {
+    display: flex;
+    overflow-x: auto;
+
+    /* Hide scrollbar in Firefox */
+    scrollbar-width: none;
+  }
+
+  /* Hide scrollbar in Chrome/Safari */
+  .tab-group--bottom .tab-group__nav::-webkit-scrollbar {
+    width: 0;
+    height: 0;
+  }
+
+  .tab-group--bottom .tab-group__tabs {
+    flex: 1 1 auto;
+    position: relative;
+    flex-direction: row;
+    border-top: solid var(--track-width) var(--track-color);
+  }
+
+  .tab-group--bottom .tab-group__indicator {
+    top: calc(-1 * var(--track-width));
+    border-top: solid var(--track-width) var(--indicator-color);
+  }
+
+  .tab-group--bottom .tab-group__body {
+    order: 1;
+  }
+
+  .tab-group--bottom ::slotted(sl-tab-panel) {
+    --padding: var(--sl-spacing-medium) 0;
+  }
+
+  /*
+   * Start
+   */
+
+  .tab-group--start {
+    flex-direction: row;
+  }
+
+  .tab-group--start .tab-group__nav-container {
+    order: 1;
+  }
+
+  .tab-group--start .tab-group__tabs {
+    flex: 0 0 auto;
+    flex-direction: column;
+    border-inline-end: solid var(--track-width) var(--track-color);
+  }
+
+  .tab-group--start .tab-group__indicator {
+    right: calc(-1 * var(--track-width));
+    border-right: solid var(--track-width) var(--indicator-color);
+  }
+
+  .tab-group--start.tab-group--rtl .tab-group__indicator {
+    right: auto;
+    left: calc(-1 * var(--track-width));
+  }
+
+  .tab-group--start .tab-group__body {
+    flex: 1 1 auto;
+    order: 2;
+  }
+
+  .tab-group--start ::slotted(sl-tab-panel) {
+    --padding: 0 var(--sl-spacing-medium);
+  }
+
+  /*
+   * End
+   */
+
+  .tab-group--end {
+    flex-direction: row;
+  }
+
+  .tab-group--end .tab-group__nav-container {
+    order: 2;
+  }
+
+  .tab-group--end .tab-group__tabs {
+    flex: 0 0 auto;
+    flex-direction: column;
+    border-left: solid var(--track-width) var(--track-color);
+  }
+
+  .tab-group--end .tab-group__indicator {
+    left: calc(-1 * var(--track-width));
+    border-inline-start: solid var(--track-width) var(--indicator-color);
+  }
+
+  .tab-group--end.tab-group--rtl .tab-group__indicator {
+    right: calc(-1 * var(--track-width));
+    left: auto;
+  }
+
+  .tab-group--end .tab-group__body {
+    flex: 1 1 auto;
+    order: 1;
+  }
+
+  .tab-group--end ::slotted(sl-tab-panel) {
+    --padding: 0 var(--sl-spacing-medium);
+  }
+`;
+
+// src/components/tab-group/tab-group.ts
+var SlTabGroup = class extends ShoelaceElement {
+  constructor() {
+    super(...arguments);
+    this.localize = new LocalizeController2(this);
+    this.tabs = [];
+    this.panels = [];
+    this.hasScrollControls = false;
+    this.placement = "top";
+    this.activation = "auto";
+    this.noScrollControls = false;
+  }
+  connectedCallback() {
+    super.connectedCallback();
+    this.resizeObserver = new ResizeObserver(() => {
+      this.repositionIndicator();
+      this.updateScrollControls();
+    });
+    this.mutationObserver = new MutationObserver((mutations) => {
+      if (mutations.some((m) => !["aria-labelledby", "aria-controls"].includes(m.attributeName))) {
+        setTimeout(() => this.setAriaLabels());
+      }
+      if (mutations.some((m) => m.attributeName === "disabled")) {
+        this.syncTabsAndPanels();
+      }
+    });
+    this.updateComplete.then(() => {
+      this.syncTabsAndPanels();
+      this.mutationObserver.observe(this, { attributes: true, childList: true, subtree: true });
+      this.resizeObserver.observe(this.nav);
+      const intersectionObserver = new IntersectionObserver((entries, observer) => {
+        var _a;
+        if (entries[0].intersectionRatio > 0) {
+          this.setAriaLabels();
+          this.setActiveTab((_a = this.getActiveTab()) != null ? _a : this.tabs[0], { emitEvents: false });
+          observer.unobserve(entries[0].target);
+        }
+      });
+      intersectionObserver.observe(this.tabGroup);
+    });
+  }
+  disconnectedCallback() {
+    this.mutationObserver.disconnect();
+    this.resizeObserver.unobserve(this.nav);
+  }
+  show(panel) {
+    const tab = this.tabs.find((el) => el.panel === panel);
+    if (tab) {
+      this.setActiveTab(tab, { scrollBehavior: "smooth" });
+    }
+  }
+  getAllTabs(options = { includeDisabled: true }) {
+    const slot = this.shadowRoot.querySelector('slot[name="nav"]');
+    return [...slot.assignedElements()].filter((el) => {
+      return options.includeDisabled ? el.tagName.toLowerCase() === "sl-tab" : el.tagName.toLowerCase() === "sl-tab" && !el.disabled;
+    });
+  }
+  getAllPanels() {
+    return [...this.body.assignedElements()].filter((el) => el.tagName.toLowerCase() === "sl-tab-panel");
+  }
+  getActiveTab() {
+    return this.tabs.find((el) => el.active);
+  }
+  handleClick(event) {
+    const target = event.target;
+    const tab = target.closest("sl-tab");
+    const tabGroup = tab == null ? void 0 : tab.closest("sl-tab-group");
+    if (tabGroup !== this) {
+      return;
+    }
+    if (tab !== null) {
+      this.setActiveTab(tab, { scrollBehavior: "smooth" });
+    }
+  }
+  handleKeyDown(event) {
+    const target = event.target;
+    const tab = target.closest("sl-tab");
+    const tabGroup = tab == null ? void 0 : tab.closest("sl-tab-group");
+    if (tabGroup !== this) {
+      return;
+    }
+    if (["Enter", " "].includes(event.key)) {
+      if (tab !== null) {
+        this.setActiveTab(tab, { scrollBehavior: "smooth" });
+        event.preventDefault();
+      }
+    }
+    if (["ArrowLeft", "ArrowRight", "ArrowUp", "ArrowDown", "Home", "End"].includes(event.key)) {
+      const activeEl = this.tabs.find((t2) => t2.matches(":focus"));
+      const isRtl = this.localize.dir() === "rtl";
+      if ((activeEl == null ? void 0 : activeEl.tagName.toLowerCase()) === "sl-tab") {
+        let index = this.tabs.indexOf(activeEl);
+        if (event.key === "Home") {
+          index = 0;
+        } else if (event.key === "End") {
+          index = this.tabs.length - 1;
+        } else if (["top", "bottom"].includes(this.placement) && event.key === (isRtl ? "ArrowRight" : "ArrowLeft") || ["start", "end"].includes(this.placement) && event.key === "ArrowUp") {
+          index--;
+        } else if (["top", "bottom"].includes(this.placement) && event.key === (isRtl ? "ArrowLeft" : "ArrowRight") || ["start", "end"].includes(this.placement) && event.key === "ArrowDown") {
+          index++;
+        }
+        if (index < 0) {
+          index = this.tabs.length - 1;
+        }
+        if (index > this.tabs.length - 1) {
+          index = 0;
+        }
+        this.tabs[index].focus({ preventScroll: true });
+        if (this.activation === "auto") {
+          this.setActiveTab(this.tabs[index], { scrollBehavior: "smooth" });
+        }
+        if (["top", "bottom"].includes(this.placement)) {
+          scrollIntoView(this.tabs[index], this.nav, "horizontal");
+        }
+        event.preventDefault();
+      }
+    }
+  }
+  handleScrollToStart() {
+    this.nav.scroll({
+      left: this.localize.dir() === "rtl" ? this.nav.scrollLeft + this.nav.clientWidth : this.nav.scrollLeft - this.nav.clientWidth,
+      behavior: "smooth"
+    });
+  }
+  handleScrollToEnd() {
+    this.nav.scroll({
+      left: this.localize.dir() === "rtl" ? this.nav.scrollLeft - this.nav.clientWidth : this.nav.scrollLeft + this.nav.clientWidth,
+      behavior: "smooth"
+    });
+  }
+  updateScrollControls() {
+    if (this.noScrollControls) {
+      this.hasScrollControls = false;
+    } else {
+      this.hasScrollControls = ["top", "bottom"].includes(this.placement) && this.nav.scrollWidth > this.nav.clientWidth;
+    }
+  }
+  setActiveTab(tab, options) {
+    options = __spreadValues({
+      emitEvents: true,
+      scrollBehavior: "auto"
+    }, options);
+    if (tab !== this.activeTab && !tab.disabled) {
+      const previousTab = this.activeTab;
+      this.activeTab = tab;
+      this.tabs.map((el) => el.active = el === this.activeTab);
+      this.panels.map((el) => {
+        var _a;
+        return el.active = el.name === ((_a = this.activeTab) == null ? void 0 : _a.panel);
+      });
+      this.syncIndicator();
+      if (["top", "bottom"].includes(this.placement)) {
+        scrollIntoView(this.activeTab, this.nav, "horizontal", options.scrollBehavior);
+      }
+      if (options.emitEvents) {
+        if (previousTab) {
+          this.emit("sl-tab-hide", { detail: { name: previousTab.panel } });
+        }
+        this.emit("sl-tab-show", { detail: { name: this.activeTab.panel } });
+      }
+    }
+  }
+  setAriaLabels() {
+    this.tabs.forEach((tab) => {
+      const panel = this.panels.find((el) => el.name === tab.panel);
+      if (panel) {
+        tab.setAttribute("aria-controls", panel.getAttribute("id"));
+        panel.setAttribute("aria-labelledby", tab.getAttribute("id"));
+      }
+    });
+  }
+  syncIndicator() {
+    const tab = this.getActiveTab();
+    if (tab) {
+      this.indicator.style.display = "block";
+      this.repositionIndicator();
+    } else {
+      this.indicator.style.display = "none";
+    }
+  }
+  repositionIndicator() {
+    const currentTab = this.getActiveTab();
+    if (!currentTab) {
+      return;
+    }
+    const width = currentTab.clientWidth;
+    const height = currentTab.clientHeight;
+    const isRtl = this.localize.dir() === "rtl";
+    const allTabs = this.getAllTabs();
+    const precedingTabs = allTabs.slice(0, allTabs.indexOf(currentTab));
+    const offset = precedingTabs.reduce(
+      (previous, current) => ({
+        left: previous.left + current.clientWidth,
+        top: previous.top + current.clientHeight
+      }),
+      { left: 0, top: 0 }
+    );
+    switch (this.placement) {
+      case "top":
+      case "bottom":
+        this.indicator.style.width = `${width}px`;
+        this.indicator.style.height = "auto";
+        this.indicator.style.translate = isRtl ? `${-1 * offset.left}px` : `${offset.left}px`;
+        break;
+      case "start":
+      case "end":
+        this.indicator.style.width = "auto";
+        this.indicator.style.height = `${height}px`;
+        this.indicator.style.translate = `0 ${offset.top}px`;
+        break;
+    }
+  }
+  syncTabsAndPanels() {
+    this.tabs = this.getAllTabs({ includeDisabled: false });
+    this.panels = this.getAllPanels();
+    this.syncIndicator();
+  }
+  render() {
+    const isRtl = this.localize.dir() === "rtl";
+    return y$1`
+      <div
+        part="base"
+        class=${o$7({
+      "tab-group": true,
+      "tab-group--top": this.placement === "top",
+      "tab-group--bottom": this.placement === "bottom",
+      "tab-group--start": this.placement === "start",
+      "tab-group--end": this.placement === "end",
+      "tab-group--rtl": this.localize.dir() === "rtl",
+      "tab-group--has-scroll-controls": this.hasScrollControls
+    })}
+        @click=${this.handleClick}
+        @keydown=${this.handleKeyDown}
+      >
+        <div class="tab-group__nav-container" part="nav">
+          ${this.hasScrollControls ? y$1`
+                <sl-icon-button
+                  part="scroll-button scroll-button--start"
+                  exportparts="base:scroll-button__base"
+                  class="tab-group__scroll-button tab-group__scroll-button--start"
+                  name=${isRtl ? "chevron-right" : "chevron-left"}
+                  library="system"
+                  label=${this.localize.term("scrollToStart")}
+                  @click=${this.handleScrollToStart}
+                ></sl-icon-button>
+              ` : ""}
+
+          <div class="tab-group__nav">
+            <div part="tabs" class="tab-group__tabs" role="tablist">
+              <div part="active-tab-indicator" class="tab-group__indicator"></div>
+              <slot name="nav" @slotchange=${this.syncTabsAndPanels}></slot>
+            </div>
+          </div>
+
+          ${this.hasScrollControls ? y$1`
+                <sl-icon-button
+                  part="scroll-button scroll-button--end"
+                  exportparts="base:scroll-button__base"
+                  class="tab-group__scroll-button tab-group__scroll-button--end"
+                  name=${isRtl ? "chevron-left" : "chevron-right"}
+                  library="system"
+                  label=${this.localize.term("scrollToEnd")}
+                  @click=${this.handleScrollToEnd}
+                ></sl-icon-button>
+              ` : ""}
+        </div>
+
+        <slot part="body" class="tab-group__body" @slotchange=${this.syncTabsAndPanels}></slot>
+      </div>
+    `;
+  }
+};
+SlTabGroup.styles = tab_group_styles_default;
+__decorateClass([
+  i2$2(".tab-group")
+], SlTabGroup.prototype, "tabGroup", 2);
+__decorateClass([
+  i2$2(".tab-group__body")
+], SlTabGroup.prototype, "body", 2);
+__decorateClass([
+  i2$2(".tab-group__nav")
+], SlTabGroup.prototype, "nav", 2);
+__decorateClass([
+  i2$2(".tab-group__indicator")
+], SlTabGroup.prototype, "indicator", 2);
+__decorateClass([
+  t$5()
+], SlTabGroup.prototype, "hasScrollControls", 2);
+__decorateClass([
+  e2$1()
+], SlTabGroup.prototype, "placement", 2);
+__decorateClass([
+  e2$1()
+], SlTabGroup.prototype, "activation", 2);
+__decorateClass([
+  e2$1({ attribute: "no-scroll-controls", type: Boolean })
+], SlTabGroup.prototype, "noScrollControls", 2);
+__decorateClass([
+  watch("noScrollControls", { waitUntilFirstUpdate: true })
+], SlTabGroup.prototype, "updateScrollControls", 1);
+__decorateClass([
+  watch("placement", { waitUntilFirstUpdate: true })
+], SlTabGroup.prototype, "syncIndicator", 1);
+SlTabGroup = __decorateClass([
+  e$7("sl-tab-group")
+], SlTabGroup);
+
+// src/components/tab-panel/tab-panel.styles.ts
+var tab_panel_styles_default = i$7`
+  ${component_styles_default}
+
+  :host {
+    --padding: 0;
+
+    display: block;
+  }
+
+  .tab-panel {
+    display: block;
+    padding: var(--padding);
+  }
+
+  .tab-panel:not(.tab-panel--active) {
+    display: none;
+  }
+`;
+
+// src/components/tab-panel/tab-panel.ts
+var id$1 = 0;
+var SlTabPanel = class extends ShoelaceElement {
+  constructor() {
+    super(...arguments);
+    this.attrId = ++id$1;
+    this.componentId = `sl-tab-panel-${this.attrId}`;
+    this.name = "";
+    this.active = false;
+  }
+  connectedCallback() {
+    super.connectedCallback();
+    this.id = this.id.length > 0 ? this.id : this.componentId;
+    this.setAttribute("role", "tabpanel");
+  }
+  handleActiveChange() {
+    this.setAttribute("aria-hidden", this.active ? "false" : "true");
+  }
+  render() {
+    return y$1`
+      <slot
+        part="base"
+        class=${o$7({
+      "tab-panel": true,
+      "tab-panel--active": this.active
+    })}
+      ></slot>
+    `;
+  }
+};
+SlTabPanel.styles = tab_panel_styles_default;
+__decorateClass([
+  e2$1({ reflect: true })
+], SlTabPanel.prototype, "name", 2);
+__decorateClass([
+  e2$1({ type: Boolean, reflect: true })
+], SlTabPanel.prototype, "active", 2);
+__decorateClass([
+  watch("active")
+], SlTabPanel.prototype, "handleActiveChange", 1);
+SlTabPanel = __decorateClass([
+  e$7("sl-tab-panel")
+], SlTabPanel);
+
+// src/components/tab/tab.styles.ts
+var tab_styles_default = i$7`
+  ${component_styles_default}
+
+  :host {
+    display: inline-block;
+  }
+
+  .tab {
+    display: inline-flex;
+    align-items: center;
+    font-family: var(--sl-font-sans);
+    font-size: var(--sl-font-size-small);
+    font-weight: var(--sl-font-weight-semibold);
+    border-radius: var(--sl-border-radius-medium);
+    color: var(--sl-color-neutral-600);
+    padding: var(--sl-spacing-medium) var(--sl-spacing-large);
+    white-space: nowrap;
+    user-select: none;
+    cursor: pointer;
+    transition: var(--transition-speed) box-shadow, var(--transition-speed) color;
+  }
+
+  .tab:hover:not(.tab--disabled) {
+    color: var(--sl-color-primary-600);
+  }
+
+  .tab:focus {
+    outline: none;
+  }
+
+  .tab:focus-visible:not(.tab--disabled) {
+    color: var(--sl-color-primary-600);
+  }
+
+  .tab:focus-visible {
+    outline: var(--sl-focus-ring);
+    outline-offset: calc(-1 * var(--sl-focus-ring-width) - var(--sl-focus-ring-offset));
+  }
+
+  .tab.tab--active:not(.tab--disabled) {
+    color: var(--sl-color-primary-600);
+  }
+
+  .tab.tab--closable {
+    padding-inline-end: var(--sl-spacing-small);
+  }
+
+  .tab.tab--disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+
+  .tab__close-button {
+    font-size: var(--sl-font-size-small);
+    margin-inline-start: var(--sl-spacing-small);
+  }
+
+  .tab__close-button::part(base) {
+    padding: var(--sl-spacing-3x-small);
+  }
+
+  @media (forced-colors: active) {
+    .tab.tab--active:not(.tab--disabled) {
+      outline: solid 1px transparent;
+      outline-offset: -3px;
+    }
+  }
+`;
+
+// src/components/tab/tab.ts
+var id = 0;
+var SlTab = class extends ShoelaceElement {
+  constructor() {
+    super(...arguments);
+    this.localize = new LocalizeController2(this);
+    this.attrId = ++id;
+    this.componentId = `sl-tab-${this.attrId}`;
+    this.panel = "";
+    this.active = false;
+    this.closable = false;
+    this.disabled = false;
+  }
+  connectedCallback() {
+    super.connectedCallback();
+    this.setAttribute("role", "tab");
+  }
+  focus(options) {
+    this.tab.focus(options);
+  }
+  blur() {
+    this.tab.blur();
+  }
+  handleCloseClick() {
+    this.emit("sl-close");
+  }
+  handleActiveChange() {
+    this.setAttribute("aria-selected", this.active ? "true" : "false");
+  }
+  handleDisabledChange() {
+    this.setAttribute("aria-disabled", this.disabled ? "true" : "false");
+  }
+  render() {
+    this.id = this.id.length > 0 ? this.id : this.componentId;
+    return y$1`
+      <div
+        part="base"
+        class=${o$7({
+      tab: true,
+      "tab--active": this.active,
+      "tab--closable": this.closable,
+      "tab--disabled": this.disabled
+    })}
+        tabindex=${this.disabled ? "-1" : "0"}
+      >
+        <slot></slot>
+        ${this.closable ? y$1`
+              <sl-icon-button
+                part="close-button"
+                exportparts="base:close-button__base"
+                name="x-lg"
+                library="system"
+                label=${this.localize.term("close")}
+                class="tab__close-button"
+                @click=${this.handleCloseClick}
+                tabindex="-1"
+              ></sl-icon-button>
+            ` : ""}
+      </div>
+    `;
+  }
+};
+SlTab.styles = tab_styles_default;
+__decorateClass([
+  i2$2(".tab")
+], SlTab.prototype, "tab", 2);
+__decorateClass([
+  e2$1({ reflect: true })
+], SlTab.prototype, "panel", 2);
+__decorateClass([
+  e2$1({ type: Boolean, reflect: true })
+], SlTab.prototype, "active", 2);
+__decorateClass([
+  e2$1({ type: Boolean })
+], SlTab.prototype, "closable", 2);
+__decorateClass([
+  e2$1({ type: Boolean, reflect: true })
+], SlTab.prototype, "disabled", 2);
+__decorateClass([
+  watch("active")
+], SlTab.prototype, "handleActiveChange", 1);
+__decorateClass([
+  watch("disabled")
+], SlTab.prototype, "handleDisabledChange", 1);
+SlTab = __decorateClass([
+  e$7("sl-tab")
+], SlTab);
+
 /**
  * @license
  * Copyright 2019 Google LLC
@@ -23313,9 +24074,7 @@ let ViewLayout = class ViewLayout extends s$3 {
         });
     }
     // triggers after some one click on the menu
-    setActive() {
-        console.log(this.name);
-    }
+    setActive() { }
     render(ROWS = '') {
         const viewData = navElements.items.find(i => i.name === this.name);
         // Workaround for localized, because it only compiles statically
@@ -23479,7 +24238,7 @@ let ProfileView = class ProfileView extends ViewLayout$1 {
         const user = await userRequest.json();
         const sameUsername = newData.username === user.username;
         const sameEmail = newData.email === user.email;
-        const sameAbout = newData.about === user.about || '';
+        const sameAbout = newData.about === (user.about || '');
         if (sameUsername && sameEmail && sameAbout) {
             return false;
         }
@@ -23490,11 +24249,12 @@ let ProfileView = class ProfileView extends ViewLayout$1 {
         const emailElem = this.querySelector('#mail');
         const aboutElem = this.querySelector('#about');
         const newData = {
-            username: usernameElem.value,
+            username: usernameElem.value.trim(),
             email: emailElem.value,
-            about: aboutElem.value,
+            about: aboutElem.value.trim(),
         };
-        if (await !this.#hasUserDataChanged(newData)) {
+        const hasDataChanged = await this.#hasUserDataChanged(newData);
+        if (!hasDataChanged) {
             return toast('neutral', msg('User Update'), msg('Change user details to trigger an update'));
         }
         const request = await fetch('/user', {
@@ -23508,8 +24268,10 @@ let ProfileView = class ProfileView extends ViewLayout$1 {
                 data: newData,
             }),
         });
-        const json = request.json();
-        console.log(json);
+        const json = await request.json();
+        if (json.acknowledged) {
+            return toast('success', msg('User Update'), msg('Changes saved'));
+        }
     }
     async #logout() {
         await fetch('/logout', {
@@ -23540,11 +24302,8 @@ let ProfileView = class ProfileView extends ViewLayout$1 {
         })}
         </sl-select>`;
     }
-    #renderRows() {
-        const content = fetch('/user', {
-            method: 'GET',
-        }).then(r => r.json());
-        const row1 = y `<div class="flex column flex-col-reverse gap-4 mb-4 md:grid-cols-1fr-auto md:grid">
+    #renderAccountSection(content) {
+        return y ` <div class="account-section">
                 <div>
                     <div class="grid grid-rows-1 md:grid-cols-2 md:gap-4">
                         <sl-input
@@ -23596,6 +24355,63 @@ let ProfileView = class ProfileView extends ViewLayout$1 {
                     >${msg('save')}</sl-button
                 >
             </div>`;
+    }
+    async #changePassword() {
+        const oldPasswordElem = this.querySelector('#oldpassword');
+        const newPasswordElem = this.querySelector('#newpassword');
+        const newPasswordconfirmElem = this.querySelector('#newpasswordconfirm');
+        const oldPassword = oldPasswordElem.value;
+        const newPassword = newPasswordElem.value;
+        const newPasswordConfirm = newPasswordconfirmElem.value;
+        const samePassword = newPassword === newPasswordConfirm;
+        console.log(samePassword);
+        if (!samePassword) {
+            return toast('warning', msg('New Password'), msg("New password doesn't match"));
+        }
+        console.log(oldPassword);
+    }
+    #renderPasswordSection() {
+        return y `<div class="password-section">
+            <sl-input
+                id="oldpassword"
+                size="small"
+                label="${capitalize(msg('Old Password'))}:"
+                type="password"
+                password-toggle
+            >
+            </sl-input>
+            <sl-input
+                id="newpassword"
+                size="small"
+                label="${capitalize(msg('New Password'))}:"
+                type="password"
+                password-toggle
+            ></sl-input>
+            <sl-input
+                id="newpasswordconfirm"
+                size="small"
+                label="${capitalize(msg('Confirm New Password'))}:"
+                type="password"
+                password-toggle
+            ></sl-input>
+            <sl-button @click="${this.#changePassword}" class="mt-4" size="small" variant="danger"
+                >${msg('update password')}</sl-button
+            >
+        </div>`;
+    }
+    #renderRows() {
+        const content = fetch('/user', {
+            method: 'GET',
+        }).then(r => r.json());
+        const row1 = y `<sl-tab-group>
+            <sl-tab slot="nav" panel="account">${capitalize(msg('account'))}</sl-tab>
+            <sl-tab slot="nav" panel="password">${capitalize(msg('password'))}</sl-tab>
+            <sl-tab slot="nav" panel="team">${capitalize(msg('team'))}</sl-tab>
+
+            <sl-tab-panel name="account">${this.#renderAccountSection(content)}</sl-tab-panel>
+            <sl-tab-panel name="password">${this.#renderPasswordSection()}</sl-tab-panel>
+            <sl-tab-panel name="team">team</sl-tab-panel>
+        </sl-tab-group> `;
         return [row1];
     }
     render() {
@@ -23721,7 +24537,7 @@ AppLayout = __decorate([
 document.addEventListener('DOMContentLoaded', function () {
     const app = document.querySelector('app-layout');
     app.bootstrapActiveMenu();
-    console.log('v:0.0.1 at: "2022-12-27T15:07:22.852Z" ');
+    console.log('v:0.0.1 at: "2022-12-27T17:27:58.349Z" ');
 });
 
 /* CSS */
