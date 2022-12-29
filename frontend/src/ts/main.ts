@@ -37,7 +37,7 @@ import './components/graphcard/graphcard';
 import './views/profile/profile';
 import './views/dashboard/dashboard'; /* ToDo: Test view remove */
 import './views/view';
-import './views/app';
+import './views/app/app';
 import './misc/logic';
 
 // Set the base path to the folder you copied Shoelace's assets to

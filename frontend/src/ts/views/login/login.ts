@@ -1,10 +1,10 @@
 import SlInput from '@shoelace-style/shoelace/dist/components/input/input';
 import { LitElement, html } from 'lit';
 import { customElement } from 'lit/decorators.js';
-import { client } from '../data/misc';
-import toast from '../utilities/toast/toast';
+import { client } from '../../data/misc';
+import toast from '../../utilities/toast/toast';
 import { localized, msg } from '@lit/localize';
-import { capitalize } from '../utilities/text/text';
+import { capitalize } from '../../utilities/text/text';
 
 @localized()
 @customElement('login-layout')

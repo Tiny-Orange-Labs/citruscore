@@ -153,6 +153,40 @@ let ProfileView = class ProfileView extends ViewLayout {
                 >
             </div>`;
     }
+    async #sendCheckPassword(oldPassword) {
+        const request = await fetch('/checkPassword', {
+            method: 'POST',
+            mode: 'cors',
+            cache: 'no-cache',
+            credentials: 'same-origin',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                data: {
+                    password: oldPassword,
+                },
+                client,
+            }),
+        });
+        const json = await request.json();
+        return json.auth;
+    }
+    async #sendChangePassword(newPassword) {
+        const request = await fetch('/changePassword', {
+            method: 'POST',
+            mode: 'cors',
+            cache: 'no-cache',
+            credentials: 'same-origin',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                data: {
+                    password: newPassword,
+                },
+                client,
+            }),
+        });
+        const json = await request.json();
+        return json.acknowledged;
+    }
     async #changePassword() {
         const oldPasswordElem = this.querySelector('#oldpassword');
         const newPasswordElem = this.querySelector('#newpassword');
@@ -161,11 +195,22 @@ let ProfileView = class ProfileView extends ViewLayout {
         const newPassword = newPasswordElem.value;
         const newPasswordConfirm = newPasswordconfirmElem.value;
         const samePassword = newPassword === newPasswordConfirm;
-        console.log(samePassword);
+        if (oldPassword === '' || newPassword === '' || newPasswordConfirm === '') {
+            return toast('warning', msg('New Password'), msg('Please fill out all fields'));
+        }
         if (!samePassword) {
             return toast('warning', msg('New Password'), msg("New password doesn't match"));
         }
-        console.log(oldPassword);
+        if (oldPassword === newPassword) {
+            return toast('warning', msg('New Password'), msg('Old password and new password are the same'));
+        }
+        if (!(await this.#sendCheckPassword(oldPassword))) {
+            return toast('warning', msg('New Password'), msg('Old password is wrong'));
+        }
+        if (await this.#sendChangePassword(newPassword)) {
+            return toast('success', msg('New Password'), msg('Password changed successfully, refresh in 10 seconds'));
+        }
+        return toast('danger', msg('New Password'), msg('Something went wrong'));
     }
     #renderPasswordSection() {
         return html `<div class="password-section">

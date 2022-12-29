@@ -9,6 +9,6 @@ import '@shoelace-style/shoelace/dist/components/button/button.js';
 import '@shoelace-style/shoelace/dist/components/input/input.js';
 import '@shoelace-style/shoelace/dist/components/alert/alert.js';
 import { setBasePath } from '@shoelace-style/shoelace/dist/utilities/base-path.js';
-import './views/login';
+import './views/login/login';
 // Set the base path to the folder you copied Shoelace's assets to
 setBasePath('assets/shoelace');

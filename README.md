@@ -1,6 +1,6 @@
 # log
 
-![log logo](frontend/assets/img/logos/logo.png)
+![log logo](frontend/assets/img/logos/logo_192x192.png)
 
 I build the same stuff over and over again:
 

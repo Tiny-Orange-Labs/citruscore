@@ -22,3 +22,13 @@ export function logout(request, h) {
     request.cookieAuth.clear();
     return h.redirect('/login/');
 }
+export async function checkPassword(request) {
+    const sessionID = request.state['log-cookie'].id;
+    const { password } = request.payload.data;
+    const userData = await userModel.findOne({ sessionID }).lean();
+    const validPW = await Bcrypt.compare(password, userData.password);
+    if (userData && validPW) {
+        return { auth: true };
+    }
+    return { auth: false };
+}

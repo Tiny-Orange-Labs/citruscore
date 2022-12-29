@@ -1,6 +1,6 @@
 import { Server } from '@hapi/hapi';
 import cokie from '@hapi/cookie';
-import { validate, login, logout } from '../controller/auth';
+import { validate, login, logout, checkPassword } from '../controller/auth';
 
 export default async function auth(server: Server) {
     await server.register(cokie);
@@ -20,6 +20,17 @@ export default async function auth(server: Server) {
             method: 'POST',
             path: '/login',
             handler: login,
+            options: {
+                auth: {
+                    mode: 'try',
+                    strategy: 'session',
+                },
+            },
+        },
+        {
+            method: 'POST',
+            path: '/checkPassword',
+            handler: checkPassword,
             options: {
                 auth: {
                     mode: 'try',

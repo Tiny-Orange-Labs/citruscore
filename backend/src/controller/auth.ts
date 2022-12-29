@@ -33,3 +33,16 @@ export function logout(request: any, h: any) {
     request.cookieAuth.clear();
     return h.redirect('/login/');
 }
+
+export async function checkPassword(request: any) {
+    const sessionID: string = request.state['log-cookie'].id;
+    const { password } = request.payload.data;
+    const userData: UserType = await userModel.findOne({ sessionID }).lean();
+    const validPW: boolean = await Bcrypt.compare(password, userData.password);
+
+    if (userData && validPW) {
+        return { auth: true };
+    }
+
+    return { auth: false };
+}

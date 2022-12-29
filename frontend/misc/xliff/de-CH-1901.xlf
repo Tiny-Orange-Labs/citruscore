@@ -90,9 +90,29 @@
   <source>New Password</source>
   <target>Neues Passwort</target>
 </trans-unit>
+<trans-unit id="sde639bc9cfeb7740">
+  <source>Please fill out all fields</source>
+  <target>Bitte fülle alle Felder aus</target>
+</trans-unit>
 <trans-unit id="s7dcd0ead91674605">
   <source>New password doesn't match</source>
   <target>Neues passwort ist nicht gleich</target>
+</trans-unit>
+<trans-unit id="s0443e0417379b9ca">
+  <source>Old password and new password are the same</source>
+  <target>Altes und neues Passwort sind gleich</target>
+</trans-unit>
+<trans-unit id="sf0398c9d0c7bb2a8">
+  <source>Old password is wrong</source>
+  <target>Altes Passwort ist falsch</target>
+</trans-unit>
+<trans-unit id="s47cc688e111c8b2d">
+  <source>Password changed successfully, refresh in 10 seconds</source>
+  <target>Passwort geändert, automatisches neu laden der App in 10 Sekunden</target>
+</trans-unit>
+<trans-unit id="sb9bd4f5a3810b77e">
+  <source>Something went wrong</source>
+  <target>Es ist etwas falsch gelaufen</target>
 </trans-unit>
 <trans-unit id="sabe8b86feae6da6f">
   <source>Old Password</source>
@@ -104,6 +124,7 @@
 </trans-unit>
 <trans-unit id="s8671c2b9d8b6efcd">
   <source>update password</source>
+  <target>Password ändern</target>
 </trans-unit>
 <trans-unit id="sa23fd2965dc429bc">
   <source>account</source>
