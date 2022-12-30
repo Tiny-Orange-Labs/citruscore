@@ -1,6 +1,7 @@
 import Hapi from '@hapi/hapi';
+import './utilities/init_env';
 import host from './staticfiles/app';
-import './utilities/database';
+import './utilities/init_mongo';
 import auth from './routes/auth';
 import user from './routes/user';
 const hostAdress = process.env.RUNTIME === 'production' ? '0.0.0.0' : 'localhost';

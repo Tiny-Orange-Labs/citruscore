@@ -5,7 +5,7 @@ import { customElement } from 'lit/decorators.js';
 import { msg, localized } from '@lit/localize';
 import { setLocale } from '../../utilities/language/language';
 import { capitalize } from '../../utilities/text/text';
-import { language, languages } from '../../data/langs';
+import { languages } from '../../data/langs';
 import { repeat } from 'lit/directives/repeat.js';
 import { until } from 'lit/directives/until.js';
 import { client } from '../../data/misc';

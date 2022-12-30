@@ -1,6 +1,7 @@
 import Hapi, { Server } from '@hapi/hapi';
+import './utilities/init_env';
 import host from './staticfiles/app';
-import './utilities/database';
+import './utilities/init_mongo';
 import auth from './routes/auth';
 import user from './routes/user';
 

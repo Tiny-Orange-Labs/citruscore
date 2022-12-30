@@ -1,3 +1,6 @@
+### env
+.env
+
 ### Code ###
 # Visual Studio Code - https://code.visualstudio.com/
 .settings/
@@ -5,8 +8,6 @@
 tsconfig.json
 jsconfig.json
 
-# be8-backend
-be8-backend/
 
 ### Emacs ###
 # -*- mode: gitignore; -*-

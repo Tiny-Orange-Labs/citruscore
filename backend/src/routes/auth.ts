@@ -8,7 +8,7 @@ export default async function auth(server: Server) {
     server.auth.strategy('session', 'cookie', {
         cookie: {
             name: 'log-cookie',
-            password: '!wsYhFA*C2U6nz=Bu^%A@^F#SF3&kSR6',
+            password: process.env.COOKIE_PASSWORD,
             isSecure: true,
         },
         redirectTo: '/login/',

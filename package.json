@@ -12,7 +12,7 @@
         "build-all": "npm run build-css && npm run build-frontend-ts && npm run build-rollup && npm run build-html",
         "watch-css": "tailwindcss -i ./frontend/src/css/app.css -o ./frontend/dist/dev/css/output.css --watch && tailwindcss -i ./frontend/src/css/login.css -o ./frontend/dist/dev/css/login.css --watch",
         "watch-ts": "tsc --watch",
-        "serve": "nodemon --es-module-specifier-resolution=node backend/dist/app.mjs",
+        "serve": "npm run build-backend-ts && nodemon --es-module-specifier-resolution=node backend/dist/app.mjs",
         "translate-extract": "lit-localize extract",
         "translate-build": "lit-localize build",
         "translate-all": "npm run translate-extract && npm run translate-build",
@@ -67,6 +67,8 @@
         "@hapi/hapi": "^21.1.0",
         "@hapi/inert": "^7.0.0",
         "bcrypt": "^5.1.0",
-        "mongoose": "^6.8.1"
+        "dotenv": "^16.0.3",
+        "mongoose": "^6.8.1",
+        "redis": "^4.5.1"
     }
 }

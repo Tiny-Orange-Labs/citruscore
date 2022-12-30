@@ -100,18 +100,23 @@
 </trans-unit>
 <trans-unit id="s95e1fd5adcaa87c6">
   <source>New password cannot be the same as your username</source>
+  <target>Neues Passwort darf nicht der benutzername sein</target>
 </trans-unit>
 <trans-unit id="sb404880247c5f122">
   <source>New password must contain at least one number</source>
+  <target>Neues Passwort muss zumindest eine Zahl enthalten</target>
 </trans-unit>
 <trans-unit id="sb14a5c8515bf326c">
   <source>New password must contain at least one lowercase letter</source>
+  <target>Neues Passwort muss zumindest einen Kleinbuchstaben enthalten</target>
 </trans-unit>
 <trans-unit id="s3708c4e742774017">
   <source>New password must contain at least one uppercase letter</source>
+  <target>Neues Passwort muss zumindest einen Großbuchstaben enthalten</target>
 </trans-unit>
 <trans-unit id="s93125e910b6543d9">
   <source>Password changed successfully, refresh in 5 seconds</source>
+  <target>Passwort erfolgreich geändert, app lädt automatisch neu in 5 Sekunden</target>
 </trans-unit>
 <trans-unit id="sb9bd4f5a3810b77e">
   <source>Something went wrong</source>

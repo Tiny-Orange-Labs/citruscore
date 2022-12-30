@@ -25,8 +25,5 @@ const userSchema = new mongoose.Schema({
         minLength: 1,
         maxLength: 140,
     },
-    sessionID: {
-        type: String,
-    },
 });
 export const userModel = mongoose.model('user', userSchema);

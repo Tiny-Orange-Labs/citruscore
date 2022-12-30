@@ -7,7 +7,8 @@ I build the same stuff over and over again:
 -   translation
 -   login
 -   auth
--   db
+-   mongodb
+-   redis
 -   settings
 -   design systems
 -   building systems
@@ -38,6 +39,7 @@ You need the following things on your pc
 
 -   [Node v18+](https://nodejs.org/en/)
 -   [mongo](https://www.mongodb.com/docs/manual/tutorial/install-mongodb-on-os-x/s)
+-   [redis](https://redis.io/)
 
 ```bash
 npm install -g live-server
@@ -120,6 +122,8 @@ npm run coverage
 
 -   RUNTIME triggers the address for the server
 -   SERVE triggers if the production or dev version of the files are statically served
+-   REDIS_PASSWORD
+-   COOKIE_PASSWORD
 
 ## Profile Page
 

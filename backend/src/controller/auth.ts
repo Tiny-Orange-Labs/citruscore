@@ -1,12 +1,14 @@
 import Bcrypt from 'bcrypt';
 import { userModel, UserType } from '../models/user';
 import crypto from 'node:crypto';
+import redis from '../utilities/init_redis';
+
+const cookieKey = 'session';
 
 type LoginData = {
     username: string;
     password: string;
 };
-const sessionIDs: Set<string> = new Set<string>();
 
 export async function login(request: any) {
     const { username, password }: LoginData = request.payload.data;
@@ -17,20 +19,21 @@ export async function login(request: any) {
         return { auth: false };
     }
 
-    request.cookieAuth.set({ id: sessionID });
-    sessionIDs.add(sessionID);
-    await userModel.updateOne({ _id: userData._id }, { sessionID });
+    request.cookieAuth.set({ id: sessionID, username });
+    request.cookieAuth.ttl(90 * 24 * 60 * 60 * 1000); // 90 days
+    await redis.SADD(cookieKey, sessionID);
 
     return { auth: true };
 }
 
-export function validate(request: any, session: { id: string }) {
-    const account = sessionIDs.has(session.id);
+export async function validate(request: any, session: { id: string }) {
+    const account = await redis.SISMEMBER(cookieKey, session.id);
     return !account ? { isValid: false } : { isValid: true, credentials: account };
 }
 
-export function logout(request: any, h: any) {
+export async function logout(request: any, h: any) {
     request.cookieAuth.clear();
+    await redis.SREM(cookieKey, request.state['log-cookie'].id);
 
     if (h) {
         return h.redirect('/login/');
@@ -38,9 +41,9 @@ export function logout(request: any, h: any) {
 }
 
 export async function checkPassword(request: any) {
-    const sessionID: string = request.state['log-cookie'].id;
+    const username: string = request.state['log-cookie'].username;
     const { password } = request.payload.data;
-    const userData: UserType = await userModel.findOne({ sessionID }).lean();
+    const userData: UserType = await userModel.findOne({ username }).lean();
     const validPW: boolean = await Bcrypt.compare(password, userData.password);
 
     if (userData && validPW) {

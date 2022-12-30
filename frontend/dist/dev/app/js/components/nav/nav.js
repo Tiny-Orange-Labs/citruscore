@@ -7,6 +7,7 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 import { LitElement, html } from 'lit';
 import { customElement } from 'lit/decorators.js';
 import { repeat } from 'lit/directives/repeat.js';
+import { until } from 'lit/directives/until.js';
 import { navElements } from '../../data/nav';
 import { localized, msg } from '@lit/localize';
 import { capitalize } from '../../utilities/text/text';
@@ -18,7 +19,10 @@ let MainNav = class MainNav extends LitElement {
     createRenderRoot() {
         return this; // prevents creating a shadow root
     }
-    #click(event) {
+    #clickOnNav(event) {
+        if (event.key && event.key !== 'Enter') {
+            return;
+        }
         const target = event.target;
         const parent = target.parentNode;
         const isNav = target.classList.contains('nav-element');
@@ -54,21 +58,40 @@ let MainNav = class MainNav extends LitElement {
             if (!elem.viewable) {
                 return;
             }
-            return html `<div @click="${this.#click}" class="nav-element nav-element-click" name="${elem.name}">
+            return html `<div
+                @click="${this.#clickOnNav}"
+                @keyup="${this.#clickOnNav}"
+                class="nav-element nav-element-click"
+                name="${elem.name}"
+                tabindex="0"
+            >
                 <sl-icon name="${elem.icon}"></sl-icon>&nbsp;&nbsp;${navStaticElements[elem.name]}
             </div>`;
         });
     }
     #renderNavFooter() {
         const hasFooter = !!navElements.items.find(elem => elem.isNavFooter);
+        const content = fetch('/user', {
+            method: 'GET',
+        }).then(r => r.json());
         if (!hasFooter) {
             return;
         }
         return html `<footer class="nav-footer">
             <sl-avatar image="./assets/img/fallbacks/avatar.png" label="${msg('Your profile avatar')}"></sl-avatar>
             <div isNavFooter="true" name="profile">
-                <span>${msg('username').toUpperCase()}</span>
-                <small @click="${this.#click}" class="view-profile nav-element-click" name="profile">
+                <span
+                    >${until(content.then(function (data) {
+            return data.username;
+        }), 'Loading...')}</span
+                >
+                <small
+                    @click="${this.#clickOnNav}"
+                    @keyup="${this.#clickOnNav}"
+                    class="view-profile nav-element-click"
+                    name="profile"
+                    tabindex="0"
+                >
                     ${msg('View Profile')}
                 </small>
             </div>
