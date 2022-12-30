@@ -16,6 +16,8 @@ import { repeat } from 'lit/directives/repeat.js';
 import { until } from 'lit/directives/until.js';
 import { client } from '../../data/misc';
 import toast from '../../utilities/toast/toast';
+const passwordMinLength = 8;
+const passwordMaxLength = 35;
 let ProfileView = class ProfileView extends ViewLayout {
     constructor() {
         super();
@@ -30,9 +32,18 @@ let ProfileView = class ProfileView extends ViewLayout {
     createRenderRoot() {
         return this; // prevents creating a shadow root
     }
+    async #getUserData() {
+        const request = await fetch('/user', {
+            method: 'GET',
+            mode: 'cors',
+            cache: 'no-cache',
+            credentials: 'same-origin',
+            headers: { 'Content-Type': 'application/json' },
+        });
+        return await request.json();
+    }
     async #hasUserDataChanged(newData) {
-        const userRequest = await fetch('/user', { method: 'GET' });
-        const user = await userRequest.json();
+        const user = await this.#getUserData();
         const sameUsername = newData.username === user.username;
         const sameEmail = newData.email === user.email;
         const sameAbout = newData.about === (user.about || '');
@@ -99,6 +110,88 @@ let ProfileView = class ProfileView extends ViewLayout {
         })}
         </sl-select>`;
     }
+    async #sendCheckPassword(oldPassword) {
+        const request = await fetch('/checkPassword', {
+            method: 'POST',
+            mode: 'cors',
+            cache: 'no-cache',
+            credentials: 'same-origin',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                data: {
+                    password: oldPassword,
+                },
+                client,
+            }),
+        });
+        const json = await request.json();
+        return json.auth;
+    }
+    async #sendChangePassword(newPassword) {
+        const request = await fetch('/changePassword', {
+            method: 'POST',
+            mode: 'cors',
+            cache: 'no-cache',
+            credentials: 'same-origin',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                data: {
+                    password: newPassword,
+                },
+                client,
+            }),
+        });
+        const json = await request.json();
+        return json.status.acknowledged;
+    }
+    async #changePassword() {
+        const oldPasswordElem = this.querySelector('#oldpassword');
+        const newPasswordElem = this.querySelector('#newpassword');
+        const newPasswordconfirmElem = this.querySelector('#newpasswordconfirm');
+        const oldPassword = oldPasswordElem.value;
+        const newPassword = newPasswordElem.value;
+        const newPasswordConfirm = newPasswordconfirmElem.value;
+        const samePassword = newPassword === newPasswordConfirm;
+        const user = await this.#getUserData();
+        if (oldPassword === '' || newPassword === '' || newPasswordConfirm === '') {
+            return toast('warning', msg('New Password'), msg('Please fill out all fields'));
+        }
+        if (!samePassword) {
+            return toast('warning', msg('New Password'), msg("New password doesn't match"));
+        }
+        if (oldPassword === newPassword) {
+            return toast('warning', msg('New Password'), msg('Old password and new password are the same'));
+        }
+        if (!(await this.#sendCheckPassword(oldPassword))) {
+            return toast('warning', msg('New Password'), msg('Old password is wrong'));
+        }
+        if (newPassword.length < passwordMinLength) {
+            return toast('warning', msg('New Password'), msg('New password is too short, min 8 characterss'));
+        }
+        if (newPassword.length > passwordMaxLength) {
+            return toast('warning', msg('New Password'), msg('New password is too long, max 35 characters'));
+        }
+        if (newPassword.includes(' ')) {
+            return toast('warning', msg('New Password'), msg('New password cannot contain spaces'));
+        }
+        if (user.username === newPassword) {
+            return toast('warning', msg('New Password'), msg('New password cannot be the same as your username'));
+        }
+        if (!/\d/.test(newPassword)) {
+            return toast('warning', msg('New Password'), msg('New password must contain at least one number'));
+        }
+        if (!/[a-z]/.test(newPassword)) {
+            return toast('warning', msg('New Password'), msg('New password must contain at least one lowercase letter'));
+        }
+        if (!/[A-Z]/.test(newPassword)) {
+            return toast('warning', msg('New Password'), msg('New password must contain at least one uppercase letter'));
+        }
+        if (await this.#sendChangePassword(newPassword)) {
+            setTimeout(() => location.reload(), 4000);
+            return toast('success', msg('New Password'), msg('Password changed successfully, refresh in 5 seconds'));
+        }
+        return toast('danger', msg('New Password'), msg('Something went wrong'));
+    }
     #renderAccountSection(content) {
         return html ` <div class="account-section">
                 <div>
@@ -153,65 +246,6 @@ let ProfileView = class ProfileView extends ViewLayout {
                 >
             </div>`;
     }
-    async #sendCheckPassword(oldPassword) {
-        const request = await fetch('/checkPassword', {
-            method: 'POST',
-            mode: 'cors',
-            cache: 'no-cache',
-            credentials: 'same-origin',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                data: {
-                    password: oldPassword,
-                },
-                client,
-            }),
-        });
-        const json = await request.json();
-        return json.auth;
-    }
-    async #sendChangePassword(newPassword) {
-        const request = await fetch('/changePassword', {
-            method: 'POST',
-            mode: 'cors',
-            cache: 'no-cache',
-            credentials: 'same-origin',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                data: {
-                    password: newPassword,
-                },
-                client,
-            }),
-        });
-        const json = await request.json();
-        return json.acknowledged;
-    }
-    async #changePassword() {
-        const oldPasswordElem = this.querySelector('#oldpassword');
-        const newPasswordElem = this.querySelector('#newpassword');
-        const newPasswordconfirmElem = this.querySelector('#newpasswordconfirm');
-        const oldPassword = oldPasswordElem.value;
-        const newPassword = newPasswordElem.value;
-        const newPasswordConfirm = newPasswordconfirmElem.value;
-        const samePassword = newPassword === newPasswordConfirm;
-        if (oldPassword === '' || newPassword === '' || newPasswordConfirm === '') {
-            return toast('warning', msg('New Password'), msg('Please fill out all fields'));
-        }
-        if (!samePassword) {
-            return toast('warning', msg('New Password'), msg("New password doesn't match"));
-        }
-        if (oldPassword === newPassword) {
-            return toast('warning', msg('New Password'), msg('Old password and new password are the same'));
-        }
-        if (!(await this.#sendCheckPassword(oldPassword))) {
-            return toast('warning', msg('New Password'), msg('Old password is wrong'));
-        }
-        if (await this.#sendChangePassword(newPassword)) {
-            return toast('success', msg('New Password'), msg('Password changed successfully, refresh in 10 seconds'));
-        }
-        return toast('danger', msg('New Password'), msg('Something went wrong'));
-    }
     #renderPasswordSection() {
         return html `<div class="password-section">
             <sl-input
@@ -225,6 +259,8 @@ let ProfileView = class ProfileView extends ViewLayout {
             <sl-input
                 id="newpassword"
                 size="small"
+                minlength="${passwordMinLength}"
+                maxlength="${passwordMaxLength}"
                 label="${capitalize(msg('New Password'))}:"
                 type="password"
                 password-toggle
@@ -232,6 +268,8 @@ let ProfileView = class ProfileView extends ViewLayout {
             <sl-input
                 id="newpasswordconfirm"
                 size="small"
+                minlength="${passwordMinLength}"
+                maxlength="${passwordMaxLength}"
                 label="${capitalize(msg('Confirm New Password'))}:"
                 type="password"
                 password-toggle

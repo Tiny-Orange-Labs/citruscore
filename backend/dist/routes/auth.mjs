@@ -1,5 +1,5 @@
 import cokie from '@hapi/cookie';
-import { validate, login, logout, checkPassword } from '../controller/auth';
+import { validate, login, logout, checkPassword, changePassword } from '../controller/auth';
 export default async function auth(server) {
     await server.register(cokie);
     server.auth.strategy('session', 'cookie', {
@@ -26,11 +26,22 @@ export default async function auth(server) {
         },
         {
             method: 'POST',
+            path: '/changePassword',
+            handler: changePassword,
+            options: {
+                auth: {
+                    mode: 'required',
+                    strategy: 'session',
+                },
+            },
+        },
+        {
+            method: 'POST',
             path: '/checkPassword',
             handler: checkPassword,
             options: {
                 auth: {
-                    mode: 'try',
+                    mode: 'required',
                     strategy: 'session',
                 },
             },
@@ -39,6 +50,12 @@ export default async function auth(server) {
             method: 'GET',
             path: '/logout',
             handler: logout,
+            options: {
+                auth: {
+                    mode: 'required',
+                    strategy: 'session',
+                },
+            },
         },
     ]);
 }

@@ -31,7 +31,10 @@ export function validate(request: any, session: { id: string }) {
 
 export function logout(request: any, h: any) {
     request.cookieAuth.clear();
-    return h.redirect('/login/');
+
+    if (h) {
+        return h.redirect('/login/');
+    }
 }
 
 export async function checkPassword(request: any) {
@@ -45,4 +48,13 @@ export async function checkPassword(request: any) {
     }
 
     return { auth: false };
+}
+
+export async function changePassword(request: any, h: any) {
+    const sessionID: string = request.state['log-cookie'].id;
+    const { password } = request.payload.data;
+    const status = await userModel.updateOne({ sessionID }, { password: await Bcrypt.hash(password, 10) });
+
+    await logout(request, null);
+    return { status };
 }

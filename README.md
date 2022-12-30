@@ -121,6 +121,8 @@ npm run coverage
 -   RUNTIME triggers the address for the server
 -   SERVE triggers if the production or dev version of the files are statically served
 
+## Profile Page
+
 ## ToDo
 
 1. bootstrap the whole backend parts

@@ -5,11 +5,23 @@ export default async function user(server) {
             method: 'GET',
             path: '/user',
             handler: getUser,
+            options: {
+                auth: {
+                    mode: 'required',
+                    strategy: 'session',
+                },
+            },
         },
         {
             method: 'POST',
             path: '/user',
             handler: setUser,
+            options: {
+                auth: {
+                    mode: 'required',
+                    strategy: 'session',
+                },
+            },
         },
     ]);
 }

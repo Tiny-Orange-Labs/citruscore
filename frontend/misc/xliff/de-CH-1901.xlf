@@ -66,26 +66,6 @@
   <source>language</source>
   <target>sprache</target>
 </trans-unit>
-<trans-unit id="s38887b94b3320533">
-  <source>Email address</source>
-  <target>E-Mail Adresse</target>
-</trans-unit>
-<trans-unit id="sc94935514840c766">
-  <source>write something about you</source>
-  <target>schreibe etwas über dich</target>
-</trans-unit>
-<trans-unit id="s3f74142d6181ea7e">
-  <source>about</source>
-  <target>über dich</target>
-</trans-unit>
-<trans-unit id="s31e7a66bde741263">
-  <source>photo</source>
-  <target>Foto</target>
-</trans-unit>
-<trans-unit id="s096a5e18bf857c28">
-  <source>save</source>
-  <target>speichern</target>
-</trans-unit>
 <trans-unit id="s8563c5a14e9a42f2">
   <source>New Password</source>
   <target>Neues Passwort</target>
@@ -106,13 +86,56 @@
   <source>Old password is wrong</source>
   <target>Altes Passwort ist falsch</target>
 </trans-unit>
-<trans-unit id="s47cc688e111c8b2d">
-  <source>Password changed successfully, refresh in 10 seconds</source>
-  <target>Passwort geändert, automatisches neu laden der App in 10 Sekunden</target>
+<trans-unit id="s30fc77dc5fe4ea53">
+  <source>New password is too short, min 8 characterss</source>
+  <target>Neues Passwort ist zu kurz, min 8 Zeichen</target>
+</trans-unit>
+<trans-unit id="se2fc4d6f986ac058">
+  <source>New password is too long, max 35 characters</source>
+  <target>Neues Password ist zu lang, max 35 Zeichen</target>
+</trans-unit>
+<trans-unit id="sfe2dbf7c7b16633c">
+  <source>New password cannot contain spaces</source>
+  <target>Neues Passwort darf keine leerzeichen enthalten</target>
+</trans-unit>
+<trans-unit id="s95e1fd5adcaa87c6">
+  <source>New password cannot be the same as your username</source>
+</trans-unit>
+<trans-unit id="sb404880247c5f122">
+  <source>New password must contain at least one number</source>
+</trans-unit>
+<trans-unit id="sb14a5c8515bf326c">
+  <source>New password must contain at least one lowercase letter</source>
+</trans-unit>
+<trans-unit id="s3708c4e742774017">
+  <source>New password must contain at least one uppercase letter</source>
+</trans-unit>
+<trans-unit id="s93125e910b6543d9">
+  <source>Password changed successfully, refresh in 5 seconds</source>
 </trans-unit>
 <trans-unit id="sb9bd4f5a3810b77e">
   <source>Something went wrong</source>
   <target>Es ist etwas falsch gelaufen</target>
+</trans-unit>
+<trans-unit id="s38887b94b3320533">
+  <source>Email address</source>
+  <target>E-Mail Adresse</target>
+</trans-unit>
+<trans-unit id="sc94935514840c766">
+  <source>write something about you</source>
+  <target>schreibe etwas über dich</target>
+</trans-unit>
+<trans-unit id="s3f74142d6181ea7e">
+  <source>about</source>
+  <target>über dich</target>
+</trans-unit>
+<trans-unit id="s31e7a66bde741263">
+  <source>photo</source>
+  <target>Foto</target>
+</trans-unit>
+<trans-unit id="s096a5e18bf857c28">
+  <source>save</source>
+  <target>speichern</target>
 </trans-unit>
 <trans-unit id="sabe8b86feae6da6f">
   <source>Old Password</source>
