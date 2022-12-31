@@ -7,6 +7,8 @@ I build the same stuff over and over again:
 -   translation
 -   login
 -   rate limiting
+-   user management
+-   automatic emails
 -   auth
 -   settings
 -   design systems
@@ -18,7 +20,8 @@ thats pretty boring so I am creating this gigantic overengineering boilerplate.
 This abomination includes:
 
 -   hapi
--   mongodb
+-   a ton lot of hapi plugins
+-   mongodb / mongoose
 -   redis
 -   typescript
 -   lit
@@ -26,10 +29,11 @@ This abomination includes:
 -   tailwind
 -   shoelace
 -   chartjs
--   fontawesome
--   rollup (and of course rollup plugins)
--   railway
+-   fontawesome (not sure if I will keep it)
+-   rollup
+-   a ton lot of rollup plugins
 -   cypress (I am pretty sure in the near future)
+-   railway (not sure if they implement persistence storage)
 
 and maybe more in the near future.
 
@@ -48,6 +52,11 @@ npm install -g live-server
 ```bash
 npm install
 ```
+
+## config
+
+you have to create a Single Sender Verification on
+[https://app.sendgrid.com/settings/sender_auth/senders/new](https://app.sendgrid.com/settings/sender_auth/senders/new)
 
 ## Translate
 
@@ -122,8 +131,11 @@ npm run coverage
 
 -   RUNTIME triggers the address for the server
 -   SERVE triggers if the production or dev version of the files are statically served
+-   MONGO_URL example 127.0.0.1:27017
 -   REDIS_PASSWORD
 -   COOKIE_PASSWORD
+-   SENDGRID stores the api key for sendgrid
+-   SENDER_EMAIL
 
 ## Profile Page
 

@@ -1,10 +1,11 @@
 import Hapi, { Server } from '@hapi/hapi';
 import './utilities/init_env';
-import host from './staticfiles/app';
 import './utilities/init_mongo';
+import './utilities/init_email';
+import initRateLimit from './utilities/config/init_ratelimiting';
+import host from './staticfiles/app';
 import auth from './routes/auth';
 import user from './routes/user';
-import hapiRRateLimit from 'hapi-rate-limitor';
 
 const hostAdress: string = process.env.RUNTIME === 'production' ? '0.0.0.0' : 'localhost';
 const server: Server = Hapi.server({
@@ -12,16 +13,7 @@ const server: Server = Hapi.server({
     host: hostAdress,
 });
 
-server.register({
-    plugin: hapiRRateLimit,
-    options: {
-        redis: `redis://ratelimit:${process.env.REDIS_PASSWORD}@127.0.0.1:6379`,
-        namespace: 'hapi-rate-limitor',
-        max: 250,
-        duration: 60000,
-    },
-});
-
+initRateLimit(server);
 await auth(server);
 await user(server);
 await host(server);

@@ -1,6 +1,6 @@
 import mongoose from 'mongoose';
 
-await mongoose.connect('mongodb://127.0.0.1:27017/log');
+await mongoose.connect(`mongodb://${process.env.MONGO_URL}/log`);
 
 mongoose.set('strictQuery', false);
 mongoose.connection.on('error', console.error);

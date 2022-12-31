@@ -1,7 +1,7 @@
 import Bcrypt from 'bcrypt';
 import { userModel, UserType } from '../models/user';
 import crypto from 'node:crypto';
-import redis from '../utilities/init_redis';
+import redis from '../utilities/config/init_redis';
 
 const cookieKey = 'session';
 
