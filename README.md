@@ -6,9 +6,8 @@ I build the same stuff over and over again:
 
 -   translation
 -   login
+-   rate limiting
 -   auth
--   mongodb
--   redis
 -   settings
 -   design systems
 -   building systems
@@ -20,6 +19,7 @@ This abomination includes:
 
 -   hapi
 -   mongodb
+-   redis
 -   typescript
 -   lit
 -   lit-localize
