@@ -194,11 +194,11 @@ Check out the new generated files in `frontend/src/ts/lang.ts`.
 
 Note:
 
-> You can run both `npm run extract` and `npm run build` via `npm run translate-all`
-> Running `npm run build` also triggers translate-all
-> Do not capitalize single words, styling of single words is handled by code
-> Do not use html tags in the translation, styling is handled by code
-> Do not try fancy things like compiling senteces, out of single words, this will not work for other languages
+> -   You can run both `npm run extract` and `npm run build` via `npm run translate-all`
+> -   Running `npm run build` also triggers translate-all
+> -   Do not capitalize single words, styling of single words is handled by code
+> -   Do not use html tags in the translation, styling is handled by code
+> -   Do not try fancy things like compiling senteces, out of single words, this will not work for other languages
 
 ### Profile Page
 
