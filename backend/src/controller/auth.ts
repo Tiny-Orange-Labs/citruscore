@@ -2,6 +2,8 @@ import Bcrypt from 'bcrypt';
 import { userModel, UserType } from '../models/user';
 import crypto from 'node:crypto';
 import redis from '../utilities/config/init_redis';
+import sendEmail from '../utilities/sendEmail';
+import { getUser } from './user';
 
 const cookieKey = 'session';
 
@@ -54,10 +56,22 @@ export async function checkPassword(request: any) {
 }
 
 export async function changePassword(request: any, h: any) {
-    const sessionID: string = request.state['log-cookie'].id;
+    const user = await getUser(request);
     const { password } = request.payload.data;
-    const status = await userModel.updateOne({ sessionID }, { password: await Bcrypt.hash(password, 10) });
+    const status = await userModel.updateOne(
+        { username: user.username },
+        { password: await Bcrypt.hash(password, 10) },
+    );
 
-    await logout(request, null);
+    sendEmail({
+        to: user.email,
+        subject: 'Password Changed',
+        text: `Your password has been changed`,
+        html: `<h2>Log</h2><p>Your password has been changed</p>`,
+    });
+
+    // work around so we can still deliver the icons in the notification
+    // otherwise the cookie would be cleared before the notification is delivered
+    setTimeout(() => logout(request, null), 2500);
     return { status };
 }
