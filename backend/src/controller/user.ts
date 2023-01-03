@@ -10,7 +10,16 @@ export async function getUser(request: any) {
 export async function setUser(request: any) {
     const username: string = request.state['log-cookie'].username;
     const data = request.payload.data;
+    const user = await getUser(request);
 
+    if (user?.email !== data.email) {
+        sendEmail({
+            to: data.email,
+            subject: 'Email Changed',
+            text: `Your email has been changed from ${user?.email} to ${data.email}`,
+            html: `<h2>Log</h2><p>Your email has been changed from ${user?.email} to ${data.email}</p>`,
+        });
+    }
     if (username !== data.username) {
         sendEmail({
             to: data.email,

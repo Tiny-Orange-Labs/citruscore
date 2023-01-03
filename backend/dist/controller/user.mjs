@@ -13,7 +13,7 @@ export async function setUser(request) {
             to: data.email,
             subject: 'Username Changed',
             text: `Your username has been changed from ${username} to ${data.username}`,
-            html: `<p>Your username has been changed from ${username} to ${data.username}</p>`,
+            html: `<h2>Log</h2><p>Your username has been changed from ${username} to ${data.username}</p>`,
         });
         await logout(request, null);
     }
