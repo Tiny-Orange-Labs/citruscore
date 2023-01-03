@@ -16,7 +16,7 @@ I build the same stuff over and over again:
 -   charts
 -   accessibility
 
-thats pretty boring and just slowes down development speed
+thats pretty boring and just reduces down development speed
 so I am creating this gigantic overengineering boilerplate. This abomination includes:
 
 -   hapi
