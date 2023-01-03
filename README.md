@@ -37,7 +37,7 @@ so I am creating this gigantic overengineering boilerplate. This abomination inc
 
 and maybe more in the near future. I put everything in a monorepo
 because I am lazy and I don't want to deal with multiple repos. Also
-I am sure there are likely 90% 1-2 Men teams out. So I am trying to
+I am sure there are likely 80% 1-2 Men teams out there. So I am trying to
 make this as easy as possible to use.
 
 # Setup
