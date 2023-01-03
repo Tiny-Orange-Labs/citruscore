@@ -121,7 +121,7 @@ npm start
 ```
 
 which triggers the build (`npm run build-backend-ts`) and then starts the server (`npm run start-server`).
-if you activily develop the backend you should use `npm run start-nodemone`.
+if you activily develop the backend you should use `npm run start-nodemon`.
 
 ## Misc
 
