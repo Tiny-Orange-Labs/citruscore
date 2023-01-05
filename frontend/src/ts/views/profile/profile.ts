@@ -351,7 +351,7 @@ export default class ProfileView extends ViewLayout {
                 ...header,
                 body: JSON.stringify({
                     data: {
-                        ids: team.members.map((member: any) => member._id),
+                        ids: team.members.map((member: any) => member.member),
                     },
                     client,
                 }),

@@ -1,7 +1,6 @@
 import { userModel, UserType } from '../models/user';
 import sendEmail from '../utilities/sendEmail';
 import { logout } from './auth';
-import mongoose from 'mongoose';
 
 export async function getMe(request: any): Promise<UserType> {
     const username: string = request.state['log-cookie'].username;
@@ -9,7 +8,7 @@ export async function getMe(request: any): Promise<UserType> {
 }
 
 export async function getUser(request: any): Promise<UserType[]> {
-    const ids = request.payload.data.ids.map((id: string) => new mongoose.Types.ObjectId(id));
+    const ids = request.payload.data.ids;
     console.log(ids);
     return await userModel.find().where('_id').in(ids[0]).exec();
 }
