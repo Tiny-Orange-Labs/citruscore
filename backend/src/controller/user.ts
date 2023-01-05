@@ -2,13 +2,13 @@ import { userModel, UserType } from '../models/user';
 import sendEmail from '../utilities/sendEmail';
 import { logout } from './auth';
 
-export async function getUser(request: any): Promise<UserType> {
+export async function getMe(request: any): Promise<UserType> {
     const username: string = request.state['log-cookie'].username;
     return await userModel.findOne({ username }, { password: 0 }).lean();
 }
 
 export async function setUser(request: any) {
-    const user = await getUser(request);
+    const user = await getMe(request);
     const data = request.payload.data;
 
     if (user.email !== data.email) {

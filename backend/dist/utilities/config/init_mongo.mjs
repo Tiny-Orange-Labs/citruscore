@@ -1,4 +1,5 @@
 import mongoose from 'mongoose';
+// todo password, username
 await mongoose.connect(`mongodb://${process.env.MONGO_URL}/log`);
 mongoose.set('strictQuery', false);
 mongoose.connection.on('error', console.error);

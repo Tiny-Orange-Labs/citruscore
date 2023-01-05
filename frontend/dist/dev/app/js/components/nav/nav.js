@@ -11,6 +11,7 @@ import { until } from 'lit/directives/until.js';
 import { navElements } from '../../data/nav';
 import { localized, msg } from '@lit/localize';
 import { capitalize } from '../../utilities/text/text';
+import header from '../../data/header';
 let MainNav = class MainNav extends LitElement {
     #activeClass = 'nav-elem-active';
     constructor() {
@@ -71,8 +72,9 @@ let MainNav = class MainNav extends LitElement {
     }
     #renderNavFooter() {
         const hasFooter = !!navElements.items.find(elem => elem.isNavFooter);
-        const content = fetch('/user', {
+        const content = fetch('/me', {
             method: 'GET',
+            ...header,
         }).then(r => r.json());
         if (!hasFooter) {
             return;

@@ -1,10 +1,10 @@
-import { getUser, setUser } from '../controller/user';
+import { getMe, setUser } from '../controller/user';
 export default async function user(server) {
     server.route([
         {
             method: 'GET',
-            path: '/user',
-            handler: getUser,
+            path: '/me',
+            handler: getMe,
             options: {
                 auth: {
                     mode: 'required',

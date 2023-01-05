@@ -32,6 +32,9 @@ export const client = {
     browser: {
         name: browserName,
     },
+    user: {
+        language: localStorage.getItem('language') || navigator.language,
+    },
     system: {
         language: navigator.language,
         platform: navigator.platform,

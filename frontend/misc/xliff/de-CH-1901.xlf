@@ -154,6 +154,14 @@
   <source>update password</source>
   <target>Password ändern</target>
 </trans-unit>
+<trans-unit id="s220bcce27242e1e9">
+  <source>search</source>
+  <target>suche</target>
+</trans-unit>
+<trans-unit id="sa358ec1ff0c833b9">
+  <source>role</source>
+  <target>role</target>
+</trans-unit>
 <trans-unit id="sa23fd2965dc429bc">
   <source>account</source>
   <target>account</target>

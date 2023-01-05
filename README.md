@@ -16,8 +16,8 @@ I build the same stuff over and over again:
 -   charts
 -   accessibility
 
-thats pretty boring and just reduces down development speed
-so I am creating this gigantic overengineering boilerplate. This abomination includes:
+thats pretty boring and just reduces development speed
+so I am creating this gigantic overengineered boilerplate. This abomination includes:
 
 -   hapi
 -   a ton lot of hapi plugins
@@ -42,8 +42,8 @@ make this as easy as possible to use.
 
 # Setup
 
-I am trying to make this as easy as possible to setup. Log should
-remove as much friction as possible!
+Log should remove as much friction as possible! Lets try to keep
+it as small as possible.
 
 ## Install
 
@@ -53,6 +53,8 @@ You need the following things on your pc
 -   [mongo](https://www.mongodb.com/docs/manual/tutorial/install-mongodb-on-os-x/s)
 -   [redis](https://redis.io/)
 
+And of course you need to do:
+
 ```bash
 npm install
 ```
@@ -61,6 +63,7 @@ npm install
 
 you have to create a Single Sender Verification on
 [https://app.sendgrid.com/settings/sender_auth/senders/new](https://app.sendgrid.com/settings/sender_auth/senders/new)
+if you want to send emails to the user. You can omit this step if you don't want to send emails.
 
 ## env variables
 
@@ -77,22 +80,48 @@ and that's it!
 # Run & Build
 
 As usual with now a days frontend projects you have some
-build steps. We are using rollup to bundle our frontend
+building steps. We are using rollup to bundle our frontend
 and typescript to compile our frontend and backend code.
 
 ## Frontend
 
 ### CSS
 
+It comes with tailwindcss and shoelace. You can build the tailwind part with:
+
+```bash
+npm run build-css
+```
+
+which also gets triggered by `npm run build-all` and `npm run generate`.
+
 ### Typescript / Javascript
+
+The frontend code is in `frontend/src/ts` and gets compiled to `frontend/dist/dev/js`.
+You can compile the frontend code with:
+
+```bash
+npm run build-frontend-ts
+```
+
+but I would recommend to use:
+
+```bash
+npm run build-alls
+```
+
+because there a too many build steps right now.
 
 ### misc
 
 ## Backend
 
+The backend is written in typescript and uses hapi as a server.
+As database we use mongodb and redis for caching.
+
 ### Build
 
-Its pretty simple we use typescript to compile our code.
+We use typescript to compile our code.
 The source code you are working on is in `backend/src` and
 compiled code is in `backend/dist`. Use:
 
@@ -143,6 +172,14 @@ After you did the setup and tested the build you can
 start developing.
 
 ## Frontend
+
+We combine lit, tailwind and shoelace to build our frontend.
+
+#### Shoelace
+
+Build everything with shoelace components [https://shoelace.style/](https://shoelace.style/).
+You can find basically ever standard UIE every imagenable in there! Do not forget to add
+dependencies to `frontend/src/ts/main.ts`!
 
 ### Translate
 
@@ -221,12 +258,13 @@ To check your coverage with an UI run:
 npm run coverage
 ```
 
-## ToDo
+# BootStrap Dev Data
+
+# ToDo
 
 1. deployment
 1. add more tests
 1. improve code quality
 1. team section
-1. team models
 1. improve documentation
 1. add localization for backend

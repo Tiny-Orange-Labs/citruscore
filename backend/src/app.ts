@@ -6,6 +6,7 @@ import initRateLimit from './utilities/config/init_ratelimiting';
 import host from './staticfiles/app';
 import auth from './routes/auth';
 import user from './routes/user';
+import team from './routes/team';
 
 const hostAdress: string = process.env.RUNTIME === 'production' ? '0.0.0.0' : 'localhost';
 const server: Server = Hapi.server({
@@ -16,6 +17,7 @@ const server: Server = Hapi.server({
 initRateLimit(server);
 await auth(server);
 await user(server);
+await team(server);
 await host(server);
 await server.start();
 

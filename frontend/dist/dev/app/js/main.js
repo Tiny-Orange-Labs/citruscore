@@ -9439,6 +9439,13 @@ function capitalize(input) {
     return first.toUpperCase() + rest.join('');
 }
 
+const header = {
+    mode: 'cors',
+    cache: 'no-cache',
+    credentials: 'same-origin',
+    headers: { 'Content-Type': 'application/json' },
+};
+
 var __decorate$5 = (undefined && undefined.__decorate) || function (decorators, target, key, desc) {
     var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
     if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
@@ -9505,8 +9512,9 @@ let MainNav = class MainNav extends s$3 {
     }
     #renderNavFooter() {
         const hasFooter = !!navElements.items.find(elem => elem.isNavFooter);
-        const content = fetch('/user', {
+        const content = fetch('/me', {
             method: 'GET',
+            ...header,
         }).then(r => r.json());
         if (!hasFooter) {
             return;
@@ -24205,6 +24213,9 @@ const client = {
     browser: {
         name: browserName,
     },
+    user: {
+        language: localStorage.getItem('language') || navigator.language,
+    },
     system: {
         language: navigator.language,
         platform: navigator.platform,
@@ -24243,7 +24254,34 @@ var __decorate$2 = (undefined && undefined.__decorate) || function (decorators, 
 };
 const passwordMinLength = 8;
 const passwordMaxLength = 35;
+const maxLengthAbout = 560;
 let ProfileView = class ProfileView extends ViewLayout$1 {
+    me = {
+        _id: '',
+        username: '',
+        email: '',
+        about: '',
+        avatar: '',
+    };
+    user = {
+        _id: '',
+        username: '',
+        email: '',
+        about: '',
+        avatar: '',
+    };
+    team = {
+        _id: '',
+        maxMembers: 0,
+        name: 'loading…',
+        members: [
+            {
+                _id: '',
+                role: 'loading…',
+                rights: {},
+            },
+        ],
+    };
     constructor() {
         super();
     }
@@ -24258,14 +24296,13 @@ let ProfileView = class ProfileView extends ViewLayout$1 {
         return this; // prevents creating a shadow root
     }
     async #getUserData() {
-        const request = await fetch('/user', {
+        const request = await fetch('/me', {
             method: 'GET',
-            mode: 'cors',
-            cache: 'no-cache',
-            credentials: 'same-origin',
-            headers: { 'Content-Type': 'application/json' },
+            ...header,
         });
-        return await request.json();
+        const me = await request.json();
+        this.me = me;
+        return me;
     }
     async #hasUserDataChanged(newData) {
         const user = await this.#getUserData();
@@ -24277,7 +24314,7 @@ let ProfileView = class ProfileView extends ViewLayout$1 {
         }
         return true;
     }
-    async #save() {
+    async #saveAccountChanges() {
         const usernameElem = this.querySelector('#username');
         const emailElem = this.querySelector('#mail');
         const aboutElem = this.querySelector('#about');
@@ -24292,10 +24329,7 @@ let ProfileView = class ProfileView extends ViewLayout$1 {
         }
         const request = await fetch('/user', {
             method: 'POST',
-            mode: 'cors',
-            cache: 'no-cache',
-            credentials: 'same-origin',
-            headers: { 'Content-Type': 'application/json' },
+            ...header,
             body: JSON.stringify({
                 client,
                 data: newData,
@@ -24309,14 +24343,11 @@ let ProfileView = class ProfileView extends ViewLayout$1 {
     async #logout() {
         await fetch('/logout', {
             method: 'GET',
-            mode: 'cors',
-            cache: 'no-cache',
-            credentials: 'same-origin',
-            headers: { 'Content-Type': 'application/json' },
+            ...header,
         });
         return location.reload();
     }
-    #changeEvent({ target: { value } }) {
+    #changeLangEvent({ target: { value } }) {
         setLocale(value);
         localStorage.setItem('lang', value);
         document.querySelector('html')?.setAttribute('lang', value);
@@ -24325,7 +24356,7 @@ let ProfileView = class ProfileView extends ViewLayout$1 {
         const lang = localStorage.getItem('lang') || languages[0].code;
         return y ` <sl-select
             size="small"
-            @click="${this.#changeEvent}"
+            @click="${this.#changeLangEvent}"
             label="${capitalize(msg('language'))}"
             value="${lang}"
             class="md:w-1/4"
@@ -24338,10 +24369,7 @@ let ProfileView = class ProfileView extends ViewLayout$1 {
     async #sendCheckPassword(oldPassword) {
         const request = await fetch('/checkPassword', {
             method: 'POST',
-            mode: 'cors',
-            cache: 'no-cache',
-            credentials: 'same-origin',
-            headers: { 'Content-Type': 'application/json' },
+            ...header,
             body: JSON.stringify({
                 data: {
                     password: oldPassword,
@@ -24349,16 +24377,13 @@ let ProfileView = class ProfileView extends ViewLayout$1 {
                 client,
             }),
         });
-        const json = await request.json();
-        return json.auth;
+        const { auth } = await request.json();
+        return auth;
     }
     async #sendChangePassword(newPassword) {
         const request = await fetch('/changePassword', {
             method: 'POST',
-            mode: 'cors',
-            cache: 'no-cache',
-            credentials: 'same-origin',
-            headers: { 'Content-Type': 'application/json' },
+            ...header,
             body: JSON.stringify({
                 data: {
                     password: newPassword,
@@ -24446,7 +24471,7 @@ let ProfileView = class ProfileView extends ViewLayout$1 {
 
                     <sl-textarea
                         id="about"
-                        maxlength="140"
+                        maxlength="${maxLengthAbout}"
                         resize="none"
                         size="small"
                         help-text="${msg('write something about you')}"
@@ -24466,7 +24491,7 @@ let ProfileView = class ProfileView extends ViewLayout$1 {
             <sl-divider style="--width: 2px;"></sl-divider>
             <div>
                 <sl-button size="small" variant="danger" @click="${this.#logout}">logout</sl-button>
-                <sl-button size="small" variant="primary" class="float-right" @click="${this.#save}"
+                <sl-button size="small" variant="primary" class="float-right" @click="${this.#saveAccountChanges}"
                     >${msg('save')}</sl-button
                 >
             </div>`;
@@ -24504,18 +24529,62 @@ let ProfileView = class ProfileView extends ViewLayout$1 {
             >
         </div>`;
     }
+    async #tabSwitchEvent({ detail: { name } }) {
+        if (name === 'team') {
+            const request = await fetch('/team', {
+                method: 'GET',
+                ...header,
+            });
+            const team = await request.json();
+            this.team = team;
+            this.team.name = team.name;
+            console.log(this.team);
+        }
+    }
+    #clickOnteamMember({ target }) {
+        const id = target.dataset.id;
+        console.log(id);
+    }
+    #renderTeamSection() {
+        return y `<div class="team-section">
+            <div>
+                <div>
+                    <h2>${this.team.name}</h2>
+                    <sl-input size="small" label="${msg('search')}">
+                        <sl-icon name="search" type="text" slot="prefix"></sl-icon>
+                    </sl-input>
+                    <div class="mt-4">
+                        ${c$2(this.team.members, member => member._id, member => {
+            return y `<div @click="${this.#clickOnteamMember}" data-id="${member._id}">1</div>`;
+        })}
+                    </div>
+                </div>
+            </div>
+            <div>
+                <sl-avatar style="--size: 8rem;"></sl-avatar>
+                <p>${capitalize(msg('username'))}</p>
+                <p>${this.user.username}</p>
+                <p>${msg('Email address')}</p>
+                <p>${this.user.email}</p>
+                <p>${capitalize(msg('about'))}</p>
+                <p>${this.user.about}</p>
+                <p>${capitalize(msg('role'))}</p>
+                <p></p>
+            </div>
+        </div>`;
+    }
     #renderRows() {
-        const content = fetch('/user', {
+        const content = fetch('/me', {
             method: 'GET',
         }).then(r => r.json());
-        const row1 = y `<sl-tab-group>
+        const row1 = y `<sl-tab-group @sl-tab-show="${this.#tabSwitchEvent}">
             <sl-tab slot="nav" panel="account">${capitalize(msg('account'))}</sl-tab>
             <sl-tab slot="nav" panel="password">${capitalize(msg('password'))}</sl-tab>
             <sl-tab slot="nav" panel="team">${capitalize(msg('team'))}</sl-tab>
 
-            <sl-tab-panel name="account">${this.#renderAccountSection(content)}</sl-tab-panel>
-            <sl-tab-panel name="password">${this.#renderPasswordSection()}</sl-tab-panel>
-            <sl-tab-panel name="team">team</sl-tab-panel>
+            <sl-tab-panel class="mt-8" name="account">${this.#renderAccountSection(content)}</sl-tab-panel>
+            <sl-tab-panel class="mt-8" name="password">${this.#renderPasswordSection()}</sl-tab-panel>
+            <sl-tab-panel class="mt-8" name="team">${this.#renderTeamSection()}</sl-tab-panel>
         </sl-tab-group> `;
         return [row1];
     }
@@ -24524,6 +24593,15 @@ let ProfileView = class ProfileView extends ViewLayout$1 {
         return super.render(rows);
     }
 };
+__decorate$2([
+    e$2()
+], ProfileView.prototype, "me", void 0);
+__decorate$2([
+    e$2()
+], ProfileView.prototype, "user", void 0);
+__decorate$2([
+    e$2({ type: Object, reflect: true })
+], ProfileView.prototype, "team", void 0);
 ProfileView = __decorate$2([
     localized(),
     e$3('profile-layout')
@@ -24642,7 +24720,7 @@ AppLayout = __decorate([
 document.addEventListener('DOMContentLoaded', function () {
     const app = document.querySelector('app-layout');
     app.bootstrapActiveMenu();
-    console.log('v:0.0.1 at: "2022-12-30T19:04:14.189Z" ');
+    console.log('v:0.0.1 at: "2023-01-05T13:26:56.103Z" ');
 });
 
 /* CSS */

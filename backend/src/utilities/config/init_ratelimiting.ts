@@ -1,7 +1,7 @@
 import { Server } from '@hapi/hapi';
 import hapiRRateLimit from 'hapi-rate-limitor';
 
-export default function initRateLimit(server: Server) {
+export default function initRateLimit(server: Server): void {
     server.register({
         plugin: hapiRRateLimit,
         options: {

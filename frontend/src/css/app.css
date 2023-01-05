@@ -118,15 +118,20 @@
 }
 
 .account-section {
-    @apply flex flex-col-reverse gap-4 mb-4 mt-8 
+    @apply flex flex-col-reverse gap-4 mb-4
            md:grid-cols-1fr-auto md:grid;
 }
 
 .password-section {
-    @apply mt-8 gap-2 md:max-w-lg;
+    @apply gap-2 md:max-w-lg;
 }
 
 /* quick fix */
 sl-divider {
     border-top: solid var(--width) var(--color) !important;
+}
+
+.team-section {
+    grid-template-columns: 300px 600px;
+    @apply grid gap-8;
 }

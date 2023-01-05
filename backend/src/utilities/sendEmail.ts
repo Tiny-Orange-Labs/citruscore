@@ -13,7 +13,7 @@ async function _sendEmail(msg: MailDataRequired) {
     console.log(`Email sent to ${msg.to}`);
 }
 
-export default async function sendEmail(data: Email) {
+export default async function sendEmail(data: Email): Promise<void> {
     if (process.env.SENDGRID_API_KEY && process.env.SENDER_EMAIL) {
         const msg = {
             from: process.env.SENDER_EMAIL,

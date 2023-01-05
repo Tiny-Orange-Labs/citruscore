@@ -1,12 +1,12 @@
 import { Server } from '@hapi/hapi';
-import { getUser, setUser } from '../controller/user';
+import { getMe, setUser } from '../controller/user';
 
 export default async function user(server: Server) {
     server.route([
         {
             method: 'GET',
-            path: '/user',
-            handler: getUser,
+            path: '/me',
+            handler: getMe,
             options: {
                 auth: {
                     mode: 'required',

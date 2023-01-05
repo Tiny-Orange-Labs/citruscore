@@ -3,7 +3,7 @@ import { userModel, UserType } from '../models/user';
 import crypto from 'node:crypto';
 import redis from '../utilities/config/init_redis';
 import sendEmail from '../utilities/sendEmail';
-import { getUser } from './user';
+import { getMe } from './user';
 
 const cookieKey = 'session';
 
@@ -12,7 +12,7 @@ type LoginData = {
     password: string;
 };
 
-export async function login(request: any) {
+export async function login(request: any): Promise<{ auth: boolean }> {
     const { username, password }: LoginData = request.payload.data;
     const userData: UserType = await userModel.findOne({ username }).lean();
     const sessionID = crypto.randomUUID();
@@ -28,7 +28,10 @@ export async function login(request: any) {
     return { auth: true };
 }
 
-export async function validate(request: any, session: { id: string }) {
+export async function validate(
+    request: any,
+    session: { id: string },
+): Promise<{ isValid: boolean; credentials?: any }> {
     const account = await redis.SISMEMBER(cookieKey, session.id);
     return !account ? { isValid: false } : { isValid: true, credentials: account };
 }
@@ -42,7 +45,7 @@ export async function logout(request: any, h: any) {
     }
 }
 
-export async function checkPassword(request: any) {
+export async function checkPassword(request: any): Promise<{ auth: boolean }> {
     const username: string = request.state['log-cookie'].username;
     const { password } = request.payload.data;
     const userData: UserType = await userModel.findOne({ username }).lean();
@@ -55,8 +58,8 @@ export async function checkPassword(request: any) {
     return { auth: false };
 }
 
-export async function changePassword(request: any, h: any) {
-    const user = await getUser(request);
+export async function changePassword(request: any, h: any): Promise<{ status: any }> {
+    const user = await getMe(request);
     const { password } = request.payload.data;
     const status = await userModel.updateOne(
         { username: user.username },

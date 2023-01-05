@@ -5,6 +5,7 @@ import { until } from 'lit/directives/until.js';
 import { navElements, navData } from '../../data/nav';
 import { localized, msg } from '@lit/localize';
 import { capitalize } from '../../utilities/text/text';
+import header from '../../data/header';
 
 @localized()
 @customElement('main-nav')
@@ -79,8 +80,9 @@ export default class MainNav extends LitElement {
 
     #renderNavFooter() {
         const hasFooter: boolean = !!navElements.items.find(elem => elem.isNavFooter);
-        const content = fetch('/user', {
+        const content = fetch('/me', {
             method: 'GET',
+            ...header,
         }).then(r => r.json());
 
         if (!hasFooter) {

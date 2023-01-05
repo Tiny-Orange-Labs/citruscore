@@ -4,21 +4,48 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
     else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
     return c > 3 && r && Object.defineProperty(target, key, r), r;
 };
-/* ToDo: Test view remove */
-import ViewLayout from '../view';
 import { html } from 'lit';
-import { customElement } from 'lit/decorators.js';
+import { customElement, property } from 'lit/decorators.js';
 import { msg, localized } from '@lit/localize';
+import ViewLayout from '../view';
+import header from '../../data/header';
 import { setLocale } from '../../utilities/language/language';
 import { capitalize } from '../../utilities/text/text';
 import { languages } from '../../data/langs';
-import { repeat } from 'lit/directives/repeat.js';
 import { until } from 'lit/directives/until.js';
 import { client } from '../../data/misc';
 import toast from '../../utilities/toast/toast';
+import { repeat } from 'lit/directives/repeat.js';
 const passwordMinLength = 8;
 const passwordMaxLength = 35;
+const maxLengthAbout = 560;
 let ProfileView = class ProfileView extends ViewLayout {
+    me = {
+        _id: '',
+        username: '',
+        email: '',
+        about: '',
+        avatar: '',
+    };
+    user = {
+        _id: '',
+        username: '',
+        email: '',
+        about: '',
+        avatar: '',
+    };
+    team = {
+        _id: '',
+        maxMembers: 0,
+        name: 'loading…',
+        members: [
+            {
+                _id: '',
+                role: 'loading…',
+                rights: {},
+            },
+        ],
+    };
     constructor() {
         super();
     }
@@ -33,14 +60,13 @@ let ProfileView = class ProfileView extends ViewLayout {
         return this; // prevents creating a shadow root
     }
     async #getUserData() {
-        const request = await fetch('/user', {
+        const request = await fetch('/me', {
             method: 'GET',
-            mode: 'cors',
-            cache: 'no-cache',
-            credentials: 'same-origin',
-            headers: { 'Content-Type': 'application/json' },
+            ...header,
         });
-        return await request.json();
+        const me = await request.json();
+        this.me = me;
+        return me;
     }
     async #hasUserDataChanged(newData) {
         const user = await this.#getUserData();
@@ -52,7 +78,7 @@ let ProfileView = class ProfileView extends ViewLayout {
         }
         return true;
     }
-    async #save() {
+    async #saveAccountChanges() {
         const usernameElem = this.querySelector('#username');
         const emailElem = this.querySelector('#mail');
         const aboutElem = this.querySelector('#about');
@@ -67,10 +93,7 @@ let ProfileView = class ProfileView extends ViewLayout {
         }
         const request = await fetch('/user', {
             method: 'POST',
-            mode: 'cors',
-            cache: 'no-cache',
-            credentials: 'same-origin',
-            headers: { 'Content-Type': 'application/json' },
+            ...header,
             body: JSON.stringify({
                 client,
                 data: newData,
@@ -84,14 +107,11 @@ let ProfileView = class ProfileView extends ViewLayout {
     async #logout() {
         await fetch('/logout', {
             method: 'GET',
-            mode: 'cors',
-            cache: 'no-cache',
-            credentials: 'same-origin',
-            headers: { 'Content-Type': 'application/json' },
+            ...header,
         });
         return location.reload();
     }
-    #changeEvent({ target: { value } }) {
+    #changeLangEvent({ target: { value } }) {
         setLocale(value);
         localStorage.setItem('lang', value);
         document.querySelector('html')?.setAttribute('lang', value);
@@ -100,7 +120,7 @@ let ProfileView = class ProfileView extends ViewLayout {
         const lang = localStorage.getItem('lang') || languages[0].code;
         return html ` <sl-select
             size="small"
-            @click="${this.#changeEvent}"
+            @click="${this.#changeLangEvent}"
             label="${capitalize(msg('language'))}"
             value="${lang}"
             class="md:w-1/4"
@@ -113,10 +133,7 @@ let ProfileView = class ProfileView extends ViewLayout {
     async #sendCheckPassword(oldPassword) {
         const request = await fetch('/checkPassword', {
             method: 'POST',
-            mode: 'cors',
-            cache: 'no-cache',
-            credentials: 'same-origin',
-            headers: { 'Content-Type': 'application/json' },
+            ...header,
             body: JSON.stringify({
                 data: {
                     password: oldPassword,
@@ -124,16 +141,13 @@ let ProfileView = class ProfileView extends ViewLayout {
                 client,
             }),
         });
-        const json = await request.json();
-        return json.auth;
+        const { auth } = await request.json();
+        return auth;
     }
     async #sendChangePassword(newPassword) {
         const request = await fetch('/changePassword', {
             method: 'POST',
-            mode: 'cors',
-            cache: 'no-cache',
-            credentials: 'same-origin',
-            headers: { 'Content-Type': 'application/json' },
+            ...header,
             body: JSON.stringify({
                 data: {
                     password: newPassword,
@@ -221,7 +235,7 @@ let ProfileView = class ProfileView extends ViewLayout {
 
                     <sl-textarea
                         id="about"
-                        maxlength="140"
+                        maxlength="${maxLengthAbout}"
                         resize="none"
                         size="small"
                         help-text="${msg('write something about you')}"
@@ -241,7 +255,7 @@ let ProfileView = class ProfileView extends ViewLayout {
             <sl-divider style="--width: 2px;"></sl-divider>
             <div>
                 <sl-button size="small" variant="danger" @click="${this.#logout}">logout</sl-button>
-                <sl-button size="small" variant="primary" class="float-right" @click="${this.#save}"
+                <sl-button size="small" variant="primary" class="float-right" @click="${this.#saveAccountChanges}"
                     >${msg('save')}</sl-button
                 >
             </div>`;
@@ -279,18 +293,62 @@ let ProfileView = class ProfileView extends ViewLayout {
             >
         </div>`;
     }
+    async #tabSwitchEvent({ detail: { name } }) {
+        if (name === 'team') {
+            const request = await fetch('/team', {
+                method: 'GET',
+                ...header,
+            });
+            const team = await request.json();
+            this.team = team;
+            this.team.name = team.name;
+            console.log(this.team);
+        }
+    }
+    #clickOnteamMember({ target }) {
+        const id = target.dataset.id;
+        console.log(id);
+    }
+    #renderTeamSection() {
+        return html `<div class="team-section">
+            <div>
+                <div>
+                    <h2>${this.team.name}</h2>
+                    <sl-input size="small" label="${msg('search')}">
+                        <sl-icon name="search" type="text" slot="prefix"></sl-icon>
+                    </sl-input>
+                    <div class="mt-4">
+                        ${repeat(this.team.members, member => member._id, member => {
+            return html `<div @click="${this.#clickOnteamMember}" data-id="${member._id}">1</div>`;
+        })}
+                    </div>
+                </div>
+            </div>
+            <div>
+                <sl-avatar style="--size: 8rem;"></sl-avatar>
+                <p>${capitalize(msg('username'))}</p>
+                <p>${this.user.username}</p>
+                <p>${msg('Email address')}</p>
+                <p>${this.user.email}</p>
+                <p>${capitalize(msg('about'))}</p>
+                <p>${this.user.about}</p>
+                <p>${capitalize(msg('role'))}</p>
+                <p></p>
+            </div>
+        </div>`;
+    }
     #renderRows() {
-        const content = fetch('/user', {
+        const content = fetch('/me', {
             method: 'GET',
         }).then(r => r.json());
-        const row1 = html `<sl-tab-group>
+        const row1 = html `<sl-tab-group @sl-tab-show="${this.#tabSwitchEvent}">
             <sl-tab slot="nav" panel="account">${capitalize(msg('account'))}</sl-tab>
             <sl-tab slot="nav" panel="password">${capitalize(msg('password'))}</sl-tab>
             <sl-tab slot="nav" panel="team">${capitalize(msg('team'))}</sl-tab>
 
-            <sl-tab-panel name="account">${this.#renderAccountSection(content)}</sl-tab-panel>
-            <sl-tab-panel name="password">${this.#renderPasswordSection()}</sl-tab-panel>
-            <sl-tab-panel name="team">team</sl-tab-panel>
+            <sl-tab-panel class="mt-8" name="account">${this.#renderAccountSection(content)}</sl-tab-panel>
+            <sl-tab-panel class="mt-8" name="password">${this.#renderPasswordSection()}</sl-tab-panel>
+            <sl-tab-panel class="mt-8" name="team">${this.#renderTeamSection()}</sl-tab-panel>
         </sl-tab-group> `;
         return [row1];
     }
@@ -299,6 +357,15 @@ let ProfileView = class ProfileView extends ViewLayout {
         return super.render(rows);
     }
 };
+__decorate([
+    property()
+], ProfileView.prototype, "me", void 0);
+__decorate([
+    property()
+], ProfileView.prototype, "user", void 0);
+__decorate([
+    property({ type: Object, reflect: true })
+], ProfileView.prototype, "team", void 0);
 ProfileView = __decorate([
     localized(),
     customElement('profile-layout')

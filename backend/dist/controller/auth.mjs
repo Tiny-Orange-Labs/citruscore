@@ -3,7 +3,7 @@ import { userModel } from '../models/user';
 import crypto from 'node:crypto';
 import redis from '../utilities/config/init_redis';
 import sendEmail from '../utilities/sendEmail';
-import { getUser } from './user';
+import { getMe } from './user';
 const cookieKey = 'session';
 export async function login(request) {
     const { username, password } = request.payload.data;
@@ -39,7 +39,7 @@ export async function checkPassword(request) {
     return { auth: false };
 }
 export async function changePassword(request, h) {
-    const user = await getUser(request);
+    const user = await getMe(request);
     const { password } = request.payload.data;
     const status = await userModel.updateOne({ username: user.username }, { password: await Bcrypt.hash(password, 10) });
     sendEmail({
@@ -48,6 +48,8 @@ export async function changePassword(request, h) {
         text: `Your password has been changed`,
         html: `<h2>Log</h2><p>Your password has been changed</p>`,
     });
+    // work around so we can still deliver the icons in the notification
+    // otherwise the cookie would be cleared before the notification is delivered
     setTimeout(() => logout(request, null), 2500);
     return { status };
 }
