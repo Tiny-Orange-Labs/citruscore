@@ -15,7 +15,7 @@
 's0a7cf666efcba93f': `kalender`,
 's17d6e088af315c6a': `Zugangsdaten sind Leer`,
 's19dfa8ffb6084e9b': `dashboard`,
-'s220bcce27242e1e9': `suchee`,
+'s220bcce27242e1e9': `suche`,
 's30fc77dc5fe4ea53': `Neues Passwort ist zu kurz, min 8 Zeichen`,
 's31e7a66bde741263': `Foto`,
 's3507acf6d495a60d': `Profil Ansehen`,
@@ -51,5 +51,6 @@
 'sf1992e3514447d4d': `Änderungen gespeichert`,
 'sfa23d9ef19afc32c': `team`,
 'sfe2dbf7c7b16633c': `Neues Passwort darf keine leerzeichen enthalten`,
+'s6fe0078b094b28f3': `member of {{1}}`,
     };
   

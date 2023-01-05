@@ -158,6 +158,9 @@
   <source>search</source>
   <target>suche</target>
 </trans-unit>
+<trans-unit id="s6fe0078b094b28f3">
+  <source>member of {{1}}</source>
+</trans-unit>
 <trans-unit id="sa358ec1ff0c833b9">
   <source>role</source>
   <target>role</target>

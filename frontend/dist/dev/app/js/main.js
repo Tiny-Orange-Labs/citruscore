@@ -24279,6 +24279,7 @@ let ProfileView = class ProfileView extends ViewLayout$1 {
                 _id: '',
                 role: 'loading…',
                 rights: {},
+                avatar: '',
             },
         ],
     };
@@ -24531,14 +24532,30 @@ let ProfileView = class ProfileView extends ViewLayout$1 {
     }
     async #tabSwitchEvent({ detail: { name } }) {
         if (name === 'team') {
-            const request = await fetch('/team', {
+            const teamRequest = await fetch('/team', {
                 method: 'GET',
                 ...header,
             });
-            const team = await request.json();
+            const team = await teamRequest.json();
+            const membersRequest = await fetch('/getUsers', {
+                method: 'POST',
+                ...header,
+                body: JSON.stringify({
+                    data: {
+                        ids: team.members.map((member) => member._id),
+                    },
+                    client,
+                }),
+            });
+            const members = await membersRequest.json();
             this.team = team;
-            this.team.name = team.name;
-            console.log(this.team);
+            this.team.members = this.team.members.map((member, i) => {
+                return {
+                    ...member,
+                    ...members[i],
+                };
+            });
+            this.requestUpdate();
         }
     }
     #clickOnteamMember({ target }) {
@@ -24549,21 +24566,23 @@ let ProfileView = class ProfileView extends ViewLayout$1 {
         return y `<div class="team-section">
             <div>
                 <div>
-                    <h2>${this.team.name}</h2>
                     <sl-input size="small" label="${msg('search')}">
                         <sl-icon name="search" type="text" slot="prefix"></sl-icon>
                     </sl-input>
                     <div class="mt-4">
                         ${c$2(this.team.members, member => member._id, member => {
-            return y `<div @click="${this.#clickOnteamMember}" data-id="${member._id}">1</div>`;
+            return y `<div @click="${this.#clickOnteamMember}" data-id="${member._id}">
+                                        <sl-avatar image="${member.avatar}"></sl-avatar><span>${member.role}</span>
+                                    </div>
+                                    <sl-divider></sl-divider>`;
         })}
                     </div>
                 </div>
             </div>
             <div>
                 <sl-avatar style="--size: 8rem;"></sl-avatar>
-                <p>${capitalize(msg('username'))}</p>
-                <p>${this.user.username}</p>
+                <h2>${msg('member of {{1}}').replace('{{1}}', this.team.name)}</h2>
+                <p>${this.me.username}</p>
                 <p>${msg('Email address')}</p>
                 <p>${this.user.email}</p>
                 <p>${capitalize(msg('about'))}</p>
@@ -24720,7 +24739,7 @@ AppLayout = __decorate([
 document.addEventListener('DOMContentLoaded', function () {
     const app = document.querySelector('app-layout');
     app.bootstrapActiveMenu();
-    console.log('v:0.0.1 at: "2023-01-05T13:26:56.103Z" ');
+    console.log('v:0.0.1 at: "2023-01-05T20:00:19.977Z" ');
 });
 
 /* CSS */

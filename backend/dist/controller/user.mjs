@@ -1,9 +1,15 @@
 import { userModel } from '../models/user';
 import sendEmail from '../utilities/sendEmail';
 import { logout } from './auth';
+import mongoose from 'mongoose';
 export async function getMe(request) {
     const username = request.state['log-cookie'].username;
     return await userModel.findOne({ username }, { password: 0 }).lean();
+}
+export async function getUser(request) {
+    const ids = request.payload.data.ids.map((id) => new mongoose.Types.ObjectId(id));
+    console.log(ids);
+    return await userModel.find().where('_id').in(ids[0]).exec();
 }
 export async function setUser(request) {
     const user = await getMe(request);
