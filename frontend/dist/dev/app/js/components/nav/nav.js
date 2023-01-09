@@ -12,6 +12,7 @@ import { navElements } from '../../data/nav';
 import { localized, msg } from '@lit/localize';
 import { capitalize } from '../../utilities/text/text';
 import header from '../../data/header';
+import { imgs } from '../../data/fallbacks';
 let MainNav = class MainNav extends LitElement {
     #activeClass = 'nav-elem-active';
     constructor() {
@@ -80,7 +81,7 @@ let MainNav = class MainNav extends LitElement {
             return;
         }
         return html `<footer class="nav-footer">
-            <sl-avatar image="./assets/img/fallbacks/avatar.png" label="${msg('Your profile avatar')}"></sl-avatar>
+            <sl-avatar image="${imgs.avatar}" label="${msg('Your profile avatar')}"></sl-avatar>
             <div isNavFooter="true" name="profile">
                 <span
                     >${until(content.then(function (data) {

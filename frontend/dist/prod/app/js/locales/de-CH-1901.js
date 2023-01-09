@@ -17,6 +17,7 @@ export const templates = {
     's38887b94b3320533': `E-Mail Adresse`,
     's3f74142d6181ea7e': `über dich`,
     's4b1a493507b3a318': `passwort`,
+    's4dca3977126abcc9': `{{1}} mitglied von {{2}}`,
     's6727aa948e017eea': `Neues Passwort bestätigen`,
     's7dcd0ead91674605': `Neues passwort ist nicht gleich`,
     's8563c5a14e9a42f2': `Neues Passwort`,
@@ -45,5 +46,4 @@ export const templates = {
     'sf1992e3514447d4d': `Änderungen gespeichert`,
     'sfa23d9ef19afc32c': `team`,
     'sfe2dbf7c7b16633c': `Neues Passwort darf keine leerzeichen enthalten`,
-    's6fe0078b094b28f3': `member of {{1}}`,
 };

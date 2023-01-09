@@ -8,9 +8,7 @@ export async function getMe(request: any): Promise<UserType> {
 }
 
 export async function getUser(request: any): Promise<UserType[]> {
-    const ids = request.payload.data.ids;
-    console.log(ids);
-    return await userModel.find().where('_id').in(ids[0]).exec();
+    return await userModel.find().where('_id').in(request.payload.data.ids).exec();
 }
 
 export async function setUser(request: any) {

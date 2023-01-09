@@ -6,9 +6,7 @@ export async function getMe(request) {
     return await userModel.findOne({ username }, { password: 0 }).lean();
 }
 export async function getUser(request) {
-    const ids = request.payload.data.ids;
-    console.log(ids);
-    return await userModel.find().where('_id').in(ids[0]).exec();
+    return await userModel.find().where('_id').in(request.payload.data.ids).exec();
 }
 export async function setUser(request) {
     const user = await getMe(request);

@@ -16,9 +16,11 @@ import { until } from 'lit/directives/until.js';
 import { client } from '../../data/misc';
 import toast from '../../utilities/toast/toast';
 import { repeat } from 'lit/directives/repeat.js';
+import { imgs } from '../../data/fallbacks';
 const passwordMinLength = 8;
 const passwordMaxLength = 35;
 const maxLengthAbout = 560;
+const activeMemberClass = 'team-member-active';
 let ProfileView = class ProfileView extends ViewLayout {
     me = {
         _id: '',
@@ -30,7 +32,9 @@ let ProfileView = class ProfileView extends ViewLayout {
     user = {
         _id: '',
         username: '',
+        role: '',
         email: '',
+        rights: {},
         about: '',
         avatar: '',
     };
@@ -41,8 +45,11 @@ let ProfileView = class ProfileView extends ViewLayout {
         members: [
             {
                 _id: '',
+                username: 'loading…',
                 role: 'loading…',
+                email: '',
                 rights: {},
+                about: '',
                 avatar: '',
             },
         ],
@@ -294,6 +301,17 @@ let ProfileView = class ProfileView extends ViewLayout {
             >
         </div>`;
     }
+    #bootstrapFirstClickOnTeamTab() {
+        const hasActive = this.querySelector(`.team-member.${activeMemberClass}`);
+        if (!hasActive) {
+            const memberElem = this?.querySelector('.team-member');
+            const _id = memberElem?.getAttribute('data-id');
+            const member = this.team.members.find((member) => member._id === _id);
+            if (member) {
+                return this.#clickOnteamMember(member);
+            }
+        }
+    }
     async #tabSwitchEvent({ detail: { name } }) {
         if (name === 'team') {
             const teamRequest = await fetch('/team', {
@@ -306,7 +324,7 @@ let ProfileView = class ProfileView extends ViewLayout {
                 ...header,
                 body: JSON.stringify({
                     data: {
-                        ids: team.members.map((member) => member._id),
+                        ids: team.members.map((member) => member.member),
                     },
                     client,
                 }),
@@ -320,11 +338,21 @@ let ProfileView = class ProfileView extends ViewLayout {
                 };
             });
             this.requestUpdate();
+            requestAnimationFrame(() => {
+                this.#bootstrapFirstClickOnTeamTab();
+            });
         }
     }
-    #clickOnteamMember({ target }) {
-        const id = target.dataset.id;
-        console.log(id);
+    #clickOnteamMember(member) {
+        const hasActive = this.querySelector(`.team-member.${activeMemberClass}`);
+        const active_id = hasActive?.getAttribute('data-id');
+        this.user = member;
+        if (active_id !== member._id) {
+            const newActive = this?.querySelector(`.team-member[data-id="${member._id}"]`);
+            hasActive?.classList.remove(activeMemberClass);
+            newActive.classList.add(activeMemberClass);
+            return this.requestUpdate();
+        }
     }
     #renderTeamSection() {
         return html `<div class="team-section">
@@ -335,8 +363,16 @@ let ProfileView = class ProfileView extends ViewLayout {
                     </sl-input>
                     <div class="mt-4">
                         ${repeat(this.team.members, member => member._id, member => {
-            return html `<div @click="${this.#clickOnteamMember}" data-id="${member._id}">
-                                        <sl-avatar image="${member.avatar}"></sl-avatar><span>${member.role}</span>
+            return html `<div
+                                        class="team-member"
+                                        @click="${() => this.#clickOnteamMember(member)}"
+                                        data-id="${member._id}"
+                                    >
+                                        <sl-avatar image="${member.avatar || imgs.avatar}"></sl-avatar>
+                                        <div>
+                                            <p>${member.username}</p>
+                                            <p>${msg('role')}: ${member.role}</p>
+                                        </div>
                                     </div>
                                     <sl-divider></sl-divider>`;
         })}
@@ -344,8 +380,12 @@ let ProfileView = class ProfileView extends ViewLayout {
                 </div>
             </div>
             <div>
-                <sl-avatar style="--size: 8rem;"></sl-avatar>
-                <h2>${msg('member of {{1}}').replace('{{1}}', this.team.name)}</h2>
+                <sl-avatar style="--size: 8rem;" image="${this.me.avatar || imgs.avatar}"></sl-avatar>
+                <h2 class="text-lg">
+                    ${msg('{{1}} member of {{2}}')
+            .replace('{{1}}', this.user.username)
+            .replace('{{2}}', this.team.name)}
+                </h2>
                 <p>${this.me.username}</p>
                 <p>${msg('Email address')}</p>
                 <p>${this.user.email}</p>

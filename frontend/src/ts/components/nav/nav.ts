@@ -6,6 +6,7 @@ import { navElements, navData } from '../../data/nav';
 import { localized, msg } from '@lit/localize';
 import { capitalize } from '../../utilities/text/text';
 import header from '../../data/header';
+import { imgs } from '../../data/fallbacks';
 
 @localized()
 @customElement('main-nav')
@@ -90,7 +91,7 @@ export default class MainNav extends LitElement {
         }
 
         return html`<footer class="nav-footer">
-            <sl-avatar image="./assets/img/fallbacks/avatar.png" label="${msg('Your profile avatar')}"></sl-avatar>
+            <sl-avatar image="${imgs.avatar}" label="${msg('Your profile avatar')}"></sl-avatar>
             <div isNavFooter="true" name="profile">
                 <span
                     >${until(

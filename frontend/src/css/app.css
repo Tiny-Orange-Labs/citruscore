@@ -135,3 +135,11 @@ sl-divider {
     grid-template-columns: 300px 600px;
     @apply grid gap-8;
 }
+
+.team-member {
+    @apply flex flex-row gap-4 hover:bg-primarylight hover:text-white rounded-md p-2 cursor-pointer dark:hover:bg-primary-dark;
+}
+
+.team-member-active {
+    @apply bg-primarylight text-white dark:bg-primary-dark;
+}

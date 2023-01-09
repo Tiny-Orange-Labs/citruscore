@@ -9,6 +9,12 @@ const admin = new userModel({
     password: '$2a$10$iqJSHD.BGr0E2IxQwYgJmeP3NvhPrXAeLSaGCj6IR/XU5QtjVu5Tm', // secret
     about: 'Full rights admin acc for testing',
 });
+const operator = new userModel({
+    username: 'operator',
+    email: 'operator@localhost.com',
+    password: '$2a$10$iqJSHD.BGr0E2IxQwYgJmeP3NvhPrXAeLSaGCj6IR/XU5QtjVu5Tm', // secret
+    about: 'Add and remove rights for operator acc',
+});
 const member = new userModel({
     username: 'member',
     email: 'member@localhost.com',
@@ -31,6 +37,7 @@ process.on('SIGINT', function () {
 
 const adminMongo = await admin.save();
 const memberMongo = await member.save();
+const operatorMongo = await operator.save();
 const devTeam = new teamModel({
     name: 'superTeam',
     maxMembers: 5,
@@ -44,6 +51,16 @@ const devTeam = new teamModel({
                 removeTeamMember: true,
                 changeTeamMemberRole: true,
                 changeTeamMemberRights: true,
+            },
+        },
+        {
+            member: operator._id,
+            role: 'operator',
+            rights: {
+                addTeamMember: true,
+                removeTeamMember: true,
+                changeTeamMemberRole: false,
+                changeTeamMemberRights: false,
             },
         },
         {

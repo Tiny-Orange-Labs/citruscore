@@ -9446,6 +9446,10 @@ const header = {
     headers: { 'Content-Type': 'application/json' },
 };
 
+const imgs = Object.freeze({
+    avatar: './assets/img/fallbacks/avatar.png',
+});
+
 var __decorate$5 = (undefined && undefined.__decorate) || function (decorators, target, key, desc) {
     var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
     if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
@@ -9520,7 +9524,7 @@ let MainNav = class MainNav extends s$3 {
             return;
         }
         return y `<footer class="nav-footer">
-            <sl-avatar image="./assets/img/fallbacks/avatar.png" label="${msg('Your profile avatar')}"></sl-avatar>
+            <sl-avatar image="${imgs.avatar}" label="${msg('Your profile avatar')}"></sl-avatar>
             <div isNavFooter="true" name="profile">
                 <span
                     >${c(content.then(function (data) {
@@ -24255,6 +24259,7 @@ var __decorate$2 = (undefined && undefined.__decorate) || function (decorators, 
 const passwordMinLength = 8;
 const passwordMaxLength = 35;
 const maxLengthAbout = 560;
+const activeMemberClass = 'team-member-active';
 let ProfileView = class ProfileView extends ViewLayout$1 {
     me = {
         _id: '',
@@ -24266,7 +24271,9 @@ let ProfileView = class ProfileView extends ViewLayout$1 {
     user = {
         _id: '',
         username: '',
+        role: '',
         email: '',
+        rights: {},
         about: '',
         avatar: '',
     };
@@ -24277,8 +24284,11 @@ let ProfileView = class ProfileView extends ViewLayout$1 {
         members: [
             {
                 _id: '',
+                username: 'loading…',
                 role: 'loading…',
+                email: '',
                 rights: {},
+                about: '',
                 avatar: '',
             },
         ],
@@ -24530,6 +24540,17 @@ let ProfileView = class ProfileView extends ViewLayout$1 {
             >
         </div>`;
     }
+    #bootstrapFirstClickOnTeamTab() {
+        const hasActive = this.querySelector(`.team-member.${activeMemberClass}`);
+        if (!hasActive) {
+            const memberElem = this?.querySelector('.team-member');
+            const _id = memberElem?.getAttribute('data-id');
+            const member = this.team.members.find((member) => member._id === _id);
+            if (member) {
+                return this.#clickOnteamMember(member);
+            }
+        }
+    }
     async #tabSwitchEvent({ detail: { name } }) {
         if (name === 'team') {
             const teamRequest = await fetch('/team', {
@@ -24542,7 +24563,7 @@ let ProfileView = class ProfileView extends ViewLayout$1 {
                 ...header,
                 body: JSON.stringify({
                     data: {
-                        ids: team.members.map((member) => member._id),
+                        ids: team.members.map((member) => member.member),
                     },
                     client,
                 }),
@@ -24556,11 +24577,21 @@ let ProfileView = class ProfileView extends ViewLayout$1 {
                 };
             });
             this.requestUpdate();
+            requestAnimationFrame(() => {
+                this.#bootstrapFirstClickOnTeamTab();
+            });
         }
     }
-    #clickOnteamMember({ target }) {
-        const id = target.dataset.id;
-        console.log(id);
+    #clickOnteamMember(member) {
+        const hasActive = this.querySelector(`.team-member.${activeMemberClass}`);
+        const active_id = hasActive?.getAttribute('data-id');
+        this.user = member;
+        if (active_id !== member._id) {
+            const newActive = this?.querySelector(`.team-member[data-id="${member._id}"]`);
+            hasActive?.classList.remove(activeMemberClass);
+            newActive.classList.add(activeMemberClass);
+            return this.requestUpdate();
+        }
     }
     #renderTeamSection() {
         return y `<div class="team-section">
@@ -24571,8 +24602,16 @@ let ProfileView = class ProfileView extends ViewLayout$1 {
                     </sl-input>
                     <div class="mt-4">
                         ${c$2(this.team.members, member => member._id, member => {
-            return y `<div @click="${this.#clickOnteamMember}" data-id="${member._id}">
-                                        <sl-avatar image="${member.avatar}"></sl-avatar><span>${member.role}</span>
+            return y `<div
+                                        class="team-member"
+                                        @click="${() => this.#clickOnteamMember(member)}"
+                                        data-id="${member._id}"
+                                    >
+                                        <sl-avatar image="${member.avatar || imgs.avatar}"></sl-avatar>
+                                        <div>
+                                            <p>${member.username}</p>
+                                            <p>${msg('role')}: ${member.role}</p>
+                                        </div>
                                     </div>
                                     <sl-divider></sl-divider>`;
         })}
@@ -24580,8 +24619,12 @@ let ProfileView = class ProfileView extends ViewLayout$1 {
                 </div>
             </div>
             <div>
-                <sl-avatar style="--size: 8rem;"></sl-avatar>
-                <h2>${msg('member of {{1}}').replace('{{1}}', this.team.name)}</h2>
+                <sl-avatar style="--size: 8rem;" image="${this.me.avatar || imgs.avatar}"></sl-avatar>
+                <h2 class="text-lg">
+                    ${msg('{{1}} member of {{2}}')
+            .replace('{{1}}', this.user.username)
+            .replace('{{2}}', this.team.name)}
+                </h2>
                 <p>${this.me.username}</p>
                 <p>${msg('Email address')}</p>
                 <p>${this.user.email}</p>
@@ -24739,7 +24782,7 @@ AppLayout = __decorate([
 document.addEventListener('DOMContentLoaded', function () {
     const app = document.querySelector('app-layout');
     app.bootstrapActiveMenu();
-    console.log('v:0.0.1 at: "2023-01-05T20:00:19.977Z" ');
+    console.log('v:0.0.1 at: "2023-01-09T14:35:18.439Z" ');
 });
 
 /* CSS */

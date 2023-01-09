@@ -158,12 +158,13 @@
   <source>search</source>
   <target>suche</target>
 </trans-unit>
-<trans-unit id="s6fe0078b094b28f3">
-  <source>member of {{1}}</source>
-</trans-unit>
 <trans-unit id="sa358ec1ff0c833b9">
   <source>role</source>
   <target>role</target>
+</trans-unit>
+<trans-unit id="s4dca3977126abcc9">
+  <source>{{1}} member of {{2}}</source>
+  <target>{{1}} mitglied von {{2}}</target>
 </trans-unit>
 <trans-unit id="sa23fd2965dc429bc">
   <source>account</source>
