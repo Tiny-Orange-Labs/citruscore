@@ -24618,20 +24618,31 @@ let ProfileView = class ProfileView extends ViewLayout$1 {
                     </div>
                 </div>
             </div>
-            <div>
+            <div class="selected-team-section">
                 <sl-avatar style="--size: 8rem;" image="${this.me.avatar || imgs.avatar}"></sl-avatar>
-                <h2 class="text-lg">
+                <h2 class="text-2xl font-bold">
                     ${msg('{{1}} member of {{2}}')
             .replace('{{1}}', this.user.username)
             .replace('{{2}}', this.team.name)}
                 </h2>
-                <p>${this.me.username}</p>
-                <p>${msg('Email address')}</p>
-                <p>${this.user.email}</p>
-                <p>${capitalize(msg('about'))}</p>
-                <p>${this.user.about}</p>
-                <p>${capitalize(msg('role'))}</p>
-                <p></p>
+                <div class="selected-team-section-stats">
+                    <div>
+                        <p class="text-gray-600">${msg('name')}</p>
+                        <p>${this.user.username}</p>
+                    </div>
+                    <div>
+                        <p class="text-gray-600">${msg('Email address')}</p>
+                        <p>${this.user.email}</p>
+                    </div>
+                    <div>
+                        <p class="text-gray-600">${capitalize(msg('role'))}</p>
+                        <p>${this.user.role}</p>
+                    </div>
+                </div>
+                <div>
+                    <p class="text-gray-600">${capitalize(msg('about'))}</p>
+                    <p>${this.user.about}</p>
+                </div>
             </div>
         </div>`;
     }
@@ -24782,7 +24793,7 @@ AppLayout = __decorate([
 document.addEventListener('DOMContentLoaded', function () {
     const app = document.querySelector('app-layout');
     app.bootstrapActiveMenu();
-    console.log('v:0.0.1 at: "2023-01-09T14:35:18.439Z" ');
+    console.log('v:0.0.1 at: "2023-01-10T20:19:22.192Z" ');
 });
 
 /* CSS */

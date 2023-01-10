@@ -3662,18 +3662,29 @@ function Cn(t){return t+.5|0}Sn=function(t,e,i,s){var o,n=arguments.length,r=n<3
                     </div>
                 </div>
             </div>
-            <div>
+            <div class="selected-team-section">
                 <sl-avatar style="--size: 8rem;" image="${this.me.avatar||An.avatar}"></sl-avatar>
-                <h2 class="text-lg">
+                <h2 class="text-2xl font-bold">
                     ${xn("{{1}} member of {{2}}").replace("{{1}}",this.user.username).replace("{{2}}",this.team.name)}
                 </h2>
-                <p>${this.me.username}</p>
-                <p>${xn("Email address")}</p>
-                <p>${this.user.email}</p>
-                <p>${kn(xn("about"))}</p>
-                <p>${this.user.about}</p>
-                <p>${kn(xn("role"))}</p>
-                <p></p>
+                <div class="selected-team-section-stats">
+                    <div>
+                        <p class="text-gray-600">${xn("name")}</p>
+                        <p>${this.user.username}</p>
+                    </div>
+                    <div>
+                        <p class="text-gray-600">${xn("Email address")}</p>
+                        <p>${this.user.email}</p>
+                    </div>
+                    <div>
+                        <p class="text-gray-600">${kn(xn("role"))}</p>
+                        <p>${this.user.role}</p>
+                    </div>
+                </div>
+                <div>
+                    <p class="text-gray-600">${kn(xn("about"))}</p>
+                    <p>${this.user.about}</p>
+                </div>
             </div>
         </div>`}#r(){const t=fetch("/me",{method:"GET"}).then((t=>t.json()));return[Qs`<sl-tab-group @sl-tab-show="${this.#_}">
             <sl-tab slot="nav" panel="account">${kn(xn("account"))}</sl-tab>

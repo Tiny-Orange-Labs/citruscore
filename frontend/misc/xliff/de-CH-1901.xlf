@@ -166,6 +166,9 @@
   <source>{{1}} member of {{2}}</source>
   <target>{{1}} mitglied von {{2}}</target>
 </trans-unit>
+<trans-unit id="sc4bcadba8e631b86">
+  <source>name</source>
+</trans-unit>
 <trans-unit id="sa23fd2965dc429bc">
   <source>account</source>
   <target>account</target>

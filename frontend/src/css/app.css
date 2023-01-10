@@ -143,3 +143,12 @@ sl-divider {
 .team-member-active {
     @apply bg-primarylight text-white dark:bg-primary-dark;
 }
+
+.selected-team-section {
+    @apply flex flex-col gap-8;
+}
+
+.selected-team-section-stats {
+    grid-template-columns: 1fr 1fr;
+    @apply grid gap-8;
+}

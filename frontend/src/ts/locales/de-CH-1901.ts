@@ -52,5 +52,6 @@
 'sf1992e3514447d4d': `Änderungen gespeichert`,
 'sfa23d9ef19afc32c': `team`,
 'sfe2dbf7c7b16633c': `Neues Passwort darf keine leerzeichen enthalten`,
+'sc4bcadba8e631b86': `name`,
     };
   
