@@ -485,7 +485,7 @@ export default class ProfileView extends ViewLayout {
         return html`<div class="team-section">
             <div>
                 <div>
-                    <sl-input size="small" label="${msg('search')}">
+                    <sl-input size="small" label="${capitalize(msg('search'))}">
                         <sl-icon name="search" type="text" slot="prefix"></sl-icon>
                     </sl-input>
                     <div class="mt-4">
