@@ -91,7 +91,15 @@ export default class MainNav extends LitElement {
         }
 
         return html`<footer class="nav-footer">
-            <sl-avatar image="${imgs.avatar}" label="${msg('Your profile avatar')}"></sl-avatar>
+            <sl-avatar
+                image="${until(
+                    content.then(function (data) {
+                        return data.avatar || imgs.avatar;
+                    }),
+                    imgs.avatar,
+                )}"
+                label="${msg('Your profile avatar')}"
+            ></sl-avatar>
             <div isNavFooter="true" name="profile">
                 <span
                     >${until(

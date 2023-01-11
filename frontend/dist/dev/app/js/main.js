@@ -9835,7 +9835,12 @@ let MainNav = class MainNav extends s$3 {
             return;
         }
         return y `<footer class="nav-footer">
-            <sl-avatar image="${imgs.avatar}" label="${msg('Your profile avatar')}"></sl-avatar>
+            <sl-avatar
+                image="${c(content.then(function (data) {
+            return data.avatar || imgs.avatar;
+        }), imgs.avatar)}"
+                label="${msg('Your profile avatar')}"
+            ></sl-avatar>
             <div isNavFooter="true" name="profile">
                 <span
                     >${c(content.then(function (data) {
@@ -25157,7 +25162,7 @@ AppLayout = __decorate([
 document.addEventListener('DOMContentLoaded', function () {
     const app = document.querySelector('app-layout');
     app.bootstrapActiveMenu();
-    console.log('v:0.0.1 at: "2023-01-11T20:31:33.866Z" ');
+    console.log('v:0.0.1 at: "2023-01-11T20:36:49.407Z" ');
 });
 
 /* CSS */

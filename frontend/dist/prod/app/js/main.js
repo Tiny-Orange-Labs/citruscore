@@ -3591,7 +3591,10 @@ let $n=Qo,An=!1;function Sn(t){const[e,...i]=t;return e.toUpperCase()+i.join("")
             >
                 <sl-icon name="${e.icon}"></sl-icon>&nbsp;&nbsp;${t[e.name]}
             </div>`}))}#o(){const t=!!Zo.items.find((t=>t.isNavFooter)),e=fetch("/me",{method:"GET",...Cn}).then((t=>t.json()));if(t)return io`<footer class="nav-footer">
-            <sl-avatar image="${Mn.avatar}" label="${$n("Your profile avatar")}"></sl-avatar>
+            <sl-avatar
+                image="${Go(e.then((function(t){return t.avatar||Mn.avatar})),Mn.avatar)}"
+                label="${$n("Your profile avatar")}"
+            ></sl-avatar>
             <div isNavFooter="true" name="profile">
                 <span
                     >${Go(e.then((function(t){return t.username})),"Loading...")}</span
