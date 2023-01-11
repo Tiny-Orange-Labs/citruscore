@@ -4635,6 +4635,16 @@ function animateTo(el, keyframes, options) {
     animation.addEventListener("finish", resolve, { once: true });
   });
 }
+function parseDuration(delay) {
+  delay = delay.toString().toLowerCase();
+  if (delay.indexOf("ms") > -1) {
+    return parseFloat(delay);
+  }
+  if (delay.indexOf("s") > -1) {
+    return parseFloat(delay) * 1e3;
+  }
+  return parseFloat(delay);
+}
 function prefersReducedMotion() {
   const query = window.matchMedia("(prefers-reduced-motion: reduce)");
   return query.matches;
@@ -8835,6 +8845,307 @@ __decorateClass([
 SlTab = __decorateClass([
   e$7("sl-tab")
 ], SlTab);
+
+// src/components/tooltip/tooltip.styles.ts
+var tooltip_styles_default = i$7`
+  ${component_styles_default}
+
+  :host {
+    --max-width: 20rem;
+    --hide-delay: 0ms;
+    --show-delay: 150ms;
+
+    display: contents;
+  }
+
+  .tooltip {
+    --arrow-size: var(--sl-tooltip-arrow-size);
+    --arrow-color: var(--sl-tooltip-background-color);
+  }
+
+  .tooltip::part(popup) {
+    pointer-events: none;
+    z-index: var(--sl-z-index-tooltip);
+  }
+
+  .tooltip[placement^='top']::part(popup) {
+    transform-origin: bottom;
+  }
+
+  .tooltip[placement^='bottom']::part(popup) {
+    transform-origin: top;
+  }
+
+  .tooltip[placement^='left']::part(popup) {
+    transform-origin: right;
+  }
+
+  .tooltip[placement^='right']::part(popup) {
+    transform-origin: left;
+  }
+
+  .tooltip__body {
+    display: block;
+    width: max-content;
+    max-width: var(--max-width);
+    border-radius: var(--sl-tooltip-border-radius);
+    background-color: var(--sl-tooltip-background-color);
+    font-family: var(--sl-tooltip-font-family);
+    font-size: var(--sl-tooltip-font-size);
+    font-weight: var(--sl-tooltip-font-weight);
+    line-height: var(--sl-tooltip-line-height);
+    color: var(--sl-tooltip-color);
+    padding: var(--sl-tooltip-padding);
+    pointer-events: none;
+  }
+`;
+
+// src/components/tooltip/tooltip.ts
+var SlTooltip = class extends ShoelaceElement {
+  constructor() {
+    super(...arguments);
+    this.localize = new LocalizeController2(this);
+    this.content = "";
+    this.placement = "top";
+    this.disabled = false;
+    this.distance = 8;
+    this.open = false;
+    this.skidding = 0;
+    this.trigger = "hover focus";
+    this.hoist = false;
+  }
+  connectedCallback() {
+    super.connectedCallback();
+    this.handleBlur = this.handleBlur.bind(this);
+    this.handleClick = this.handleClick.bind(this);
+    this.handleFocus = this.handleFocus.bind(this);
+    this.handleKeyDown = this.handleKeyDown.bind(this);
+    this.handleMouseOver = this.handleMouseOver.bind(this);
+    this.handleMouseOut = this.handleMouseOut.bind(this);
+    this.updateComplete.then(() => {
+      this.addEventListener("blur", this.handleBlur, true);
+      this.addEventListener("focus", this.handleFocus, true);
+      this.addEventListener("click", this.handleClick);
+      this.addEventListener("keydown", this.handleKeyDown);
+      this.addEventListener("mouseover", this.handleMouseOver);
+      this.addEventListener("mouseout", this.handleMouseOut);
+    });
+  }
+  firstUpdated() {
+    this.body.hidden = !this.open;
+    if (this.open) {
+      this.popup.active = true;
+      this.popup.reposition();
+    }
+  }
+  disconnectedCallback() {
+    super.disconnectedCallback();
+    this.removeEventListener("blur", this.handleBlur, true);
+    this.removeEventListener("focus", this.handleFocus, true);
+    this.removeEventListener("click", this.handleClick);
+    this.removeEventListener("keydown", this.handleKeyDown);
+    this.removeEventListener("mouseover", this.handleMouseOver);
+    this.removeEventListener("mouseout", this.handleMouseOut);
+  }
+  async show() {
+    if (this.open) {
+      return void 0;
+    }
+    this.open = true;
+    return waitForEvent(this, "sl-after-show");
+  }
+  async hide() {
+    if (!this.open) {
+      return void 0;
+    }
+    this.open = false;
+    return waitForEvent(this, "sl-after-hide");
+  }
+  getTarget() {
+    const target = [...this.children].find(
+      (el) => el.tagName.toLowerCase() !== "style" && el.getAttribute("slot") !== "content"
+    );
+    if (!target) {
+      throw new Error("Invalid tooltip target: no child element was found.");
+    }
+    return target;
+  }
+  handleBlur() {
+    if (this.hasTrigger("focus")) {
+      this.hide();
+    }
+  }
+  handleClick() {
+    if (this.hasTrigger("click")) {
+      if (this.open) {
+        this.hide();
+      } else {
+        this.show();
+      }
+    }
+  }
+  handleFocus() {
+    if (this.hasTrigger("focus")) {
+      this.show();
+    }
+  }
+  handleKeyDown(event) {
+    if (this.open && event.key === "Escape") {
+      event.stopPropagation();
+      this.hide();
+    }
+  }
+  handleMouseOver() {
+    if (this.hasTrigger("hover")) {
+      const delay = parseDuration(getComputedStyle(this).getPropertyValue("--show-delay"));
+      clearTimeout(this.hoverTimeout);
+      this.hoverTimeout = window.setTimeout(() => this.show(), delay);
+    }
+  }
+  handleMouseOut() {
+    if (this.hasTrigger("hover")) {
+      const delay = parseDuration(getComputedStyle(this).getPropertyValue("--hide-delay"));
+      clearTimeout(this.hoverTimeout);
+      this.hoverTimeout = window.setTimeout(() => this.hide(), delay);
+    }
+  }
+  async handleOpenChange() {
+    if (this.open) {
+      if (this.disabled) {
+        return;
+      }
+      this.emit("sl-show");
+      await stopAnimations(this.body);
+      this.body.hidden = false;
+      this.popup.active = true;
+      const { keyframes, options } = getAnimation(this, "tooltip.show", { dir: this.localize.dir() });
+      await animateTo(this.popup.popup, keyframes, options);
+      this.emit("sl-after-show");
+    } else {
+      this.emit("sl-hide");
+      await stopAnimations(this.body);
+      const { keyframes, options } = getAnimation(this, "tooltip.hide", { dir: this.localize.dir() });
+      await animateTo(this.popup.popup, keyframes, options);
+      this.popup.active = false;
+      this.body.hidden = true;
+      this.emit("sl-after-hide");
+    }
+  }
+  async handleOptionsChange() {
+    if (this.hasUpdated) {
+      await this.updateComplete;
+      this.popup.reposition();
+    }
+  }
+  handleDisabledChange() {
+    if (this.disabled && this.open) {
+      this.hide();
+    }
+  }
+  hasTrigger(triggerType) {
+    const triggers = this.trigger.split(" ");
+    return triggers.includes(triggerType);
+  }
+  render() {
+    return y$1`
+      <sl-popup
+        part="base"
+        exportparts="
+          popup:base__popup,
+          arrow:base__arrow
+        "
+        class=${o$7({
+      tooltip: true,
+      "tooltip--open": this.open
+    })}
+        placement=${this.placement}
+        distance=${this.distance}
+        skidding=${this.skidding}
+        strategy=${this.hoist ? "fixed" : "absolute"}
+        flip
+        shift
+        arrow
+      >
+        <slot slot="anchor" aria-describedby="tooltip"></slot>
+
+        <slot
+          name="content"
+          part="body"
+          id="tooltip"
+          class="tooltip__body"
+          role="tooltip"
+          aria-live=${this.open ? "polite" : "off"}
+        >
+          ${this.content}
+        </slot>
+      </sl-popup>
+    `;
+  }
+};
+SlTooltip.styles = tooltip_styles_default;
+__decorateClass([
+  i2$2("slot:not([name])")
+], SlTooltip.prototype, "defaultSlot", 2);
+__decorateClass([
+  i2$2(".tooltip__body")
+], SlTooltip.prototype, "body", 2);
+__decorateClass([
+  i2$2("sl-popup")
+], SlTooltip.prototype, "popup", 2);
+__decorateClass([
+  e2$1()
+], SlTooltip.prototype, "content", 2);
+__decorateClass([
+  e2$1()
+], SlTooltip.prototype, "placement", 2);
+__decorateClass([
+  e2$1({ type: Boolean, reflect: true })
+], SlTooltip.prototype, "disabled", 2);
+__decorateClass([
+  e2$1({ type: Number })
+], SlTooltip.prototype, "distance", 2);
+__decorateClass([
+  e2$1({ type: Boolean, reflect: true })
+], SlTooltip.prototype, "open", 2);
+__decorateClass([
+  e2$1({ type: Number })
+], SlTooltip.prototype, "skidding", 2);
+__decorateClass([
+  e2$1()
+], SlTooltip.prototype, "trigger", 2);
+__decorateClass([
+  e2$1({ type: Boolean })
+], SlTooltip.prototype, "hoist", 2);
+__decorateClass([
+  watch("open", { waitUntilFirstUpdate: true })
+], SlTooltip.prototype, "handleOpenChange", 1);
+__decorateClass([
+  watch("content"),
+  watch("distance"),
+  watch("hoist"),
+  watch("placement"),
+  watch("skidding")
+], SlTooltip.prototype, "handleOptionsChange", 1);
+__decorateClass([
+  watch("disabled")
+], SlTooltip.prototype, "handleDisabledChange", 1);
+SlTooltip = __decorateClass([
+  e$7("sl-tooltip")
+], SlTooltip);
+setDefaultAnimation("tooltip.show", {
+  keyframes: [
+    { opacity: 0, scale: 0.8 },
+    { opacity: 1, scale: 1 }
+  ],
+  options: { duration: 150, easing: "ease" }
+});
+setDefaultAnimation("tooltip.hide", {
+  keyframes: [
+    { opacity: 1, scale: 1 },
+    { opacity: 0, scale: 0.8 }
+  ],
+  options: { duration: 150, easing: "ease" }
+});
 
 /**
  * @license
@@ -24453,7 +24764,45 @@ let ProfileView = class ProfileView extends ViewLayout$1 {
         }
         return toast('danger', msg('New Password'), msg('Something went wrong'));
     }
+    async #sendAvatar(file, imgTag, e) {
+        const request = await fetch('/changeAvatar', {
+            method: 'POST',
+            ...header,
+            body: JSON.stringify({
+                data: {
+                    type: file.type,
+                    name: file.name,
+                    size: file.size,
+                    lastModified: file.lastModified,
+                    width: imgTag.width,
+                    height: imgTag.height,
+                    file: e.target?.result,
+                },
+                client,
+            }),
+        });
+        await request.json();
+    }
+    async #changeAvatarEvent(e) {
+        const reader = new FileReader();
+        const file = e.target.files[0];
+        const imgTag = document.createElement('img');
+        const url = URL.createObjectURL(file);
+        reader.onload = (event) => {
+            imgTag.src = url;
+            imgTag.onload = () => {
+                this.#sendAvatar(file, imgTag, event);
+                URL.revokeObjectURL(url);
+            };
+        };
+        reader.readAsDataURL(file);
+    }
+    #clickUploadAvatar() {
+        const input = this.querySelector('input[type="file"]');
+        input.click();
+    }
     #renderAccountSection(content) {
+        console.log(this.me);
         return y ` <div class="account-section">
                 <div>
                     <div class="grid grid-rows-1 md:grid-cols-2 md:gap-4">
@@ -24494,7 +24843,21 @@ let ProfileView = class ProfileView extends ViewLayout$1 {
                 </div>
                 <div>
                     <p>${capitalize(msg('photo'))}</p>
-                    <img class="rounded-full w-40" src="./assets/img/fallbacks/avatar.png" />
+                    <sl-tooltip content="${msg('click to upload new avatar')}" placement="top">
+                        <sl-avatar
+                            @click="${this.#clickUploadAvatar}"
+                            style="--size: 10rem;"
+                            image="${c(content.then(function (data) {
+            return data.avatar || imgs.avatar;
+        }), imgs.avatar)}"
+                        ></sl-avatar>
+                        <input
+                            @change="${this.#changeAvatarEvent}"
+                            type="file"
+                            class="hidden"
+                            accept="image/jpeg,image/jpg,image/webp,image/png"
+                        />
+                    </sl-tooltip>
                 </div>
             </div>
             <sl-divider style="--width: 2px;"></sl-divider>
@@ -24619,7 +24982,8 @@ let ProfileView = class ProfileView extends ViewLayout$1 {
                 </div>
             </div>
             <div class="selected-team-section">
-                <sl-avatar style="--size: 8rem;" image="${this.me.avatar || imgs.avatar}"></sl-avatar>
+                <sl-avatar style="--size: 8rem;" image="${this.user.avatar || imgs.avatar}"></sl-avatar>
+
                 <h2 class="text-2xl font-bold">
                     ${msg('{{1}} member of {{2}}')
             .replace('{{1}}', this.user.username)
@@ -24793,7 +25157,7 @@ AppLayout = __decorate([
 document.addEventListener('DOMContentLoaded', function () {
     const app = document.querySelector('app-layout');
     app.bootstrapActiveMenu();
-    console.log('v:0.0.1 at: "2023-01-10T20:19:22.192Z" ');
+    console.log('v:0.0.1 at: "2023-01-11T20:31:33.866Z" ');
 });
 
 /* CSS */

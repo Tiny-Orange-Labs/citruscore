@@ -1,3 +1,4 @@
+import fs from 'fs/promises';
 import { userModel, UserType } from '../models/user';
 import sendEmail from '../utilities/sendEmail';
 import { logout } from './auth';
@@ -22,6 +23,7 @@ export async function setUser(request: any) {
             text: `Your email has been changed from ${user.email} to ${data.email}`,
             html: `<h2>Log</h2><p>Your email has been changed from ${user.email} to ${data.email}</p>`,
         });
+        setTimeout(() => logout(request, null), 2500);
     }
     if (user.username !== data.username) {
         sendEmail({
@@ -30,8 +32,26 @@ export async function setUser(request: any) {
             text: `Your username has been changed from ${user.username} to ${data.username}`,
             html: `<h2>Log</h2><p>Your username has been changed from ${user.username} to ${data.username}</p>`,
         });
-        await logout(request, null);
+        setTimeout(() => logout(request, null), 2500);
     }
 
     return await userModel.updateOne({ username: user?.username }, { ...data }, { password: 0 });
+}
+
+export async function uploadAvatar(request: any) {
+    const user = await getMe(request);
+    const dir = `./backend/uploads/user/img/user/${user._id}/avatar/`;
+    const path = `${dir}avatar.jpeg`;
+    const avatar = `./user/img/user/${user._id}/avatar/avatar.jpeg`;
+
+    await userModel.updateOne({ username: user?.username }, { avatar });
+    await fs.mkdir(dir, { recursive: true });
+    await fs.writeFile(
+        path,
+        request.payload.data.file.replace(`data:${request.payload.data.type};base64,`, ''),
+        'base64',
+    );
+    console.log(path);
+
+    return { avatar };
 }

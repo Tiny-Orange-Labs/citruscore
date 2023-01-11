@@ -130,6 +130,7 @@ error.txt
 node_modules/
 bower_components/
 .nyc_output/
+backend/uploads/user
 
 # Apple Stuff
 .DS_Store

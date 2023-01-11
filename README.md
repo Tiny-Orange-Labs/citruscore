@@ -268,3 +268,4 @@ npm run coverage
 1. team section
 1. improve documentation
 1. add localization for backend
+1. refresh after username update

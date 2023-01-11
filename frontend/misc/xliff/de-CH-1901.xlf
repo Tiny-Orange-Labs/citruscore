@@ -138,6 +138,9 @@
   <source>photo</source>
   <target>Foto</target>
 </trans-unit>
+<trans-unit id="sb00577c60b883eec">
+  <source>click to upload new avatar</source>
+</trans-unit>
 <trans-unit id="s096a5e18bf857c28">
   <source>save</source>
   <target>speichern</target>

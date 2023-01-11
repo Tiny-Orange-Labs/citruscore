@@ -19,6 +19,21 @@ export default async function host(server) {
             },
         },
     });
+    server.route({
+        method: 'GET',
+        path: '/user/{param*}',
+        handler: {
+            directory: {
+                path: `./backend/uploads/user/`,
+            },
+        },
+        options: {
+            auth: {
+                mode: 'required',
+                strategy: 'session',
+            },
+        },
+    });
     // App Staticfiles
     server.route({
         method: 'GET',

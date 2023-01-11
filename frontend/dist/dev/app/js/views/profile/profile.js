@@ -214,7 +214,45 @@ let ProfileView = class ProfileView extends ViewLayout {
         }
         return toast('danger', msg('New Password'), msg('Something went wrong'));
     }
+    async #sendAvatar(file, imgTag, e) {
+        const request = await fetch('/changeAvatar', {
+            method: 'POST',
+            ...header,
+            body: JSON.stringify({
+                data: {
+                    type: file.type,
+                    name: file.name,
+                    size: file.size,
+                    lastModified: file.lastModified,
+                    width: imgTag.width,
+                    height: imgTag.height,
+                    file: e.target?.result,
+                },
+                client,
+            }),
+        });
+        const json = await request.json();
+    }
+    async #changeAvatarEvent(e) {
+        const reader = new FileReader();
+        const file = e.target.files[0];
+        const imgTag = document.createElement('img');
+        const url = URL.createObjectURL(file);
+        reader.onload = (event) => {
+            imgTag.src = url;
+            imgTag.onload = () => {
+                this.#sendAvatar(file, imgTag, event);
+                URL.revokeObjectURL(url);
+            };
+        };
+        reader.readAsDataURL(file);
+    }
+    #clickUploadAvatar() {
+        const input = this.querySelector('input[type="file"]');
+        input.click();
+    }
     #renderAccountSection(content) {
+        console.log(this.me);
         return html ` <div class="account-section">
                 <div>
                     <div class="grid grid-rows-1 md:grid-cols-2 md:gap-4">
@@ -255,7 +293,21 @@ let ProfileView = class ProfileView extends ViewLayout {
                 </div>
                 <div>
                     <p>${capitalize(msg('photo'))}</p>
-                    <img class="rounded-full w-40" src="./assets/img/fallbacks/avatar.png" />
+                    <sl-tooltip content="${msg('click to upload new avatar')}" placement="top">
+                        <sl-avatar
+                            @click="${this.#clickUploadAvatar}"
+                            style="--size: 10rem;"
+                            image="${until(content.then(function (data) {
+            return data.avatar || imgs.avatar;
+        }), imgs.avatar)}"
+                        ></sl-avatar>
+                        <input
+                            @change="${this.#changeAvatarEvent}"
+                            type="file"
+                            class="hidden"
+                            accept="image/jpeg,image/jpg,image/webp,image/png"
+                        />
+                    </sl-tooltip>
                 </div>
             </div>
             <sl-divider style="--width: 2px;"></sl-divider>
@@ -380,7 +432,8 @@ let ProfileView = class ProfileView extends ViewLayout {
                 </div>
             </div>
             <div class="selected-team-section">
-                <sl-avatar style="--size: 8rem;" image="${this.me.avatar || imgs.avatar}"></sl-avatar>
+                <sl-avatar style="--size: 8rem;" image="${this.user.avatar || imgs.avatar}"></sl-avatar>
+
                 <h2 class="text-2xl font-bold">
                     ${msg('{{1}} member of {{2}}')
             .replace('{{1}}', this.user.username)

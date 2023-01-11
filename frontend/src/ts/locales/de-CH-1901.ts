@@ -52,6 +52,7 @@
 'sf1992e3514447d4d': `Änderungen gespeichert`,
 'sfa23d9ef19afc32c': `team`,
 'sfe2dbf7c7b16633c': `Neues Passwort darf keine leerzeichen enthalten`,
+'sb00577c60b883eec': `click to upload new avatar`,
 'sc4bcadba8e631b86': `name`,
     };
   
