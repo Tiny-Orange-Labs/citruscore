@@ -543,6 +543,15 @@ export default class ProfileView extends ViewLayout {
                     <p class="text-gray-600">${capitalize(msg('about'))}</p>
                     <p>${this.user.about}</p>
                 </div>
+                <div>
+                    <p>${msg('rights')}</p>
+                    ${Object.entries(this.user.rights).map(([key, value]) => {
+                        return html`<div>
+                            <p>${msg(key)}</p>
+                            <p>${value}</p>
+                        </div>`;
+                    })}
+                </div>
             </div>
         </div>`;
     }
