@@ -82,6 +82,8 @@ let MainNav = class MainNav extends LitElement {
         }
         return html `<footer class="nav-footer">
             <sl-avatar
+                name="profile"
+                @click="${this.#clickOnNav}"
                 image="${until(content.then(function (data) {
             return data.avatar || imgs.avatar;
         }), imgs.avatar)}"

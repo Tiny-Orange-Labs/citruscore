@@ -3592,6 +3592,8 @@ let $n=Qo,An=!1;function Sn(t){const[e,...i]=t;return e.toUpperCase()+i.join("")
                 <sl-icon name="${e.icon}"></sl-icon>&nbsp;&nbsp;${t[e.name]}
             </div>`}))}#o(){const t=!!Zo.items.find((t=>t.isNavFooter)),e=fetch("/me",{method:"GET",...Cn}).then((t=>t.json()));if(t)return io`<footer class="nav-footer">
             <sl-avatar
+                name="profile"
+                @click="${this.#e}"
                 image="${Go(e.then((function(t){return t.avatar||Mn.avatar})),Mn.avatar)}"
                 label="${$n("Your profile avatar")}"
             ></sl-avatar>
@@ -3640,7 +3642,7 @@ function Pn(t){return t+.5|0}En=function(t,e,i,s){var o,n=arguments.length,r=n<3
         </sl-card>`}};Ku=function(t,e,i,s){var o,n=arguments.length,r=n<3?e:null===s?s=Object.getOwnPropertyDescriptor(e,i):s;if("object"==typeof Reflect&&"function"==typeof Reflect.decorate)r=Reflect.decorate(t,e,i,s);else for(var a=t.length-1;a>=0;a--)(o=t[a])&&(r=(n<3?o(r):n>3?o(e,i,r):o(e,i))||r);return n>3&&r&&Object.defineProperty(e,i,r),r}([on(),Ao("graph-card")],Ku);var Xu=function(t,e,i,s){var o,n=arguments.length,r=n<3?e:null===s?s=Object.getOwnPropertyDescriptor(e,i):s;if("object"==typeof Reflect&&"function"==typeof Reflect.decorate)r=Reflect.decorate(t,e,i,s);else for(var a=t.length-1;a>=0;a--)(o=t[a])&&(r=(n<3?o(r):n>3?o(e,i,r):o(e,i))||r);return n>3&&r&&Object.defineProperty(e,i,r),r};let Gu=class extends ko{name="";constructor(){super()}createRenderRoot(){return this}#r({rows:t},e){return[...new Array(t)].map((function(t,i){return io`<div class="view-row">${e[i]}</div>`}))}setActive(){}render(t=""){const e=Zo.items.find((t=>t.name===this.name)),i=Object.freeze({analytics:io`<h1 class="view-headline">${Sn($n("analytics"))}</h1>`,dashboard:io`<h1 class="view-headline">${Sn($n("dashboard"))}</h1>`,calendar:io`<h1 class="view-headline">${Sn($n("calendar"))}</h1>`,profile:io`<h1 class="view-headline">${Sn($n("profile"))}</h1>`});return io`<div class="view-container">
             <header>${i[this.name]}</header>
             <div class="view-content grid-cols-${e.rows}">${this.#r(e,t)}</div>
-        </div>`}};Xu([Co({attribute:!0,reflect:!0})],Gu.prototype,"name",void 0),Gu=Xu([on(),Ao("view-layout")],Gu);var Zu=Gu;const Ju=["de-CH-1901"],{getLocale:Qu,setLocale:tp}=(ep={sourceLocale:"en",targetLocales:Ju,loadLocale:t=>import(`/js/locales/${t}.js`)},function(t){if(An)throw new Error("lit-localize can only be configured once");$n=t,An=!0}(((t,e)=>un(vn,t,e))),yn=fn=ep.sourceLocale,mn=new Set(ep.targetLocales),mn.add(ep.sourceLocale),bn=ep.loadLocale,{getLocale:wn,setLocale:kn});var ep;const ip=[{code:"en",name:"English"},{code:"de-CH-1901",name:"German"}],sp=function(t){switch(!0){case t.indexOf("edge")>-1:return"MS Edge";case t.indexOf("edg/")>-1:return"Edge ( chromium based)";case t.indexOf("opr")>-1&&!!window?.opr:return"Opera";case t.indexOf("chrome")>-1&&!!window?.chrome:return"Chrome";case t.indexOf("trident")>-1:return"MS IE";case t.indexOf("firefox")>-1:return"Mozilla Firefox";case t.indexOf("safari")>-1:return"Safari";default:return"other"}}(window.navigator.userAgent.toLowerCase()),op=/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent),np=/iPad|iPhone|iPod/.test(navigator.userAgent)||"MacIntel"===navigator.platform&&navigator.maxTouchPoints>1;navigator.userAgent.indexOf("Firefox");const rp=!op,ap={ua:navigator.userAgent,timezone:(new Date).getTimezoneOffset()/60,screen:{width:screen.width,height:screen.height},browser:{name:sp},user:{language:localStorage.getItem("language")||navigator.language},system:{language:navigator.language,platform:navigator.platform,isDesktop:rp,isIOS:np,isPhone:op}},lp={primary:"info-circle",success:"check2-circle",neutral:"gear",warning:"exclamation-triangle",danger:"exclamation-octagon"};function hp(t,e,i){const s=Object.assign(document.createElement("sl-alert"),{variant:t,closable:!0,duration:3e3,innerHTML:`\n          <sl-icon name="${lp[t]}" slot="icon"></sl-icon>\n          <strong>${e}</strong><br />${i}\n        `});document.body.append(s),s.toast()}var cp=function(t,e,i,s){var o,n=arguments.length,r=n<3?e:null===s?s=Object.getOwnPropertyDescriptor(e,i):s;if("object"==typeof Reflect&&"function"==typeof Reflect.decorate)r=Reflect.decorate(t,e,i,s);else for(var a=t.length-1;a>=0;a--)(o=t[a])&&(r=(n<3?o(r):n>3?o(e,i,r):o(e,i))||r);return n>3&&r&&Object.defineProperty(e,i,r),r};const dp="team-member-active";let up=class extends Zu{me={_id:"",username:"",email:"",about:"",avatar:""};user={_id:"",username:"",role:"",email:"",rights:{},about:"",avatar:""};team={_id:"",maxMembers:0,name:"loading…",members:[{_id:"",username:"loading…",role:"loading…",email:"",rights:{},about:"",avatar:""}]};constructor(){super()}updated(){const t=localStorage.getItem("lang");t&&"en"!==t&&tp(t)}createRenderRoot(){return this}async#a(){const t=await fetch("/me",{method:"GET",...Cn}),e=await t.json();return this.me=e,e}async#l(t){const e=await this.#a(),i=t.username===e.username,s=t.email===e.email,o=t.about===(e.about||"");return!(i&&s&&o)}async#h(){const t=this.querySelector("#username"),e=this.querySelector("#mail"),i=this.querySelector("#about"),s={username:t.value.trim(),email:e.value,about:i.value.trim()};if(!await this.#l(s))return hp("neutral",$n("User Update"),$n("Change user details to trigger an update"));const o=await fetch("/user",{method:"POST",...Cn,body:JSON.stringify({client:ap,data:s})});return(await o.json()).acknowledged?hp("success",$n("User Update"),$n("Changes saved")):void 0}async#c(){return await fetch("/logout",{method:"GET",...Cn}),location.reload()}#d({target:{value:t}}){tp(t),localStorage.setItem("lang",t),document.querySelector("html")?.setAttribute("lang",t)}#u(){const t=localStorage.getItem("lang")||ip[0].code;return io` <sl-select
+        </div>`}};Xu([Co({attribute:!0,reflect:!0})],Gu.prototype,"name",void 0),Gu=Xu([on(),Ao("view-layout")],Gu);var Zu=Gu;const Ju=["de-CH-1901"],{getLocale:Qu,setLocale:tp}=(ep={sourceLocale:"en",targetLocales:Ju,loadLocale:t=>import(`/js/locales/${t}.js`)},function(t){if(An)throw new Error("lit-localize can only be configured once");$n=t,An=!0}(((t,e)=>un(vn,t,e))),yn=fn=ep.sourceLocale,mn=new Set(ep.targetLocales),mn.add(ep.sourceLocale),bn=ep.loadLocale,{getLocale:wn,setLocale:kn});var ep;const ip=[{code:"en",name:"English"},{code:"de-CH-1901",name:"German"}],sp=function(t){switch(!0){case t.indexOf("edge")>-1:return"MS Edge";case t.indexOf("edg/")>-1:return"Edge ( chromium based)";case t.indexOf("opr")>-1&&!!window?.opr:return"Opera";case t.indexOf("chrome")>-1&&!!window?.chrome:return"Chrome";case t.indexOf("trident")>-1:return"MS IE";case t.indexOf("firefox")>-1:return"Mozilla Firefox";case t.indexOf("safari")>-1:return"Safari";default:return"other"}}(window.navigator.userAgent.toLowerCase()),op=/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent),np=/iPad|iPhone|iPod/.test(navigator.userAgent)||"MacIntel"===navigator.platform&&navigator.maxTouchPoints>1;navigator.userAgent.indexOf("Firefox");const rp=!op,ap={ua:navigator.userAgent,timezone:(new Date).getTimezoneOffset()/60,screen:{width:screen.width,height:screen.height},browser:{name:sp},user:{language:localStorage.getItem("language")||navigator.language},system:{language:navigator.language,platform:navigator.platform,isDesktop:rp,isIOS:np,isPhone:op}},lp={primary:"info-circle",success:"check2-circle",neutral:"gear",warning:"exclamation-triangle",danger:"exclamation-octagon"};function hp(t,e,i){const s=Object.assign(document.createElement("sl-alert"),{variant:t,closable:!0,duration:3e3,innerHTML:`\n          <sl-icon name="${lp[t]}" slot="icon"></sl-icon>\n          <strong>${e}</strong><br />${i}\n        `});document.body.append(s),s.toast()}var cp=function(t,e,i,s){var o,n=arguments.length,r=n<3?e:null===s?s=Object.getOwnPropertyDescriptor(e,i):s;if("object"==typeof Reflect&&"function"==typeof Reflect.decorate)r=Reflect.decorate(t,e,i,s);else for(var a=t.length-1;a>=0;a--)(o=t[a])&&(r=(n<3?o(r):n>3?o(e,i,r):o(e,i))||r);return n>3&&r&&Object.defineProperty(e,i,r),r};const dp="team-member-active";let up=class extends Zu{me={_id:"",username:"",email:"",about:"",avatar:""};user={_id:"",username:"",role:"",email:"",rights:{},about:"",avatar:""};team={_id:"",maxMembers:0,name:"loading…",members:[{_id:"",username:"loading…",role:"loading…",email:"",rights:{},about:"",avatar:""}]};constructor(){super()}updated(){const t=localStorage.getItem("lang");t&&"en"!==t&&tp(t)}createRenderRoot(){return this}async#a(){const t=await fetch("/me",{method:"GET",...Cn}),e=await t.json();return this.me=e,e}async#l(t){const e=await this.#a(),i=t.username===e.username,s=t.email===e.email,o=t.about===(e.about||"");return!(i&&s&&o)}async#h(){const t=this.querySelector("#username"),e=this.querySelector("#mail"),i=this.querySelector("#about"),s={username:t.value.trim(),email:e.value,about:i.value.trim()};if(!await this.#l(s))return hp("neutral",$n("User Update"),$n("Change user details to trigger an update"));const o=await fetch("/user",{method:"POST",...Cn,body:JSON.stringify({client:ap,data:s})}),n=await o.json();n.acknowledged&&hp("success",$n("User Update"),$n("Changes saved")),n.refresh&&setTimeout((()=>{location.reload()}),2500)}async#c(){return await fetch("/logout",{method:"GET",...Cn}),location.reload()}#d({target:{value:t}}){tp(t),localStorage.setItem("lang",t),document.querySelector("html")?.setAttribute("lang",t)}#u(){const t=localStorage.getItem("lang")||ip[0].code;return io` <sl-select
             size="small"
             @click="${this.#d}"
             label="${Sn($n("language"))}"
@@ -3675,6 +3677,7 @@ function Pn(t){return t+.5|0}En=function(t,e,i,s){var o,n=arguments.length,r=n<3
                         maxlength="${560}"
                         resize="none"
                         size="small"
+                        rows="7"
                         help-text="${$n("write something about you")}"
                         label="${Sn($n("about"))}"
                         value="${Go(t.then((function(t){return t.about})),"")}"
@@ -3685,7 +3688,7 @@ function Pn(t){return t+.5|0}En=function(t,e,i,s){var o,n=arguments.length,r=n<3
                     <sl-tooltip content="${$n("click to upload new avatar")}" placement="top">
                         <sl-avatar
                             @click="${this.#v}"
-                            style="--size: 10rem;"
+                            style="--size: 14rem;"
                             image="${Go(t.then((function(t){return t.avatar||Mn.avatar})),Mn.avatar)}"
                         ></sl-avatar>
                         <input
@@ -3738,22 +3741,22 @@ function Pn(t){return t+.5|0}En=function(t,e,i,s){var o,n=arguments.length,r=n<3
         </div>`}#x(){if(!this.querySelector(`.team-member.${dp}`)){const t=this?.querySelector(".team-member"),e=t?.getAttribute("data-id"),i=this.team.members.find((t=>t._id===e));if(i)return this.#w(i)}}async#k({detail:{name:t}}){if("team"===t){const t=await fetch("/team",{method:"GET",...Cn}),e=await t.json(),i=await fetch("/getUsers",{method:"POST",...Cn,body:JSON.stringify({data:{ids:e.members.map((t=>t.member))},client:ap})}),s=await i.json();this.team=e,this.team.members=this.team.members.map(((t,e)=>({...t,...s[e]}))),this.requestUpdate(),requestAnimationFrame((()=>{this.#x()}))}}#w(t){const e=this.querySelector(`.team-member.${dp}`),i=e?.getAttribute("data-id");if(this.user=t,i!==t._id){const i=this?.querySelector(`.team-member[data-id="${t._id}"]`);return e?.classList.remove(dp),i.classList.add(dp),this.requestUpdate()}}#$(){return io`<div class="team-section">
             <div>
                 <div>
-                    <sl-input size="small" label="${$n("search")}">
+                    <sl-input size="small" label="${Sn($n("search"))}">
                         <sl-icon name="search" type="text" slot="prefix"></sl-icon>
                     </sl-input>
                     <div class="mt-4">
                         ${Vo(this.team.members,(t=>t._id),(t=>io`<div
-                                        class="team-member"
-                                        @click="${()=>this.#w(t)}"
-                                        data-id="${t._id}"
-                                    >
-                                        <sl-avatar image="${t.avatar||Mn.avatar}"></sl-avatar>
-                                        <div>
-                                            <p>${t.username}</p>
-                                            <p>${$n("role")}: ${t.role}</p>
-                                        </div>
+                                    class="team-member"
+                                    @click="${()=>this.#w(t)}"
+                                    data-id="${t._id}"
+                                    tabindex="0"
+                                >
+                                    <sl-avatar image="${t.avatar||Mn.avatar}"></sl-avatar>
+                                    <div>
+                                        <p>${t.username}</p>
+                                        <p>${$n("role")}: ${t.role}</p>
                                     </div>
-                                    <sl-divider></sl-divider>`))}
+                                </div>`))}
                     </div>
                 </div>
             </div>
@@ -3763,6 +3766,7 @@ function Pn(t){return t+.5|0}En=function(t,e,i,s){var o,n=arguments.length,r=n<3
                 <h2 class="text-2xl font-bold">
                     ${$n("{{1}} member of {{2}}").replace("{{1}}",this.user.username).replace("{{2}}",this.team.name)}
                 </h2>
+                <sl-divider style="--width: 2px;"></sl-divider>
                 <div class="selected-team-section-stats">
                     <div>
                         <p class="text-gray-600">${$n("name")}</p>

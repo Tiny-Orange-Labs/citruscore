@@ -38,10 +38,12 @@
 'sa358ec1ff0c833b9': `role`,
 'sabe8b86feae6da6f': `Altes Passwort`,
 'sad172e5427857448': `Dein Profilebild`,
+'sb00577c60b883eec': `klicken um neuen avatar hochzuladen`,
 'sb14a5c8515bf326c': `Neues Passwort muss zumindest einen Kleinbuchstaben enthalten`,
 'sb404880247c5f122': `Neues Passwort muss zumindest eine Zahl enthalten`,
 'sb9bd4f5a3810b77e': `Es ist etwas falsch gelaufen`,
 'sbb8f299ccf033beb': `analyse`,
+'sc4bcadba8e631b86': `name`,
 'sc94935514840c766': `schreibe etwas über dich`,
 'sd2fd35287f0a935b': `sprache`,
 'sde639bc9cfeb7740': `Bitte fülle alle Felder aus`,
@@ -52,7 +54,5 @@
 'sf1992e3514447d4d': `Änderungen gespeichert`,
 'sfa23d9ef19afc32c': `team`,
 'sfe2dbf7c7b16633c': `Neues Passwort darf keine leerzeichen enthalten`,
-'sb00577c60b883eec': `click to upload new avatar`,
-'sc4bcadba8e631b86': `name`,
     };
   

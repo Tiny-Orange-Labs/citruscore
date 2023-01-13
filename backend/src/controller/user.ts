@@ -15,6 +15,7 @@ export async function getUser(request: any): Promise<UserType[]> {
 export async function setUser(request: any) {
     const user = await getMe(request);
     const data = request.payload.data;
+    let refresh = false;
 
     if (user.email !== data.email) {
         sendEmail({
@@ -24,6 +25,7 @@ export async function setUser(request: any) {
             html: `<h2>Log</h2><p>Your email has been changed from ${user.email} to ${data.email}</p>`,
         });
         setTimeout(() => logout(request, null), 2500);
+        refresh = true;
     }
     if (user.username !== data.username) {
         sendEmail({
@@ -33,9 +35,12 @@ export async function setUser(request: any) {
             html: `<h2>Log</h2><p>Your username has been changed from ${user.username} to ${data.username}</p>`,
         });
         setTimeout(() => logout(request, null), 2500);
+        refresh = true;
     }
 
-    return await userModel.updateOne({ username: user?.username }, { ...data }, { password: 0 });
+    const status = await userModel.updateOne({ username: user?.username }, { ...data });
+
+    return { ...status, refresh };
 }
 
 export async function uploadAvatar(request: any) {

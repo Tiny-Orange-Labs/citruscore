@@ -140,6 +140,7 @@
 </trans-unit>
 <trans-unit id="sb00577c60b883eec">
   <source>click to upload new avatar</source>
+  <target>klicken um neuen avatar hochzuladen</target>
 </trans-unit>
 <trans-unit id="s096a5e18bf857c28">
   <source>save</source>
@@ -171,6 +172,7 @@
 </trans-unit>
 <trans-unit id="sc4bcadba8e631b86">
   <source>name</source>
+  <target>name</target>
 </trans-unit>
 <trans-unit id="sa23fd2965dc429bc">
   <source>account</source>

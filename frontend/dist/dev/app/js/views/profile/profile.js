@@ -109,7 +109,13 @@ let ProfileView = class ProfileView extends ViewLayout {
         });
         const json = await request.json();
         if (json.acknowledged) {
-            return toast('success', msg('User Update'), msg('Changes saved'));
+            toast('success', msg('User Update'), msg('Changes saved'));
+        }
+        if (json.refresh) {
+            console.log('refreshing…');
+            setTimeout(() => {
+                location.reload();
+            }, 2500);
         }
     }
     async #logout() {
@@ -252,7 +258,6 @@ let ProfileView = class ProfileView extends ViewLayout {
         input.click();
     }
     #renderAccountSection(content) {
-        console.log(this.me);
         return html ` <div class="account-section">
                 <div>
                     <div class="grid grid-rows-1 md:grid-cols-2 md:gap-4">
@@ -284,6 +289,7 @@ let ProfileView = class ProfileView extends ViewLayout {
                         maxlength="${maxLengthAbout}"
                         resize="none"
                         size="small"
+                        rows="7"
                         help-text="${msg('write something about you')}"
                         label="${capitalize(msg('about'))}"
                         value="${until(content.then(function (data) {
@@ -296,7 +302,7 @@ let ProfileView = class ProfileView extends ViewLayout {
                     <sl-tooltip content="${msg('click to upload new avatar')}" placement="top">
                         <sl-avatar
                             @click="${this.#clickUploadAvatar}"
-                            style="--size: 10rem;"
+                            style="--size: 14rem;"
                             image="${until(content.then(function (data) {
             return data.avatar || imgs.avatar;
         }), imgs.avatar)}"
@@ -410,23 +416,23 @@ let ProfileView = class ProfileView extends ViewLayout {
         return html `<div class="team-section">
             <div>
                 <div>
-                    <sl-input size="small" label="${msg('search')}">
+                    <sl-input size="small" label="${capitalize(msg('search'))}">
                         <sl-icon name="search" type="text" slot="prefix"></sl-icon>
                     </sl-input>
                     <div class="mt-4">
                         ${repeat(this.team.members, member => member._id, member => {
             return html `<div
-                                        class="team-member"
-                                        @click="${() => this.#clickOnteamMember(member)}"
-                                        data-id="${member._id}"
-                                    >
-                                        <sl-avatar image="${member.avatar || imgs.avatar}"></sl-avatar>
-                                        <div>
-                                            <p>${member.username}</p>
-                                            <p>${msg('role')}: ${member.role}</p>
-                                        </div>
+                                    class="team-member"
+                                    @click="${() => this.#clickOnteamMember(member)}"
+                                    data-id="${member._id}"
+                                    tabindex="0"
+                                >
+                                    <sl-avatar image="${member.avatar || imgs.avatar}"></sl-avatar>
+                                    <div>
+                                        <p>${member.username}</p>
+                                        <p>${msg('role')}: ${member.role}</p>
                                     </div>
-                                    <sl-divider></sl-divider>`;
+                                </div>`;
         })}
                     </div>
                 </div>
@@ -439,6 +445,7 @@ let ProfileView = class ProfileView extends ViewLayout {
             .replace('{{1}}', this.user.username)
             .replace('{{2}}', this.team.name)}
                 </h2>
+                <sl-divider style="--width: 2px;"></sl-divider>
                 <div class="selected-team-section-stats">
                     <div>
                         <p class="text-gray-600">${msg('name')}</p>
