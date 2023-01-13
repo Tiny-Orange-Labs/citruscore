@@ -152,3 +152,7 @@ sl-divider {
     grid-template-columns: 1fr 1fr;
     @apply grid gap-8;
 }
+
+.selected-team-section-rights {
+    @apply flex flex-col gap-8;
+}

@@ -34,7 +34,7 @@ let ProfileView = class ProfileView extends ViewLayout {
         username: '',
         role: '',
         email: '',
-        rights: {},
+        rights: { _id: '' },
         about: '',
         avatar: '',
     };
@@ -413,6 +413,7 @@ let ProfileView = class ProfileView extends ViewLayout {
         }
     }
     #renderTeamSection() {
+        const { _id, ...rights } = this.user.rights;
         return html `<div class="team-section">
             <div>
                 <div>
@@ -460,9 +461,20 @@ let ProfileView = class ProfileView extends ViewLayout {
                         <p>${this.user.role}</p>
                     </div>
                 </div>
+
                 <div>
                     <p class="text-gray-600">${capitalize(msg('about'))}</p>
                     <p>${this.user.about}</p>
+                </div>
+                <sl-divider style="--width: 2px;"></sl-divider>
+                <div>
+                    <p class="text-xl">${msg('rights')}</p>
+                    ${Object.entries(rights).map(([key, value]) => {
+            return html `<div class="selected-team-section-rights">
+                            <p>${key}</p>
+                            <p>${value}</p>
+                        </div>`;
+        })}
                 </div>
             </div>
         </div>`;

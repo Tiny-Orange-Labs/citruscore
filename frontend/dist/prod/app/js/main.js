@@ -3785,6 +3785,13 @@ function Pn(t){return t+.5|0}En=function(t,e,i,s){var o,n=arguments.length,r=n<3
                     <p class="text-gray-600">${Sn($n("about"))}</p>
                     <p>${this.user.about}</p>
                 </div>
+                <div>
+                    <p>${$n("rights")}</p>
+                    ${Object.entries(this.user.rights).map((([t,e])=>io`<div>
+                            <p>${t}</p>
+                            <p>${e}</p>
+                        </div>`))}
+                </div>
             </div>
         </div>`}#r(){const t=fetch("/me",{method:"GET"}).then((t=>t.json()));return[io`<sl-tab-group @sl-tab-show="${this.#k}">
             <sl-tab slot="nav" panel="account">${Sn($n("account"))}</sl-tab>
