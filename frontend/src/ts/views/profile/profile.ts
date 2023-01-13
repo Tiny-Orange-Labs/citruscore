@@ -24,6 +24,7 @@ type Member = {
     role: string;
     email: string;
     rights: {
+        _id: string;
         [key: string]: boolean | string;
     };
     about: string;
@@ -59,7 +60,7 @@ export default class ProfileView extends ViewLayout {
                 username: 'loading…',
                 role: 'loading…',
                 email: '',
-                rights: {},
+                rights: { _id: '' },
                 about: '',
                 avatar: '',
             },
@@ -527,6 +528,18 @@ export default class ProfileView extends ViewLayout {
                         .replace('{{2}}', this.team.name)}
                 </h2>
                 <sl-divider style="--width: 2px;"></sl-divider>
+                <div>
+                    <p class="text-xl">${capitalize(msg('rights'))}</p>
+
+                    ${Object.entries(rights).map(([key, value]) => {
+                        console.log(value);
+                        const slSwitch = value ? html`<sl-switch checked></sl-switch>` : html`<sl-switch></sl-switch>`;
+                        return html`<div class="selected-team-section-rights">
+                            <div>${key} ${slSwitch}</div>
+                        </div>`;
+                    })}
+                </div>
+                <sl-divider style="--width: 2px;"></sl-divider>
                 <div class="selected-team-section-stats">
                     <div>
                         <p class="text-gray-600">${msg('name')}</p>
@@ -534,7 +547,7 @@ export default class ProfileView extends ViewLayout {
                     </div>
                     <div>
                         <p class="text-gray-600">${msg('Email address')}</p>
-                        <p>${this.user.email}</p>
+                        <a href="mailto:${this.user.email}">${this.user.email}</a>
                     </div>
                     <div>
                         <p class="text-gray-600">${capitalize(msg('role'))}</p>
@@ -546,16 +559,7 @@ export default class ProfileView extends ViewLayout {
                     <p class="text-gray-600">${capitalize(msg('about'))}</p>
                     <p>${this.user.about}</p>
                 </div>
-                <sl-divider style="--width: 2px;"></sl-divider>
-                <div>
-                    <p class="text-xl">${msg('rights')}</p>
-                    ${Object.entries(rights).map(([key, value]) => {
-                        return html`<div class="selected-team-section-rights">
-                            <p>${key}</p>
-                            <p>${value}</p>
-                        </div>`;
-                    })}
-                </div>
+                <br />
             </div>
         </div>`;
     }

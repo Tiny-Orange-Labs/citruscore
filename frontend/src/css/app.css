@@ -73,7 +73,7 @@
 }
 
 .view-profile {
-    @apply grid opacity-60 cursor-pointer hover:text-primarylight 
+    @apply grid opacity-60 cursor-pointer select-none hover:text-primarylight 
          dark:hover:text-primarylight-dark;
 }
 
@@ -86,7 +86,7 @@
 }
 
 .view {
-    @apply w-full h-full block bg-primarybg;
+    @apply px-12 w-full h-screen block bg-primarybg overflow-auto md:overflow-hidden;
 }
 
 .view[active='false'] {
@@ -98,19 +98,15 @@
 }
 
 .view-container {
-    @apply h-full p-12 pt-0 flex flex-col;
+    @apply flex flex-col;
 }
 
 .view-content {
-    @apply grid h-full gap-4;
+    @apply grid  gap-4;
 }
 
 .view-headline {
     @apply mt-4 mb-4 text-4xl;
-}
-
-.view-row {
-    @apply h-full;
 }
 
 .graph-cards {
@@ -133,7 +129,7 @@ sl-divider {
 
 .team-section {
     grid-template-columns: 300px 600px;
-    @apply grid gap-8;
+    @apply grid gap-8 md:h-[calc(100vh_-_176px)] overflow-hidden;
 }
 
 .team-member {
@@ -145,7 +141,7 @@ sl-divider {
 }
 
 .selected-team-section {
-    @apply flex flex-col gap-8;
+    @apply flex flex-col gap-8 h-full overflow-y-scroll;
 }
 
 .selected-team-section-stats {

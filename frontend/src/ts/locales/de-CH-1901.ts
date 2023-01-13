@@ -41,6 +41,7 @@
 'sb00577c60b883eec': `klicken um neuen avatar hochzuladen`,
 'sb14a5c8515bf326c': `Neues Passwort muss zumindest einen Kleinbuchstaben enthalten`,
 'sb404880247c5f122': `Neues Passwort muss zumindest eine Zahl enthalten`,
+'sb8d7e19cf86bd082': `rechte`,
 'sb9bd4f5a3810b77e': `Es ist etwas falsch gelaufen`,
 'sbb8f299ccf033beb': `analyse`,
 'sc4bcadba8e631b86': `name`,
@@ -54,6 +55,5 @@
 'sf1992e3514447d4d': `Änderungen gespeichert`,
 'sfa23d9ef19afc32c': `team`,
 'sfe2dbf7c7b16633c': `Neues Passwort darf keine leerzeichen enthalten`,
-'sb8d7e19cf86bd082': `rights`,
     };
   
