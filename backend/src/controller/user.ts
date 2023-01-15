@@ -2,6 +2,8 @@ import fs from 'fs/promises';
 import { userModel, UserType } from '../models/user';
 import sendEmail from '../utilities/sendEmail';
 import { logout } from './auth';
+import avatarSizes from '../data/shared/avatarSizes';
+import sharp from 'sharp';
 
 export async function getMe(request: any): Promise<UserType> {
     const username: string = request.state['log-cookie'].username;
@@ -46,17 +48,28 @@ export async function setUser(request: any) {
 export async function uploadAvatar(request: any) {
     const user = await getMe(request);
     const dir = `./backend/uploads/user/img/user/${user._id}/avatar/`;
-    const path = `${dir}avatar.jpeg`;
-    const avatar = `./user/img/user/${user._id}/avatar/avatar.jpeg`;
-
+    const avatar = `./user/img/user/${user._id}/avatar/`;
+    const uri = request.payload.data.file.split(';base64,').pop();
+    const buffer = Buffer.from(uri, 'base64');
     await userModel.updateOne({ username: user?.username }, { avatar });
     await fs.mkdir(dir, { recursive: true });
-    await fs.writeFile(
-        path,
-        request.payload.data.file.replace(`data:${request.payload.data.type};base64,`, ''),
-        'base64',
-    );
-    console.log(path);
+
+    try {
+        await sharp(buffer)
+            .webp({ lossless: true })
+            .resize({ width: avatarSizes.large })
+            .toFile(`${dir}avatar_large.webp`);
+        await sharp(buffer)
+            .webp({ lossless: true })
+            .resize({ width: avatarSizes.medium })
+            .toFile(`${dir}avatar_medium.webp`);
+        await sharp(buffer)
+            .webp({ lossless: true })
+            .resize({ width: avatarSizes.small })
+            .toFile(`${dir}avatar_small.webp`);
+    } catch (error) {
+        console.log(error);
+    }
 
     return { avatar };
 }

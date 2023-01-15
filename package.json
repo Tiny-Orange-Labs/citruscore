@@ -2,10 +2,11 @@
     "name": "log",
     "version": "0.0.1",
     "scripts": {
+        "copy-data": "cp -r ./frontend/src/ts/data/shared/* ./backend/src/data/shared/",
         "insert-dev-data": "node _build/insert_data.mjs",
         "build-frontend-ts": "tsc --project frontend/tsconfig.json",
         "rename-js-to-mjs": "find ./backend/dist/ -name \"*.js\" -exec bash -c 'mv \"$1\" \"${1%.js}\".mjs' - '{}' \\;",
-        "build-backend-ts": "tsc --project backend/tsconfig.json && npm run rename-js-to-mjs",
+        "build-backend-ts": "npm run copy-data && tsc --project backend/tsconfig.json && npm run rename-js-to-mjs",
         "build-ts": "npm run build-frontend-ts && npm run build-backend-ts",
         "build-css": "tailwindcss build -c tailwind.config.js -i ./frontend/src/css/app.css -o ./frontend/dist/dev/app/css/output.css --minify && tailwindcss -i ./frontend/src/css/login.css -o ./frontend/dist/dev/app/css/login.css --minify",
         "build-rollup": "rollup -c ./frontend/rollup.config.mjs",
@@ -46,6 +47,7 @@
         "@types/hapi": "^18.0.7",
         "@types/hapi__cookie": "^12.0.1",
         "@types/hapi__inert": "^5.2.3",
+        "@types/sharp": "^0.31.1",
         "@web/dev-server-esbuild": "^0.3.3",
         "@web/test-runner": "^0.15.0",
         "@web/test-runner-playwright": "^0.9.0",
@@ -72,6 +74,7 @@
         "dotenv": "^16.0.3",
         "hapi-rate-limitor": "^3.1.2",
         "mongoose": "^6.8.1",
-        "redis": "^4.5.1"
+        "redis": "^4.5.1",
+        "sharp": "^0.31.3"
     }
 }

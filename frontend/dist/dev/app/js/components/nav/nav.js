@@ -85,7 +85,10 @@ let MainNav = class MainNav extends LitElement {
                 name="profile"
                 @click="${this.#clickOnNav}"
                 image="${until(content.then(function (data) {
-            return data.avatar || imgs.avatar;
+            if (data.avatar) {
+                return `${data.avatar}avatar_small.webp`;
+            }
+            return imgs.avatar;
         }), imgs.avatar)}"
                 label="${msg('Your profile avatar')}"
             ></sl-avatar>

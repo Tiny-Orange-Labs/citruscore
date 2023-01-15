@@ -1,6 +1,6 @@
 import { html } from 'lit';
-import { customElement, property, state } from 'lit/decorators.js';
 import { msg, localized } from '@lit/localize';
+import { customElement, property, state } from 'lit/decorators.js';
 import ViewLayout from '../view';
 import header from '../../data/header';
 import { setLocale } from '../../utilities/language/language';
@@ -12,6 +12,7 @@ import toast from '../../utilities/toast/toast';
 import { repeat } from 'lit/directives/repeat.js';
 import SlInput from '@shoelace-style/shoelace/dist/components/input/input';
 import { imgs } from '../../data/fallbacks';
+import avatarSize from '../../data/shared/avatarSizes';
 
 const passwordMinLength = 8;
 const passwordMaxLength = 35;
@@ -284,6 +285,8 @@ export default class ProfileView extends ViewLayout {
             }),
         });
         const json = await request.json();
+
+        return toast('success', msg('avatar'), msg('Avatar changed successfully, refresh to see changes'));
     }
 
     async #changeAvatarEvent(e: { target: { files: any[]; result: any } }) {
@@ -296,6 +299,10 @@ export default class ProfileView extends ViewLayout {
             imgTag.src = url;
 
             imgTag.onload = () => {
+                if (imgTag.width < avatarSize.large || imgTag.height < avatarSize.large) {
+                    return toast('warning', msg('avatar'), msg('Image is too small, min 224x224'));
+                }
+
                 this.#sendAvatar(file, imgTag, event);
                 URL.revokeObjectURL(url);
             };
@@ -366,7 +373,11 @@ export default class ProfileView extends ViewLayout {
                             style="--size: 14rem;"
                             image="${until(
                                 content.then(function (data) {
-                                    return data.avatar || imgs.avatar;
+                                    if (data.avatar) {
+                                        return `${data.avatar}avatar_large.webp`;
+                                    }
+
+                                    return imgs.avatar;
                                 }),
                                 imgs.avatar,
                             )}"
@@ -508,7 +519,9 @@ export default class ProfileView extends ViewLayout {
                                     data-id="${member._id}"
                                     tabindex="0"
                                 >
-                                    <sl-avatar image="${member.avatar || imgs.avatar}"></sl-avatar>
+                                    <sl-avatar
+                                        image="${member.avatar ? `${member.avatar}avatar_small.webp` : imgs.avatar}"
+                                    ></sl-avatar>
                                     <div>
                                         <p>${member.username}</p>
                                         <p>${msg('role')}: ${member.role}</p>
@@ -520,7 +533,10 @@ export default class ProfileView extends ViewLayout {
                 </div>
             </div>
             <div class="selected-team-section">
-                <sl-avatar style="--size: 8rem;" image="${this.user.avatar || imgs.avatar}"></sl-avatar>
+                <sl-avatar
+                    style="--size: 8rem;"
+                    image="${this.user.avatar ? `${this.user.avatar}avatar_medium.webp` : imgs.avatar}"
+                ></sl-avatar>
 
                 <h2 class="text-2xl font-bold">
                     ${msg('{{1}} member of {{2}}')

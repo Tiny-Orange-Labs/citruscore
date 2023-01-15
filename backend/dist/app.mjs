@@ -1,7 +1,7 @@
 import Hapi from '@hapi/hapi';
-import './utilities/init_env';
-import './utilities/init_mongo';
-import './utilities/init_email';
+import './utilities/config/init_env';
+import './utilities/config/init_mongo';
+import './utilities/config/init_email';
 import initRateLimit from './utilities/config/init_ratelimiting';
 import host from './staticfiles/app';
 import auth from './routes/auth';

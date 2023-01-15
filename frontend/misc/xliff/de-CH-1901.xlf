@@ -186,6 +186,15 @@
   <source>team</source>
   <target>team</target>
 </trans-unit>
+<trans-unit id="sdfe2526362bc3224">
+  <source>avatar</source>
+</trans-unit>
+<trans-unit id="s9af4247d2770e0c1">
+  <source>Image is too small, min 224x224</source>
+</trans-unit>
+<trans-unit id="s38431e2477552a47">
+  <source>Avatar changed successfully, refresh to see changes</source>
+</trans-unit>
 </body>
 </file>
 </xliff>

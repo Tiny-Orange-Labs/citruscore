@@ -1,3 +1,211 @@
+var __defProp = Object.defineProperty;
+var __defProps = Object.defineProperties;
+var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
+var __getOwnPropDescs = Object.getOwnPropertyDescriptors;
+var __getOwnPropSymbols = Object.getOwnPropertySymbols;
+var __hasOwnProp = Object.prototype.hasOwnProperty;
+var __propIsEnum = Object.prototype.propertyIsEnumerable;
+var __defNormalProp = (obj, key, value) => key in obj ? __defProp(obj, key, { enumerable: true, configurable: true, writable: true, value }) : obj[key] = value;
+var __spreadValues = (a, b) => {
+  for (var prop in b || (b = {}))
+    if (__hasOwnProp.call(b, prop))
+      __defNormalProp(a, prop, b[prop]);
+  if (__getOwnPropSymbols)
+    for (var prop of __getOwnPropSymbols(b)) {
+      if (__propIsEnum.call(b, prop))
+        __defNormalProp(a, prop, b[prop]);
+    }
+  return a;
+};
+var __spreadProps = (a, b) => __defProps(a, __getOwnPropDescs(b));
+var __objRest = (source, exclude) => {
+  var target = {};
+  for (var prop in source)
+    if (__hasOwnProp.call(source, prop) && exclude.indexOf(prop) < 0)
+      target[prop] = source[prop];
+  if (source != null && __getOwnPropSymbols)
+    for (var prop of __getOwnPropSymbols(source)) {
+      if (exclude.indexOf(prop) < 0 && __propIsEnum.call(source, prop))
+        target[prop] = source[prop];
+    }
+  return target;
+};
+var __decorateClass = (decorators, target, key, kind) => {
+  var result = kind > 1 ? void 0 : kind ? __getOwnPropDesc(target, key) : target;
+  for (var i = decorators.length - 1, decorator; i >= 0; i--)
+    if (decorator = decorators[i])
+      result = (kind ? decorator(target, key, result) : decorator(result)) || result;
+  if (kind && result)
+    __defProp(target, key, result);
+  return result;
+};
+
+// src/internal/form.ts
+var formCollections = /* @__PURE__ */ new WeakMap();
+var userInteractedControls = /* @__PURE__ */ new WeakMap();
+var reportValidityOverloads = /* @__PURE__ */ new WeakMap();
+var FormSubmitController = class {
+  constructor(host, options) {
+    (this.host = host).addController(this);
+    this.options = __spreadValues({
+      form: (input) => input.closest("form"),
+      name: (input) => input.name,
+      value: (input) => input.value,
+      defaultValue: (input) => input.defaultValue,
+      disabled: (input) => {
+        var _a;
+        return (_a = input.disabled) != null ? _a : false;
+      },
+      reportValidity: (input) => typeof input.reportValidity === "function" ? input.reportValidity() : true,
+      setValue: (input, value) => input.value = value
+    }, options);
+    this.handleFormData = this.handleFormData.bind(this);
+    this.handleFormSubmit = this.handleFormSubmit.bind(this);
+    this.handleFormReset = this.handleFormReset.bind(this);
+    this.reportFormValidity = this.reportFormValidity.bind(this);
+    this.handleUserInput = this.handleUserInput.bind(this);
+  }
+  hostConnected() {
+    this.form = this.options.form(this.host);
+    if (this.form) {
+      if (formCollections.has(this.form)) {
+        formCollections.get(this.form).add(this.host);
+      } else {
+        formCollections.set(this.form, /* @__PURE__ */ new Set([this.host]));
+      }
+      this.form.addEventListener("formdata", this.handleFormData);
+      this.form.addEventListener("submit", this.handleFormSubmit);
+      this.form.addEventListener("reset", this.handleFormReset);
+      if (!reportValidityOverloads.has(this.form)) {
+        reportValidityOverloads.set(this.form, this.form.reportValidity);
+        this.form.reportValidity = () => this.reportFormValidity();
+      }
+    }
+    this.host.addEventListener("sl-input", this.handleUserInput);
+  }
+  hostDisconnected() {
+    var _a;
+    if (this.form) {
+      (_a = formCollections.get(this.form)) == null ? void 0 : _a.delete(this.host);
+      this.form.removeEventListener("formdata", this.handleFormData);
+      this.form.removeEventListener("submit", this.handleFormSubmit);
+      this.form.removeEventListener("reset", this.handleFormReset);
+      if (reportValidityOverloads.has(this.form)) {
+        this.form.reportValidity = reportValidityOverloads.get(this.form);
+        reportValidityOverloads.delete(this.form);
+      }
+      this.form = void 0;
+    }
+    this.host.removeEventListener("sl-input", this.handleUserInput);
+  }
+  hostUpdated() {
+    var _a;
+    const host = this.host;
+    const hasInteracted = Boolean(userInteractedControls.get(host));
+    const invalid = Boolean(host.invalid);
+    const required = Boolean(host.required);
+    if ((_a = this.form) == null ? void 0 : _a.noValidate) {
+      host.removeAttribute("data-required");
+      host.removeAttribute("data-optional");
+      host.removeAttribute("data-invalid");
+      host.removeAttribute("data-valid");
+      host.removeAttribute("data-user-invalid");
+      host.removeAttribute("data-user-valid");
+    } else {
+      host.toggleAttribute("data-required", required);
+      host.toggleAttribute("data-optional", !required);
+      host.toggleAttribute("data-invalid", invalid);
+      host.toggleAttribute("data-valid", !invalid);
+      host.toggleAttribute("data-user-invalid", invalid && hasInteracted);
+      host.toggleAttribute("data-user-valid", !invalid && hasInteracted);
+    }
+  }
+  handleFormData(event) {
+    const disabled = this.options.disabled(this.host);
+    const name = this.options.name(this.host);
+    const value = this.options.value(this.host);
+    const isButton = this.host.tagName.toLowerCase() === "sl-button";
+    if (!disabled && !isButton && typeof name === "string" && name.length > 0 && typeof value !== "undefined") {
+      if (Array.isArray(value)) {
+        value.forEach((val) => {
+          event.formData.append(name, val.toString());
+        });
+      } else {
+        event.formData.append(name, value.toString());
+      }
+    }
+  }
+  handleFormSubmit(event) {
+    var _a;
+    const disabled = this.options.disabled(this.host);
+    const reportValidity = this.options.reportValidity;
+    if (this.form && !this.form.noValidate) {
+      (_a = formCollections.get(this.form)) == null ? void 0 : _a.forEach((control) => {
+        this.setUserInteracted(control, true);
+      });
+    }
+    if (this.form && !this.form.noValidate && !disabled && !reportValidity(this.host)) {
+      event.preventDefault();
+      event.stopImmediatePropagation();
+    }
+  }
+  handleFormReset() {
+    this.options.setValue(this.host, this.options.defaultValue(this.host));
+    this.setUserInteracted(this.host, false);
+  }
+  async handleUserInput() {
+    await this.host.updateComplete;
+    this.setUserInteracted(this.host, true);
+  }
+  reportFormValidity() {
+    if (this.form && !this.form.noValidate) {
+      const elements = this.form.querySelectorAll("*");
+      for (const element of elements) {
+        if (typeof element.reportValidity === "function") {
+          if (!element.reportValidity()) {
+            return false;
+          }
+        }
+      }
+    }
+    return true;
+  }
+  setUserInteracted(el, hasInteracted) {
+    userInteractedControls.set(el, hasInteracted);
+    el.requestUpdate();
+  }
+  doAction(type, invoker) {
+    if (this.form) {
+      const button = document.createElement("button");
+      button.type = type;
+      button.style.position = "absolute";
+      button.style.width = "0";
+      button.style.height = "0";
+      button.style.clipPath = "inset(50%)";
+      button.style.overflow = "hidden";
+      button.style.whiteSpace = "nowrap";
+      if (invoker) {
+        button.name = invoker.name;
+        button.value = invoker.value;
+        ["formaction", "formenctype", "formmethod", "formnovalidate", "formtarget"].forEach((attr) => {
+          if (invoker.hasAttribute(attr)) {
+            button.setAttribute(attr, invoker.getAttribute(attr));
+          }
+        });
+      }
+      this.form.append(button);
+      button.click();
+      button.remove();
+    }
+  }
+  reset(invoker) {
+    this.doAction("reset", invoker);
+  }
+  submit(invoker) {
+    this.doAction("submit", invoker);
+  }
+};
+
 // node_modules/@lit/reactive-element/css-tag.js
 var t$7 = window;
 var e$a = t$7.ShadowRoot && (void 0 === t$7.ShadyCSS || t$7.ShadyCSS.nativeShadow) && "adoptedStyleSheets" in Document.prototype && "replace" in CSSStyleSheet.prototype;
@@ -1199,214 +1407,6 @@ var button_styles_default = i$7`
   }
 `;
 
-var __defProp = Object.defineProperty;
-var __defProps = Object.defineProperties;
-var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
-var __getOwnPropDescs = Object.getOwnPropertyDescriptors;
-var __getOwnPropSymbols = Object.getOwnPropertySymbols;
-var __hasOwnProp = Object.prototype.hasOwnProperty;
-var __propIsEnum = Object.prototype.propertyIsEnumerable;
-var __defNormalProp = (obj, key, value) => key in obj ? __defProp(obj, key, { enumerable: true, configurable: true, writable: true, value }) : obj[key] = value;
-var __spreadValues = (a, b) => {
-  for (var prop in b || (b = {}))
-    if (__hasOwnProp.call(b, prop))
-      __defNormalProp(a, prop, b[prop]);
-  if (__getOwnPropSymbols)
-    for (var prop of __getOwnPropSymbols(b)) {
-      if (__propIsEnum.call(b, prop))
-        __defNormalProp(a, prop, b[prop]);
-    }
-  return a;
-};
-var __spreadProps = (a, b) => __defProps(a, __getOwnPropDescs(b));
-var __objRest = (source, exclude) => {
-  var target = {};
-  for (var prop in source)
-    if (__hasOwnProp.call(source, prop) && exclude.indexOf(prop) < 0)
-      target[prop] = source[prop];
-  if (source != null && __getOwnPropSymbols)
-    for (var prop of __getOwnPropSymbols(source)) {
-      if (exclude.indexOf(prop) < 0 && __propIsEnum.call(source, prop))
-        target[prop] = source[prop];
-    }
-  return target;
-};
-var __decorateClass = (decorators, target, key, kind) => {
-  var result = kind > 1 ? void 0 : kind ? __getOwnPropDesc(target, key) : target;
-  for (var i = decorators.length - 1, decorator; i >= 0; i--)
-    if (decorator = decorators[i])
-      result = (kind ? decorator(target, key, result) : decorator(result)) || result;
-  if (kind && result)
-    __defProp(target, key, result);
-  return result;
-};
-
-// src/internal/form.ts
-var formCollections = /* @__PURE__ */ new WeakMap();
-var userInteractedControls = /* @__PURE__ */ new WeakMap();
-var reportValidityOverloads = /* @__PURE__ */ new WeakMap();
-var FormSubmitController = class {
-  constructor(host, options) {
-    (this.host = host).addController(this);
-    this.options = __spreadValues({
-      form: (input) => input.closest("form"),
-      name: (input) => input.name,
-      value: (input) => input.value,
-      defaultValue: (input) => input.defaultValue,
-      disabled: (input) => {
-        var _a;
-        return (_a = input.disabled) != null ? _a : false;
-      },
-      reportValidity: (input) => typeof input.reportValidity === "function" ? input.reportValidity() : true,
-      setValue: (input, value) => input.value = value
-    }, options);
-    this.handleFormData = this.handleFormData.bind(this);
-    this.handleFormSubmit = this.handleFormSubmit.bind(this);
-    this.handleFormReset = this.handleFormReset.bind(this);
-    this.reportFormValidity = this.reportFormValidity.bind(this);
-    this.handleUserInput = this.handleUserInput.bind(this);
-  }
-  hostConnected() {
-    this.form = this.options.form(this.host);
-    if (this.form) {
-      if (formCollections.has(this.form)) {
-        formCollections.get(this.form).add(this.host);
-      } else {
-        formCollections.set(this.form, /* @__PURE__ */ new Set([this.host]));
-      }
-      this.form.addEventListener("formdata", this.handleFormData);
-      this.form.addEventListener("submit", this.handleFormSubmit);
-      this.form.addEventListener("reset", this.handleFormReset);
-      if (!reportValidityOverloads.has(this.form)) {
-        reportValidityOverloads.set(this.form, this.form.reportValidity);
-        this.form.reportValidity = () => this.reportFormValidity();
-      }
-    }
-    this.host.addEventListener("sl-input", this.handleUserInput);
-  }
-  hostDisconnected() {
-    var _a;
-    if (this.form) {
-      (_a = formCollections.get(this.form)) == null ? void 0 : _a.delete(this.host);
-      this.form.removeEventListener("formdata", this.handleFormData);
-      this.form.removeEventListener("submit", this.handleFormSubmit);
-      this.form.removeEventListener("reset", this.handleFormReset);
-      if (reportValidityOverloads.has(this.form)) {
-        this.form.reportValidity = reportValidityOverloads.get(this.form);
-        reportValidityOverloads.delete(this.form);
-      }
-      this.form = void 0;
-    }
-    this.host.removeEventListener("sl-input", this.handleUserInput);
-  }
-  hostUpdated() {
-    var _a;
-    const host = this.host;
-    const hasInteracted = Boolean(userInteractedControls.get(host));
-    const invalid = Boolean(host.invalid);
-    const required = Boolean(host.required);
-    if ((_a = this.form) == null ? void 0 : _a.noValidate) {
-      host.removeAttribute("data-required");
-      host.removeAttribute("data-optional");
-      host.removeAttribute("data-invalid");
-      host.removeAttribute("data-valid");
-      host.removeAttribute("data-user-invalid");
-      host.removeAttribute("data-user-valid");
-    } else {
-      host.toggleAttribute("data-required", required);
-      host.toggleAttribute("data-optional", !required);
-      host.toggleAttribute("data-invalid", invalid);
-      host.toggleAttribute("data-valid", !invalid);
-      host.toggleAttribute("data-user-invalid", invalid && hasInteracted);
-      host.toggleAttribute("data-user-valid", !invalid && hasInteracted);
-    }
-  }
-  handleFormData(event) {
-    const disabled = this.options.disabled(this.host);
-    const name = this.options.name(this.host);
-    const value = this.options.value(this.host);
-    const isButton = this.host.tagName.toLowerCase() === "sl-button";
-    if (!disabled && !isButton && typeof name === "string" && typeof value !== "undefined") {
-      if (Array.isArray(value)) {
-        value.forEach((val) => {
-          event.formData.append(name, val.toString());
-        });
-      } else {
-        event.formData.append(name, value.toString());
-      }
-    }
-  }
-  handleFormSubmit(event) {
-    var _a;
-    const disabled = this.options.disabled(this.host);
-    const reportValidity = this.options.reportValidity;
-    if (this.form && !this.form.noValidate) {
-      (_a = formCollections.get(this.form)) == null ? void 0 : _a.forEach((control) => {
-        this.setUserInteracted(control, true);
-      });
-    }
-    if (this.form && !this.form.noValidate && !disabled && !reportValidity(this.host)) {
-      event.preventDefault();
-      event.stopImmediatePropagation();
-    }
-  }
-  handleFormReset() {
-    this.options.setValue(this.host, this.options.defaultValue(this.host));
-    this.setUserInteracted(this.host, false);
-  }
-  async handleUserInput() {
-    await this.host.updateComplete;
-    this.setUserInteracted(this.host, true);
-  }
-  reportFormValidity() {
-    if (this.form && !this.form.noValidate) {
-      const elements = this.form.querySelectorAll("*");
-      for (const element of elements) {
-        if (typeof element.reportValidity === "function") {
-          if (!element.reportValidity()) {
-            return false;
-          }
-        }
-      }
-    }
-    return true;
-  }
-  setUserInteracted(el, hasInteracted) {
-    userInteractedControls.set(el, hasInteracted);
-    el.requestUpdate();
-  }
-  doAction(type, invoker) {
-    if (this.form) {
-      const button = document.createElement("button");
-      button.type = type;
-      button.style.position = "absolute";
-      button.style.width = "0";
-      button.style.height = "0";
-      button.style.clipPath = "inset(50%)";
-      button.style.overflow = "hidden";
-      button.style.whiteSpace = "nowrap";
-      if (invoker) {
-        button.name = invoker.name;
-        button.value = invoker.value;
-        ["formaction", "formenctype", "formmethod", "formnovalidate", "formtarget"].forEach((attr) => {
-          if (invoker.hasAttribute(attr)) {
-            button.setAttribute(attr, invoker.getAttribute(attr));
-          }
-        });
-      }
-      this.form.append(button);
-      button.click();
-      button.remove();
-    }
-  }
-  reset(invoker) {
-    this.doAction("reset", invoker);
-  }
-  submit(invoker) {
-    this.doAction("submit", invoker);
-  }
-};
-
 // node_modules/lit-html/static.js
 var e$9 = Symbol.for("");
 var l$7 = (t) => {
@@ -1510,7 +1510,7 @@ var LocalizeController$1 = class LocalizeController {
       term = fallback[key];
     } else {
       console.error(`No translation found for: ${String(key)}`);
-      return key;
+      return String(key);
     }
     if (typeof term === "function") {
       return term(...args);
@@ -1542,6 +1542,13 @@ var translation = {
   clearEntry: "Clear entry",
   close: "Close",
   copy: "Copy",
+  numOptionsSelected: (num) => {
+    if (num === 0)
+      return "No options selected";
+    if (num === 1)
+      return "1 option selected";
+    return `${num} options selected`;
+  },
   currentValue: "Current value",
   hidePassword: "Hide password",
   loading: "Loading",
@@ -1839,6 +1846,39 @@ var SlButton = class extends ShoelaceElement {
       this.invalid = !this.button.checkValidity();
     }
   }
+  handleBlur() {
+    this.hasFocus = false;
+    this.emit("sl-blur");
+  }
+  handleFocus() {
+    this.hasFocus = true;
+    this.emit("sl-focus");
+  }
+  handleClick(event) {
+    if (this.disabled || this.loading) {
+      event.preventDefault();
+      event.stopPropagation();
+      return;
+    }
+    if (this.type === "submit") {
+      this.formSubmitController.submit(this);
+    }
+    if (this.type === "reset") {
+      this.formSubmitController.reset(this);
+    }
+  }
+  isButton() {
+    return this.href ? false : true;
+  }
+  isLink() {
+    return this.href ? true : false;
+  }
+  handleDisabledChange() {
+    if (this.isButton()) {
+      this.button.disabled = this.disabled;
+      this.invalid = !this.button.checkValidity();
+    }
+  }
   click() {
     this.button.click();
   }
@@ -1865,39 +1905,6 @@ var SlButton = class extends ShoelaceElement {
       this.button.setCustomValidity(message);
       this.invalid = !this.button.checkValidity();
     }
-  }
-  handleBlur() {
-    this.hasFocus = false;
-    this.emit("sl-blur");
-  }
-  handleFocus() {
-    this.hasFocus = true;
-    this.emit("sl-focus");
-  }
-  handleClick(event) {
-    if (this.disabled || this.loading) {
-      event.preventDefault();
-      event.stopPropagation();
-      return;
-    }
-    if (this.type === "submit") {
-      this.formSubmitController.submit(this);
-    }
-    if (this.type === "reset") {
-      this.formSubmitController.reset(this);
-    }
-  }
-  handleDisabledChange() {
-    if (this.isButton()) {
-      this.button.disabled = this.disabled;
-      this.invalid = !this.button.checkValidity();
-    }
-  }
-  isButton() {
-    return this.href ? false : true;
-  }
-  isLink() {
-    return this.href ? true : false;
   }
   render() {
     const isLink = this.isLink();
@@ -2393,9 +2400,6 @@ var SlIcon = class extends ShoelaceElement {
     }
     return this.src;
   }
-  redraw() {
-    this.setIcon();
-  }
   handleLabelChange() {
     const hasLabel = typeof this.label === "string" && this.label.length > 0;
     if (hasLabel) {
@@ -2441,9 +2445,6 @@ var SlIcon = class extends ShoelaceElement {
     } else if (this.svg.length > 0) {
       this.svg = "";
     }
-  }
-  handleChange() {
-    this.setIcon();
   }
   render() {
     return y$1` ${o2$1(this.svg)} `;
@@ -2502,7 +2503,7 @@ var icon_button_styles_default = i$7`
     color: inherit;
     padding: var(--sl-spacing-x-small);
     cursor: pointer;
-    transition: var(--sl-transition-medium) color;
+    transition: var(--sl-transition-x-fast) color;
     -webkit-appearance: none;
   }
 
@@ -2542,15 +2543,6 @@ var SlIconButton = class extends ShoelaceElement {
     this.label = "";
     this.disabled = false;
   }
-  click() {
-    this.button.click();
-  }
-  focus(options) {
-    this.button.focus(options);
-  }
-  blur() {
-    this.button.blur();
-  }
   handleBlur() {
     this.hasFocus = false;
     this.emit("sl-blur");
@@ -2564,6 +2556,15 @@ var SlIconButton = class extends ShoelaceElement {
       event.preventDefault();
       event.stopPropagation();
     }
+  }
+  click() {
+    this.button.click();
+  }
+  focus(options) {
+    this.button.focus(options);
+  }
+  blur() {
+    this.button.blur();
   }
   render() {
     const isLink = this.href ? true : false;
@@ -2603,11 +2604,11 @@ var SlIconButton = class extends ShoelaceElement {
 };
 SlIconButton.styles = icon_button_styles_default;
 __decorateClass([
-  t$5()
-], SlIconButton.prototype, "hasFocus", 2);
-__decorateClass([
   i2$2(".icon-button")
 ], SlIconButton.prototype, "button", 2);
+__decorateClass([
+  t$5()
+], SlIconButton.prototype, "hasFocus", 2);
 __decorateClass([
   e2$1()
 ], SlIconButton.prototype, "name", 2);
@@ -3063,21 +3064,21 @@ var SlInput = class extends ShoelaceElement {
     this.invalid = false;
     this.title = "";
     this.type = "text";
-    this.size = "medium";
     this.name = "";
     this.value = "";
     this.defaultValue = "";
+    this.size = "medium";
     this.filled = false;
     this.pill = false;
     this.label = "";
     this.helpText = "";
     this.clearable = false;
+    this.disabled = false;
+    this.placeholder = "";
+    this.readonly = false;
     this.passwordToggle = false;
     this.passwordVisible = false;
     this.noSpinButtons = false;
-    this.placeholder = "";
-    this.disabled = false;
-    this.readonly = false;
     this.required = false;
     this.spellcheck = true;
   }
@@ -3102,7 +3103,60 @@ var SlInput = class extends ShoelaceElement {
     this.value = input.value;
   }
   firstUpdated() {
-    this.invalid = !this.input.checkValidity();
+    this.invalid = !this.checkValidity();
+  }
+  handleBlur() {
+    this.hasFocus = false;
+    this.emit("sl-blur");
+  }
+  handleChange() {
+    this.value = this.input.value;
+    this.emit("sl-change");
+  }
+  handleClearClick(event) {
+    this.value = "";
+    this.emit("sl-clear");
+    this.emit("sl-input");
+    this.emit("sl-change");
+    this.input.focus();
+    event.stopPropagation();
+  }
+  handleFocus() {
+    this.hasFocus = true;
+    this.emit("sl-focus");
+  }
+  handleInput() {
+    this.value = this.input.value;
+    this.invalid = !this.checkValidity();
+    this.emit("sl-input");
+  }
+  handleInvalid() {
+    this.invalid = true;
+  }
+  handleKeyDown(event) {
+    const hasModifier = event.metaKey || event.ctrlKey || event.shiftKey || event.altKey;
+    if (event.key === "Enter" && !hasModifier) {
+      setTimeout(() => {
+        if (!event.defaultPrevented && !event.isComposing) {
+          this.formSubmitController.submit();
+        }
+      });
+    }
+  }
+  handlePasswordToggle() {
+    this.passwordVisible = !this.passwordVisible;
+  }
+  handleDisabledChange() {
+    this.input.disabled = this.disabled;
+    this.invalid = !this.checkValidity();
+  }
+  handleStepChange() {
+    this.input.step = String(this.step);
+    this.invalid = !this.checkValidity();
+  }
+  async handleValueChange() {
+    await this.updateComplete;
+    this.invalid = !this.checkValidity();
   }
   focus(options) {
     this.input.focus(options);
@@ -3147,59 +3201,7 @@ var SlInput = class extends ShoelaceElement {
   }
   setCustomValidity(message) {
     this.input.setCustomValidity(message);
-    this.invalid = !this.input.checkValidity();
-  }
-  handleBlur() {
-    this.hasFocus = false;
-    this.emit("sl-blur");
-  }
-  handleChange() {
-    this.value = this.input.value;
-    this.emit("sl-change");
-  }
-  handleClearClick(event) {
-    this.value = "";
-    this.emit("sl-clear");
-    this.emit("sl-input");
-    this.emit("sl-change");
-    this.input.focus();
-    event.stopPropagation();
-  }
-  handleDisabledChange() {
-    this.input.disabled = this.disabled;
-    this.invalid = !this.input.checkValidity();
-  }
-  handleStepChange() {
-    this.input.step = String(this.step);
-    this.invalid = !this.input.checkValidity();
-  }
-  handleFocus() {
-    this.hasFocus = true;
-    this.emit("sl-focus");
-  }
-  handleInput() {
-    this.value = this.input.value;
-    this.emit("sl-input");
-  }
-  handleInvalid() {
-    this.invalid = true;
-  }
-  handleKeyDown(event) {
-    const hasModifier = event.metaKey || event.ctrlKey || event.shiftKey || event.altKey;
-    if (event.key === "Enter" && !hasModifier) {
-      setTimeout(() => {
-        if (!event.defaultPrevented && !event.isComposing) {
-          this.formSubmitController.submit();
-        }
-      });
-    }
-  }
-  handlePasswordToggle() {
-    this.passwordVisible = !this.passwordVisible;
-  }
-  handleValueChange() {
-    this.input.value = this.value;
-    this.invalid = !this.input.checkValidity();
+    this.invalid = !this.checkValidity();
   }
   render() {
     const hasLabelSlot = this.hasSlotController.test("label");
@@ -3353,9 +3355,6 @@ __decorateClass([
   e2$1({ reflect: true })
 ], SlInput.prototype, "type", 2);
 __decorateClass([
-  e2$1({ reflect: true })
-], SlInput.prototype, "size", 2);
-__decorateClass([
   e2$1()
 ], SlInput.prototype, "name", 2);
 __decorateClass([
@@ -3364,6 +3363,9 @@ __decorateClass([
 __decorateClass([
   defaultValue()
 ], SlInput.prototype, "defaultValue", 2);
+__decorateClass([
+  e2$1({ reflect: true })
+], SlInput.prototype, "size", 2);
 __decorateClass([
   e2$1({ type: Boolean, reflect: true })
 ], SlInput.prototype, "filled", 2);
@@ -3380,6 +3382,15 @@ __decorateClass([
   e2$1({ type: Boolean })
 ], SlInput.prototype, "clearable", 2);
 __decorateClass([
+  e2$1({ type: Boolean, reflect: true })
+], SlInput.prototype, "disabled", 2);
+__decorateClass([
+  e2$1()
+], SlInput.prototype, "placeholder", 2);
+__decorateClass([
+  e2$1({ type: Boolean, reflect: true })
+], SlInput.prototype, "readonly", 2);
+__decorateClass([
   e2$1({ attribute: "password-toggle", type: Boolean })
 ], SlInput.prototype, "passwordToggle", 2);
 __decorateClass([
@@ -3389,14 +3400,11 @@ __decorateClass([
   e2$1({ attribute: "no-spin-buttons", type: Boolean })
 ], SlInput.prototype, "noSpinButtons", 2);
 __decorateClass([
+  e2$1({ type: Boolean, reflect: true })
+], SlInput.prototype, "required", 2);
+__decorateClass([
   e2$1()
-], SlInput.prototype, "placeholder", 2);
-__decorateClass([
-  e2$1({ type: Boolean, reflect: true })
-], SlInput.prototype, "disabled", 2);
-__decorateClass([
-  e2$1({ type: Boolean, reflect: true })
-], SlInput.prototype, "readonly", 2);
+], SlInput.prototype, "pattern", 2);
 __decorateClass([
   e2$1({ type: Number })
 ], SlInput.prototype, "minlength", 2);
@@ -3404,20 +3412,14 @@ __decorateClass([
   e2$1({ type: Number })
 ], SlInput.prototype, "maxlength", 2);
 __decorateClass([
-  e2$1()
+  e2$1({ type: Number })
 ], SlInput.prototype, "min", 2);
 __decorateClass([
-  e2$1()
+  e2$1({ type: Number })
 ], SlInput.prototype, "max", 2);
 __decorateClass([
   e2$1()
 ], SlInput.prototype, "step", 2);
-__decorateClass([
-  e2$1()
-], SlInput.prototype, "pattern", 2);
-__decorateClass([
-  e2$1({ type: Boolean, reflect: true })
-], SlInput.prototype, "required", 2);
 __decorateClass([
   e2$1()
 ], SlInput.prototype, "autocapitalize", 2);
@@ -3606,12 +3608,6 @@ var SlRating = class extends ShoelaceElement {
     this.disabled = false;
     this.getSymbol = () => '<sl-icon name="star-fill" library="system"></sl-icon>';
   }
-  focus(options) {
-    this.rating.focus(options);
-  }
-  blur() {
-    this.rating.blur();
-  }
   getValueFromMousePosition(event) {
     return this.getValueFromXCoordinate(event.clientX);
   }
@@ -3690,6 +3686,12 @@ var SlRating = class extends ShoelaceElement {
   roundToPrecision(numberToRound, precision = 0.5) {
     const multiplier = 1 / precision;
     return Math.ceil(numberToRound * multiplier) / multiplier;
+  }
+  focus(options) {
+    this.rating.focus(options);
+  }
+  blur() {
+    this.rating.blur();
   }
   render() {
     const isRtl = this.localize.dir() === "rtl";
@@ -3855,56 +3857,12 @@ var SlRadioGroup = class extends ShoelaceElement {
     this.value = "";
     this.required = false;
   }
-  handleValueChange() {
-    if (this.hasUpdated) {
-      this.updateCheckedRadio();
-    }
-  }
   connectedCallback() {
     super.connectedCallback();
     this.defaultValue = this.value;
   }
   firstUpdated() {
     this.invalid = !this.validity.valid;
-  }
-  checkValidity() {
-    return this.validity.valid;
-  }
-  setCustomValidity(message = "") {
-    this.customErrorMessage = message;
-    this.errorMessage = message;
-    if (!message) {
-      this.invalid = false;
-    } else {
-      this.invalid = true;
-      this.input.setCustomValidity(message);
-    }
-  }
-  get validity() {
-    const hasMissingData = !(this.value && this.required || !this.required);
-    const hasCustomError = this.customErrorMessage !== "";
-    return {
-      badInput: false,
-      customError: hasCustomError,
-      patternMismatch: false,
-      rangeOverflow: false,
-      rangeUnderflow: false,
-      stepMismatch: false,
-      tooLong: false,
-      tooShort: false,
-      typeMismatch: false,
-      valid: hasMissingData || hasCustomError ? false : true,
-      valueMissing: !hasMissingData
-    };
-  }
-  reportValidity() {
-    const validity = this.validity;
-    this.errorMessage = this.customErrorMessage || validity.valid ? "" : this.input.validationMessage;
-    this.invalid = !validity.valid;
-    if (!validity.valid) {
-      this.showNativeErrorMessage();
-    }
-    return !this.invalid;
   }
   getAllRadios() {
     return [...this.querySelectorAll("sl-radio, sl-radio-button")];
@@ -3996,6 +3954,50 @@ var SlRadioGroup = class extends ShoelaceElement {
     const radios = this.getAllRadios();
     radios.forEach((radio) => radio.checked = radio.value === this.value);
     this.invalid = !this.validity.valid;
+  }
+  handleValueChange() {
+    if (this.hasUpdated) {
+      this.updateCheckedRadio();
+    }
+  }
+  checkValidity() {
+    return this.validity.valid;
+  }
+  setCustomValidity(message = "") {
+    this.customErrorMessage = message;
+    this.errorMessage = message;
+    if (!message) {
+      this.invalid = false;
+    } else {
+      this.invalid = true;
+      this.input.setCustomValidity(message);
+    }
+  }
+  get validity() {
+    const hasMissingData = !(this.value && this.required || !this.required);
+    const hasCustomError = this.customErrorMessage !== "";
+    return {
+      badInput: false,
+      customError: hasCustomError,
+      patternMismatch: false,
+      rangeOverflow: false,
+      rangeUnderflow: false,
+      stepMismatch: false,
+      tooLong: false,
+      tooShort: false,
+      typeMismatch: false,
+      valid: hasMissingData || hasCustomError ? false : true,
+      valueMissing: !hasMissingData
+    };
+  }
+  reportValidity() {
+    const validity = this.validity;
+    this.errorMessage = this.customErrorMessage || validity.valid ? "" : this.input.validationMessage;
+    this.invalid = !validity.valid;
+    if (!validity.valid) {
+      this.showNativeErrorMessage();
+    }
+    return !this.invalid;
   }
   render() {
     const hasLabelSlot = this.hasSlotController.test("label");
@@ -4241,12 +4243,6 @@ var SlRadioButton = class extends ShoelaceElement {
     super.connectedCallback();
     this.setAttribute("role", "presentation");
   }
-  focus(options) {
-    this.input.focus(options);
-  }
-  blur() {
-    this.input.blur();
-  }
   handleBlur() {
     this.hasFocus = false;
     this.emit("sl-blur");
@@ -4259,12 +4255,18 @@ var SlRadioButton = class extends ShoelaceElement {
     }
     this.checked = true;
   }
-  handleDisabledChange() {
-    this.setAttribute("aria-disabled", this.disabled ? "true" : "false");
-  }
   handleFocus() {
     this.hasFocus = true;
     this.emit("sl-focus");
+  }
+  handleDisabledChange() {
+    this.setAttribute("aria-disabled", this.disabled ? "true" : "false");
+  }
+  focus(options) {
+    this.input.focus(options);
+  }
+  blur() {
+    this.input.blur();
   }
   render() {
     return n$9`
@@ -4806,6 +4808,42 @@ var SlAlert = class extends ShoelaceElement {
   firstUpdated() {
     this.base.hidden = !this.open;
   }
+  restartAutoHide() {
+    clearTimeout(this.autoHideTimeout);
+    if (this.open && this.duration < Infinity) {
+      this.autoHideTimeout = window.setTimeout(() => this.hide(), this.duration);
+    }
+  }
+  handleCloseClick() {
+    this.hide();
+  }
+  handleMouseMove() {
+    this.restartAutoHide();
+  }
+  async handleOpenChange() {
+    if (this.open) {
+      this.emit("sl-show");
+      if (this.duration < Infinity) {
+        this.restartAutoHide();
+      }
+      await stopAnimations(this.base);
+      this.base.hidden = false;
+      const { keyframes, options } = getAnimation(this, "alert.show", { dir: this.localize.dir() });
+      await animateTo(this.base, keyframes, options);
+      this.emit("sl-after-show");
+    } else {
+      this.emit("sl-hide");
+      clearTimeout(this.autoHideTimeout);
+      await stopAnimations(this.base);
+      const { keyframes, options } = getAnimation(this, "alert.hide", { dir: this.localize.dir() });
+      await animateTo(this.base, keyframes, options);
+      this.base.hidden = true;
+      this.emit("sl-after-hide");
+    }
+  }
+  handleDurationChange() {
+    this.restartAutoHide();
+  }
   async show() {
     if (this.open) {
       return void 0;
@@ -4842,42 +4880,6 @@ var SlAlert = class extends ShoelaceElement {
         { once: true }
       );
     });
-  }
-  restartAutoHide() {
-    clearTimeout(this.autoHideTimeout);
-    if (this.open && this.duration < Infinity) {
-      this.autoHideTimeout = window.setTimeout(() => this.hide(), this.duration);
-    }
-  }
-  handleCloseClick() {
-    this.hide();
-  }
-  handleMouseMove() {
-    this.restartAutoHide();
-  }
-  async handleOpenChange() {
-    if (this.open) {
-      this.emit("sl-show");
-      if (this.duration < Infinity) {
-        this.restartAutoHide();
-      }
-      await stopAnimations(this.base);
-      this.base.hidden = false;
-      const { keyframes, options } = getAnimation(this, "alert.show", { dir: this.localize.dir() });
-      await animateTo(this.base, keyframes, options);
-      this.emit("sl-after-show");
-    } else {
-      this.emit("sl-hide");
-      clearTimeout(this.autoHideTimeout);
-      await stopAnimations(this.base);
-      const { keyframes, options } = getAnimation(this, "alert.hide", { dir: this.localize.dir() });
-      await animateTo(this.base, keyframes, options);
-      this.base.hidden = true;
-      this.emit("sl-after-hide");
-    }
-  }
-  handleDurationChange() {
-    this.restartAutoHide();
   }
   render() {
     return y$1`
@@ -5269,6 +5271,7 @@ var textarea_styles_default = i$7`
   .textarea--resize-auto .textarea__control {
     height: auto;
     resize: none;
+    overflow-y: hidden;
   }
 `;
 
@@ -5305,11 +5308,48 @@ var SlTextarea = class extends ShoelaceElement {
     });
   }
   firstUpdated() {
-    this.invalid = !this.input.checkValidity();
+    this.invalid = !this.checkValidity();
   }
   disconnectedCallback() {
     super.disconnectedCallback();
     this.resizeObserver.unobserve(this.input);
+  }
+  handleBlur() {
+    this.hasFocus = false;
+    this.emit("sl-blur");
+  }
+  handleChange() {
+    this.value = this.input.value;
+    this.setTextareaHeight();
+    this.emit("sl-change");
+  }
+  handleFocus() {
+    this.hasFocus = true;
+    this.emit("sl-focus");
+  }
+  handleInput() {
+    this.value = this.input.value;
+    this.emit("sl-input");
+  }
+  setTextareaHeight() {
+    if (this.resize === "auto") {
+      this.input.style.height = "auto";
+      this.input.style.height = `${this.input.scrollHeight}px`;
+    } else {
+      this.input.style.height = void 0;
+    }
+  }
+  handleDisabledChange() {
+    this.input.disabled = this.disabled;
+    this.invalid = !this.checkValidity();
+  }
+  handleRowsChange() {
+    this.setTextareaHeight();
+  }
+  async handleValueChange() {
+    await this.updateComplete;
+    this.invalid = !this.checkValidity();
+    this.setTextareaHeight();
   }
   focus(options) {
     this.input.focus(options);
@@ -5354,44 +5394,7 @@ var SlTextarea = class extends ShoelaceElement {
   }
   setCustomValidity(message) {
     this.input.setCustomValidity(message);
-    this.invalid = !this.input.checkValidity();
-  }
-  handleBlur() {
-    this.hasFocus = false;
-    this.emit("sl-blur");
-  }
-  handleChange() {
-    this.value = this.input.value;
-    this.setTextareaHeight();
-    this.emit("sl-change");
-  }
-  handleDisabledChange() {
-    this.input.disabled = this.disabled;
-    this.invalid = !this.input.checkValidity();
-  }
-  handleFocus() {
-    this.hasFocus = true;
-    this.emit("sl-focus");
-  }
-  handleInput() {
-    this.value = this.input.value;
-    this.emit("sl-input");
-  }
-  handleRowsChange() {
-    this.setTextareaHeight();
-  }
-  handleValueChange() {
-    this.input.value = this.value;
-    this.invalid = !this.input.checkValidity();
-    this.updateComplete.then(() => this.setTextareaHeight());
-  }
-  setTextareaHeight() {
-    if (this.resize === "auto") {
-      this.input.style.height = "auto";
-      this.input.style.height = `${this.input.scrollHeight}px`;
-    } else {
-      this.input.style.height = void 0;
-    }
+    this.invalid = !this.checkValidity();
   }
   render() {
     const hasLabelSlot = this.hasSlotController.test("label");
@@ -5527,14 +5530,14 @@ __decorateClass([
   e2$1({ type: Boolean, reflect: true })
 ], SlTextarea.prototype, "readonly", 2);
 __decorateClass([
+  e2$1({ type: Boolean, reflect: true })
+], SlTextarea.prototype, "required", 2);
+__decorateClass([
   e2$1({ type: Number })
 ], SlTextarea.prototype, "minlength", 2);
 __decorateClass([
   e2$1({ type: Number })
 ], SlTextarea.prototype, "maxlength", 2);
-__decorateClass([
-  e2$1({ type: Boolean, reflect: true })
-], SlTextarea.prototype, "required", 2);
 __decorateClass([
   e2$1()
 ], SlTextarea.prototype, "autocapitalize", 2);
@@ -5587,55 +5590,108 @@ var select_styles_default = i$7`
     display: block;
   }
 
+  /** The popup */
   .select {
-    display: block;
-  }
-
-  .select::part(panel) {
-    overflow: hidden;
-  }
-
-  .select__control {
+    flex: 1 1 auto;
     display: inline-flex;
+    width: 100%;
+    position: relative;
+    vertical-align: middle;
+  }
+
+  .select::part(popup) {
+    z-index: var(--sl-z-index-dropdown);
+  }
+
+  .select[data-current-placement^='top']::part(popup) {
+    transform-origin: bottom;
+  }
+
+  .select[data-current-placement^='bottom']::part(popup) {
+    transform-origin: top;
+  }
+
+  /* Combobox */
+  .select__combobox {
+    flex: 1;
+    display: flex;
+    width: 100%;
+    min-width: 0;
+    position: relative;
     align-items: center;
     justify-content: start;
-    position: relative;
-    width: 100%;
     font-family: var(--sl-input-font-family);
     font-weight: var(--sl-input-font-weight);
     letter-spacing: var(--sl-input-letter-spacing);
     vertical-align: middle;
     overflow: hidden;
-    transition: var(--sl-transition-fast) color, var(--sl-transition-fast) border, var(--sl-transition-fast) box-shadow;
     cursor: pointer;
+    transition: var(--sl-transition-fast) color, var(--sl-transition-fast) border, var(--sl-transition-fast) box-shadow,
+      var(--sl-transition-fast) background-color;
   }
 
-  .select::part(panel) {
-    border-radius: var(--sl-border-radius-medium);
+  .select__display-input {
+    position: relative;
+    width: 100%;
+    font: inherit;
+    border: none;
+    background: none;
+    cursor: inherit;
+    overflow: hidden;
+    padding: 0;
+    margin: 0;
+    -webkit-appearance: none;
   }
 
-  /* Standard selects */
-  .select--standard .select__control {
-    background-color: var(--sl-input-background-color);
-    border: solid var(--sl-input-border-width) var(--sl-input-border-color);
-    color: var(--sl-input-color);
-  }
-
-  .select--standard:not(.select--disabled) .select__control:hover {
-    background-color: var(--sl-input-background-color-hover);
-    border-color: var(--sl-input-border-color-hover);
-    color: var(--sl-input-color-hover);
-  }
-
-  .select--standard.select--focused:not(.select--disabled) .select__control {
-    background-color: var(--sl-input-background-color-focus);
-    border-color: var(--sl-input-border-color-focus);
-    color: var(--sl-input-color-focus);
-    box-shadow: 0 0 0 var(--sl-focus-ring-width) var(--sl-input-focus-ring-color);
+  .select__display-input:focus {
     outline: none;
   }
 
-  .select--standard.select--disabled .select__control {
+  /* Visually hide the display input when multiple is enabled */
+  .select--multiple .select__display-input {
+    position: absolute;
+    z-index: -1;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    opacity: 0;
+  }
+
+  .select__value-input {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    padding: 0;
+    margin: 0;
+    opacity: 0;
+    z-index: -1;
+  }
+
+  .select__tags {
+    display: flex;
+    flex: 1;
+    align-items: center;
+    flex-wrap: wrap;
+    margin-inline-start: var(--sl-spacing-2x-small);
+  }
+
+  .select__tags::slotted(sl-tag) {
+    cursor: pointer !important;
+  }
+
+  .select--disabled .select__tags,
+  .select--disabled .select__tags::slotted(sl-tag) {
+    cursor: not-allowed !important;
+  }
+
+  /* Standard selects */
+  .select--standard .select__combobox {
+    background-color: var(--sl-input-background-color);
+    border: solid var(--sl-input-border-width) var(--sl-input-border-color);
+  }
+
+  .select--standard.select--disabled .select__combobox {
     background-color: var(--sl-input-background-color-disabled);
     border-color: var(--sl-input-border-color-disabled);
     color: var(--sl-input-color-disabled);
@@ -5644,64 +5700,138 @@ var select_styles_default = i$7`
     outline: none;
   }
 
+  .select--standard:not(.select--disabled).select--open .select__combobox,
+  .select--standard:not(.select--disabled).select--focused .select__combobox {
+    background-color: var(--sl-input-background-color-focus);
+    border-color: var(--sl-input-border-color-focus);
+    box-shadow: 0 0 0 var(--sl-focus-ring-width) var(--sl-input-focus-ring-color);
+  }
+
   /* Filled selects */
-  .select--filled .select__control {
+  .select--filled .select__combobox {
     border: none;
     background-color: var(--sl-input-filled-background-color);
     color: var(--sl-input-color);
   }
 
-  .select--filled:hover:not(.select--disabled) .select__control {
+  .select--filled:hover:not(.select--disabled) .select__combobox {
     background-color: var(--sl-input-filled-background-color-hover);
   }
 
-  .select--filled.select--focused:not(.select--disabled) .select__control {
-    background-color: var(--sl-input-filled-background-color-focus);
-    outline: var(--sl-focus-ring);
-    outline-offset: var(--sl-focus-ring-offset);
-  }
-
-  .select--filled.select--disabled .select__control {
+  .select--filled.select--disabled .select__combobox {
     background-color: var(--sl-input-filled-background-color-disabled);
     opacity: 0.5;
     cursor: not-allowed;
   }
 
-  .select--disabled .select__tags,
-  .select--disabled .select__clear {
-    pointer-events: none;
+  .select--filled:not(.select--disabled).select--open .select__combobox,
+  .select--filled:not(.select--disabled).select--focused .select__combobox {
+    background-color: var(--sl-input-filled-background-color-focus);
+    outline: var(--sl-focus-ring);
   }
 
+  /* Sizes */
+  .select--small .select__combobox {
+    border-radius: var(--sl-input-border-radius-small);
+    font-size: var(--sl-input-font-size-small);
+    min-height: var(--sl-input-height-small);
+    padding-block: 0;
+    padding-inline: var(--sl-input-spacing-small);
+  }
+
+  .select--small .select__clear {
+    margin-inline-start: var(--sl-input-spacing-small);
+  }
+
+  .select--small .select__prefix::slotted(*) {
+    margin-inline-end: var(--sl-input-spacing-small);
+  }
+
+  .select--small.select--multiple .select__combobox {
+    padding-block: 2px;
+    padding-inline-start: 0;
+  }
+
+  .select--small .select__tags {
+    gap: 2px;
+  }
+
+  .select--medium .select__combobox {
+    border-radius: var(--sl-input-border-radius-medium);
+    font-size: var(--sl-input-font-size-medium);
+    min-height: var(--sl-input-height-medium);
+    padding-block: 0;
+    padding-inline: var(--sl-input-spacing-medium);
+  }
+
+  .select--medium .select__clear {
+    margin-inline-start: var(--sl-input-spacing-medium);
+  }
+
+  .select--medium .select__prefix::slotted(*) {
+    margin-inline-end: var(--sl-input-spacing-medium);
+  }
+
+  .select--medium.select--multiple .select__combobox {
+    padding-inline-start: 0;
+    padding-block: 3px;
+  }
+
+  .select--medium .select__tags {
+    gap: 3px;
+  }
+
+  .select--large .select__combobox {
+    border-radius: var(--sl-input-border-radius-large);
+    font-size: var(--sl-input-font-size-large);
+    min-height: var(--sl-input-height-large);
+    padding-block: 0;
+    padding-inline: var(--sl-input-spacing-large);
+  }
+
+  .select--large .select__clear {
+    margin-inline-start: var(--sl-input-spacing-large);
+  }
+
+  .select--large .select__prefix::slotted(*) {
+    margin-inline-end: var(--sl-input-spacing-large);
+  }
+
+  .select--large.select--multiple .select__combobox {
+    padding-inline-start: 0;
+    padding-block: 4px;
+  }
+
+  .select--large .select__tags {
+    gap: 4px;
+  }
+
+  /* Pills */
+  .select--pill.select--small .select__combobox {
+    border-radius: var(--sl-input-height-small);
+  }
+
+  .select--pill.select--medium .select__combobox {
+    border-radius: var(--sl-input-height-medium);
+  }
+
+  .select--pill.select--large .select__combobox {
+    border-radius: var(--sl-input-height-large);
+  }
+
+  /* Prefix */
   .select__prefix {
+    flex: 0;
     display: inline-flex;
     align-items: center;
     color: var(--sl-input-placeholder-color);
   }
 
-  .select__label {
-    flex: 1 1 auto;
-    display: flex;
-    align-items: center;
-    user-select: none;
-    overflow-x: auto;
-    overflow-y: hidden;
-    white-space: nowrap;
-
-    /* Hide scrollbar in Firefox */
-    scrollbar-width: none;
-  }
-
-  /* Hide scrollbar in Chrome/Safari */
-  .select__label::-webkit-scrollbar {
-    width: 0;
-    height: 0;
-  }
-
+  /* Clear button */
   .select__clear {
-    flex: 0 0 auto;
     display: inline-flex;
     align-items: center;
-    width: 1.25em;
+    justify-content: center;
     font-size: inherit;
     color: var(--sl-input-icon-color);
     border: none;
@@ -5715,200 +5845,88 @@ var select_styles_default = i$7`
     color: var(--sl-input-icon-color-hover);
   }
 
-  .select__suffix {
-    display: inline-flex;
-    align-items: center;
-    color: var(--sl-input-placeholder-color);
+  .select__clear:focus {
+    outline: none;
   }
 
-  .select__icon {
+  /* Expand icon */
+  .select__expand-icon {
     flex: 0 0 auto;
-    display: inline-flex;
+    display: flex;
+    align-items: center;
     transition: var(--sl-transition-medium) rotate ease;
+    rotate: 0;
+    margin-inline-start: var(--sl-spacing-small);
   }
 
-  .select--open .select__icon {
+  .select--open .select__expand-icon {
     rotate: -180deg;
   }
 
-  /* Placeholder */
-  .select--placeholder-visible .select__label {
-    color: var(--sl-input-placeholder-color);
+  /* Listbox */
+  .select__listbox {
+    display: block;
+    position: relative;
+    font-family: var(--sl-font-sans);
+    font-size: var(--sl-font-size-medium);
+    font-weight: var(--sl-font-weight-normal);
+    box-shadow: var(--sl-shadow-large);
+    background: var(--sl-panel-background-color);
+    border: solid var(--sl-panel-border-width) var(--sl-panel-border-color);
+    border-radius: var(--sl-border-radius-medium);
+    padding-block: var(--sl-spacing-x-small);
+    padding-inline: 0;
+    overflow: auto;
+    overscroll-behavior: none;
+
+    /* Make sure it adheres to the popup's auto size */
+    max-width: var(--auto-size-available-width);
+    max-height: var(--auto-size-available-height);
   }
 
-  .select--disabled.select--placeholder-visible .select__label {
-    color: var(--sl-input-placeholder-color-disabled);
+  .select__listbox::slotted(sl-divider) {
+    --spacing: var(--sl-spacing-x-small);
   }
 
-  /* Tags */
-  .select__tags {
-    display: inline-flex;
-    align-items: center;
-    flex-wrap: wrap;
-    justify-content: left;
-    margin-inline-start: var(--sl-spacing-2x-small);
-  }
-
-  /* Hidden input (for form control validation to show) */
-  .select__hidden-select {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    clip: rect(0 0 0 0);
-    clip-path: inset(50%);
-    overflow: hidden;
-    white-space: nowrap;
-  }
-
-  /*
-   * Size modifiers
-   */
-
-  /* Small */
-  .select--small .select__control {
-    border-radius: var(--sl-input-border-radius-small);
-    font-size: var(--sl-input-font-size-small);
-    min-height: var(--sl-input-height-small);
-  }
-
-  .select--small .select__prefix::slotted(*) {
-    margin-inline-start: var(--sl-input-spacing-small);
-  }
-
-  .select--small .select__label {
-    margin: 0 var(--sl-input-spacing-small);
-  }
-
-  .select--small .select__clear {
-    margin-inline-end: var(--sl-input-spacing-small);
-  }
-
-  .select--small .select__suffix::slotted(*) {
-    margin-inline-end: var(--sl-input-spacing-small);
-  }
-
-  .select--small .select__icon {
-    margin-inline-end: var(--sl-input-spacing-small);
-  }
-
-  .select--small .select__tags {
-    padding-bottom: 2px;
-  }
-
-  .select--small .select__tags sl-tag {
-    padding-top: 2px;
-  }
-
-  .select--small .select__tags sl-tag:not(:last-of-type) {
-    margin-inline-end: var(--sl-spacing-2x-small);
-  }
-
-  .select--small.select--has-tags .select__label {
-    margin-inline-start: 0;
-  }
-
-  /* Medium */
-  .select--medium .select__control {
-    border-radius: var(--sl-input-border-radius-medium);
-    font-size: var(--sl-input-font-size-medium);
-    min-height: var(--sl-input-height-medium);
-  }
-
-  .select--medium .select__prefix::slotted(*) {
-    margin-inline-start: var(--sl-input-spacing-medium);
-  }
-
-  .select--medium .select__label {
-    margin: 0 var(--sl-input-spacing-medium);
-  }
-
-  .select--medium .select__clear {
-    margin-inline-end: var(--sl-input-spacing-medium);
-  }
-
-  .select--medium .select__suffix::slotted(*) {
-    margin-inline-end: var(--sl-input-spacing-medium);
-  }
-
-  .select--medium .select__icon {
-    margin-inline-end: var(--sl-input-spacing-medium);
-  }
-
-  .select--medium .select__tags {
-    padding-bottom: 3px;
-  }
-
-  .select--medium .select__tags sl-tag {
-    padding-top: 3px;
-  }
-
-  .select--medium .select__tags sl-tag:not(:last-of-type) {
-    margin-inline-end: var(--sl-spacing-2x-small);
-  }
-
-  .select--medium.select--has-tags .select__label {
-    margin-inline-start: 0;
-  }
-
-  /* Large */
-  .select--large .select__control {
-    border-radius: var(--sl-input-border-radius-large);
-    font-size: var(--sl-input-font-size-large);
-    min-height: var(--sl-input-height-large);
-  }
-
-  .select--large .select__prefix::slotted(*) {
-    margin-inline-start: var(--sl-input-spacing-large);
-  }
-
-  .select--large .select__label {
-    margin: 0 var(--sl-input-spacing-large);
-  }
-
-  .select--large .select__clear {
-    margin-inline-end: var(--sl-input-spacing-large);
-  }
-
-  .select--large .select__suffix::slotted(*) {
-    margin-inline-end: var(--sl-input-spacing-large);
-  }
-
-  .select--large .select__icon {
-    margin-inline-end: var(--sl-input-spacing-large);
-  }
-
-  .select--large .select__tags {
-    padding-bottom: 4px;
-  }
-  .select--large .select__tags sl-tag {
-    padding-top: 4px;
-  }
-
-  .select--large .select__tags sl-tag:not(:last-of-type) {
-    margin-inline-end: var(--sl-spacing-2x-small);
-  }
-
-  .select--large.select--has-tags .select__label {
-    margin-inline-start: 0;
-  }
-
-  /*
-   * Pill modifier
-   */
-  .select--pill.select--small .select__control {
-    border-radius: var(--sl-input-height-small);
-  }
-
-  .select--pill.select--medium .select__control {
-    border-radius: var(--sl-input-height-medium);
-  }
-
-  .select--pill.select--large .select__control {
-    border-radius: var(--sl-input-height-large);
+  .select__listbox::slotted(small) {
+    font-size: var(--sl-font-size-small);
+    font-weight: var(--sl-font-weight-semibold);
+    color: var(--sl-color-neutral-500);
+    padding-block: var(--sl-spacing-x-small);
+    padding-inline: var(--sl-spacing-x-large);
   }
 `;
+
+// src/internal/offset.ts
+function getOffset(element, parent) {
+  return {
+    top: Math.round(element.getBoundingClientRect().top - parent.getBoundingClientRect().top),
+    left: Math.round(element.getBoundingClientRect().left - parent.getBoundingClientRect().left)
+  };
+}
+function scrollIntoView(element, container, direction = "vertical", behavior = "smooth") {
+  const offset = getOffset(element, container);
+  const offsetTop = offset.top + container.scrollTop;
+  const offsetLeft = offset.left + container.scrollLeft;
+  const minX = container.scrollLeft;
+  const maxX = container.scrollLeft + container.offsetWidth;
+  const minY = container.scrollTop;
+  const maxY = container.scrollTop + container.offsetHeight;
+  if (direction === "horizontal" || direction === "both") {
+    if (offsetLeft < minX) {
+      container.scrollTo({ left: offsetLeft, behavior });
+    } else if (offsetLeft + element.clientWidth > maxX) {
+      container.scrollTo({ left: offsetLeft - container.offsetWidth + element.clientWidth, behavior });
+    }
+  }
+  if (direction === "vertical" || direction === "both") {
+    if (offsetTop < minY) {
+      container.scrollTo({ top: offsetTop, behavior });
+    } else if (offsetTop + element.clientHeight > maxY) {
+      container.scrollTo({ top: offsetTop - container.offsetHeight + element.clientHeight, behavior });
+    }
+  }
+}
 
 // src/components/select/select.ts
 var SlSelect = class extends ShoelaceElement {
@@ -5917,19 +5935,21 @@ var SlSelect = class extends ShoelaceElement {
     this.formSubmitController = new FormSubmitController(this);
     this.hasSlotController = new HasSlotController(this, "help-text", "label");
     this.localize = new LocalizeController2(this);
-    this.menuItems = [];
+    this.typeToSelectString = "";
     this.hasFocus = false;
-    this.isOpen = false;
     this.displayLabel = "";
-    this.displayTags = [];
+    this.selectedOptions = [];
     this.invalid = false;
-    this.multiple = false;
-    this.maxTagsVisible = 3;
-    this.disabled = false;
     this.name = "";
     this.value = "";
-    this.placeholder = "";
+    this.defaultValue = "";
     this.size = "medium";
+    this.placeholder = "";
+    this.multiple = false;
+    this.maxOptionsVisible = 3;
+    this.disabled = false;
+    this.clearable = false;
+    this.open = false;
     this.hoist = false;
     this.filled = false;
     this.pill = false;
@@ -5937,265 +5957,329 @@ var SlSelect = class extends ShoelaceElement {
     this.placement = "bottom";
     this.helpText = "";
     this.required = false;
-    this.clearable = false;
-    this.defaultValue = "";
   }
   connectedCallback() {
     super.connectedCallback();
-    this.resizeObserver = new ResizeObserver(() => this.resizeMenu());
-    this.updateComplete.then(() => {
-      this.resizeObserver.observe(this);
-      this.syncItemsFromValue();
-    });
+    this.handleDocumentFocusIn = this.handleDocumentFocusIn.bind(this);
+    this.handleDocumentKeyDown = this.handleDocumentKeyDown.bind(this);
+    this.handleDocumentMouseDown = this.handleDocumentMouseDown.bind(this);
+    this.open = false;
   }
-  firstUpdated() {
-    this.invalid = !this.input.checkValidity();
+  addOpenListeners() {
+    document.addEventListener("focusin", this.handleDocumentFocusIn);
+    document.addEventListener("keydown", this.handleDocumentKeyDown);
+    document.addEventListener("mousedown", this.handleDocumentMouseDown);
   }
-  disconnectedCallback() {
-    super.disconnectedCallback();
-    this.resizeObserver.unobserve(this);
+  removeOpenListeners() {
+    document.removeEventListener("focusin", this.handleDocumentFocusIn);
+    document.removeEventListener("keydown", this.handleDocumentKeyDown);
+    document.removeEventListener("mousedown", this.handleDocumentMouseDown);
   }
-  checkValidity() {
-    return this.input.checkValidity();
-  }
-  reportValidity() {
-    return this.input.reportValidity();
-  }
-  setCustomValidity(message) {
-    this.input.setCustomValidity(message);
-    this.invalid = !this.input.checkValidity();
-  }
-  getValueAsArray() {
-    if (this.multiple && this.value === "") {
-      return [];
-    }
-    return Array.isArray(this.value) ? this.value : [this.value];
-  }
-  focus(options) {
-    this.control.focus(options);
-  }
-  blur() {
-    this.control.blur();
+  handleFocus() {
+    this.hasFocus = true;
+    this.displayInput.setSelectionRange(0, 0);
+    this.emit("sl-focus");
   }
   handleBlur() {
-    if (!this.isOpen) {
-      this.hasFocus = false;
-      this.emit("sl-blur");
+    this.hasFocus = false;
+    this.emit("sl-blur");
+  }
+  handleDocumentFocusIn(event) {
+    const path = event.composedPath();
+    if (this && !path.includes(this)) {
+      this.hide();
     }
   }
-  handleClearClick(event) {
-    const oldValue = this.value;
+  handleDocumentKeyDown(event) {
+    const target = event.target;
+    const isClearButton = target.closest(".select__clear") !== null;
+    const isIconButton = target.closest("sl-icon-button") !== null;
+    if (isClearButton || isIconButton) {
+      return;
+    }
+    if (event.key === "Escape" && this.open) {
+      event.preventDefault();
+      event.stopPropagation();
+      this.hide();
+      this.displayInput.focus({ preventScroll: true });
+    }
+    if (event.key === "Enter" || event.key === " " && this.typeToSelectString === "") {
+      event.preventDefault();
+      event.stopImmediatePropagation();
+      if (!this.open) {
+        this.show();
+        return;
+      }
+      if (this.currentOption && !this.currentOption.disabled) {
+        if (this.multiple) {
+          this.toggleOptionSelection(this.currentOption);
+        } else {
+          this.setSelectedOptions(this.currentOption);
+        }
+        this.emit("sl-input");
+        this.emit("sl-change");
+        if (!this.multiple) {
+          this.hide();
+          this.displayInput.focus({ preventScroll: true });
+        }
+      }
+      return;
+    }
+    if (["ArrowUp", "ArrowDown", "Home", "End"].includes(event.key)) {
+      const allOptions = this.getAllOptions();
+      const currentIndex = allOptions.indexOf(this.currentOption);
+      let newIndex = Math.max(0, currentIndex);
+      event.preventDefault();
+      if (!this.open) {
+        this.show();
+        if (this.currentOption) {
+          return;
+        }
+      }
+      if (event.key === "ArrowDown") {
+        newIndex = currentIndex + 1;
+        if (newIndex > allOptions.length - 1)
+          newIndex = 0;
+      } else if (event.key === "ArrowUp") {
+        newIndex = currentIndex - 1;
+        if (newIndex < 0)
+          newIndex = allOptions.length - 1;
+      } else if (event.key === "Home") {
+        newIndex = 0;
+      } else if (event.key === "End") {
+        newIndex = allOptions.length - 1;
+      }
+      this.setCurrentOption(allOptions[newIndex]);
+    }
+    if (event.key.length === 1 || event.key === "Backspace") {
+      const allOptions = this.getAllOptions();
+      if (event.metaKey || event.ctrlKey || event.altKey) {
+        return;
+      }
+      if (!this.open) {
+        if (event.key === "Backspace") {
+          return;
+        }
+        this.show();
+      }
+      event.stopPropagation();
+      event.preventDefault();
+      clearTimeout(this.typeToSelectTimeout);
+      this.typeToSelectTimeout = window.setTimeout(() => this.typeToSelectString = "", 1e3);
+      if (event.key === "Backspace") {
+        this.typeToSelectString = this.typeToSelectString.slice(0, -1);
+      } else {
+        this.typeToSelectString += event.key.toLowerCase();
+      }
+      for (const option of allOptions) {
+        const label = option.getTextLabel().toLowerCase();
+        if (label.startsWith(this.typeToSelectString)) {
+          this.setCurrentOption(option);
+          break;
+        }
+      }
+    }
+  }
+  handleDocumentMouseDown(event) {
+    const path = event.composedPath();
+    if (this && !path.includes(this)) {
+      this.hide();
+    }
+  }
+  handleLabelClick() {
+    this.displayInput.focus();
+  }
+  handleComboboxMouseDown(event) {
+    const path = event.composedPath();
+    const isIconButton = path.some((el) => el instanceof Element && el.tagName.toLowerCase() === "sl-icon-button");
+    if (this.disabled || isIconButton) {
+      return;
+    }
+    event.preventDefault();
+    this.displayInput.focus({ preventScroll: true });
+    this.open = !this.open;
+  }
+  handleComboboxKeyDown(event) {
     event.stopPropagation();
-    this.value = this.multiple ? [] : "";
-    if (this.value !== oldValue) {
+    this.handleDocumentKeyDown(event);
+  }
+  handleClearClick(event) {
+    event.stopPropagation();
+    if (this.value !== "") {
+      this.setSelectedOptions([]);
+      this.displayInput.focus({ preventScroll: true });
       this.emit("sl-clear");
       this.emit("sl-input");
       this.emit("sl-change");
     }
-    this.syncItemsFromValue();
+  }
+  handleClearMouseDown(event) {
+    event.stopPropagation();
+    event.preventDefault();
+  }
+  handleOptionClick(event) {
+    const target = event.target;
+    const option = target.closest("sl-option");
+    const oldValue = this.value;
+    if (option && !option.disabled) {
+      if (this.multiple) {
+        this.toggleOptionSelection(option);
+      } else {
+        this.setSelectedOptions(option);
+      }
+      this.updateComplete.then(() => this.displayInput.focus({ preventScroll: true }));
+      if (this.value !== oldValue) {
+        this.emit("sl-input");
+        this.emit("sl-change");
+      }
+      if (!this.multiple) {
+        this.hide();
+        this.displayInput.focus({ preventScroll: true });
+      }
+    }
+  }
+  handleDefaultSlotChange() {
+    const allOptions = this.getAllOptions();
+    const value = Array.isArray(this.value) ? this.value : [this.value];
+    const values = [];
+    allOptions.forEach((option) => {
+      if (values.includes(option.value)) {
+        console.error(
+          `An option with duplicate values has been found in <sl-select>. All options must have unique values.`,
+          option
+        );
+      }
+      values.push(option.value);
+    });
+    this.setSelectedOptions(allOptions.filter((el) => value.includes(el.value)));
+  }
+  getAllOptions() {
+    return [...this.querySelectorAll("sl-option")];
+  }
+  getFirstOption() {
+    return this.querySelector("sl-option");
+  }
+  setCurrentOption(option) {
+    const allOptions = this.getAllOptions();
+    allOptions.forEach((el) => {
+      el.current = false;
+      el.tabIndex = -1;
+    });
+    if (option) {
+      this.currentOption = option;
+      option.current = true;
+      option.tabIndex = 0;
+      option.focus();
+      scrollIntoView(option, this.listbox);
+    }
+  }
+  setSelectedOptions(option) {
+    const allOptions = this.getAllOptions();
+    const newSelectedOptions = Array.isArray(option) ? option : [option];
+    allOptions.forEach((el) => el.selected = false);
+    if (newSelectedOptions.length) {
+      newSelectedOptions.forEach((el) => el.selected = true);
+      scrollIntoView(newSelectedOptions[0], this.listbox);
+    }
+    this.selectionChanged();
+  }
+  toggleOptionSelection(option, force) {
+    if (force === true || force === false) {
+      option.selected = force;
+    } else {
+      option.selected = !option.selected;
+    }
+    this.selectionChanged();
+  }
+  selectionChanged() {
+    var _a, _b, _c, _d;
+    this.selectedOptions = this.getAllOptions().filter((el) => el.selected);
+    if (this.multiple) {
+      this.value = this.selectedOptions.map((el) => el.value);
+      this.displayLabel = this.localize.term("numOptionsSelected", this.selectedOptions.length);
+    } else {
+      this.value = (_b = (_a = this.selectedOptions[0]) == null ? void 0 : _a.value) != null ? _b : "";
+      this.displayLabel = (_d = (_c = this.selectedOptions[0]) == null ? void 0 : _c.getTextLabel()) != null ? _d : "";
+    }
+    this.updateComplete.then(() => this.invalid = !this.checkValidity());
   }
   handleDisabledChange() {
-    if (this.disabled && this.isOpen) {
-      this.dropdown.hide();
-    }
-    this.input.disabled = this.disabled;
-    this.invalid = !this.input.checkValidity();
-  }
-  handleFocus() {
-    if (!this.hasFocus) {
-      this.hasFocus = true;
-      this.emit("sl-focus");
+    if (this.disabled) {
+      this.open = false;
+      this.handleOpenChange();
     }
   }
-  handleKeyDown(event) {
-    const target = event.target;
-    const firstItem = this.menuItems[0];
-    const lastItem = this.menuItems[this.menuItems.length - 1];
-    if (target.tagName.toLowerCase() === "sl-tag") {
-      return;
-    }
-    if (event.key === "Tab") {
-      if (this.isOpen) {
-        this.dropdown.hide();
-      }
-      return;
-    }
-    if (["ArrowDown", "ArrowUp"].includes(event.key)) {
-      event.preventDefault();
-      if (!this.isOpen) {
-        this.dropdown.show();
-      }
-      if (event.key === "ArrowDown") {
-        this.menu.setCurrentItem(firstItem);
-        firstItem.focus();
-        return;
-      }
-      if (event.key === "ArrowUp") {
-        this.menu.setCurrentItem(lastItem);
-        lastItem.focus();
-        return;
-      }
-    }
-    if (event.ctrlKey || event.metaKey) {
-      return;
-    }
-    if (!this.isOpen && event.key.length === 1) {
-      event.stopPropagation();
-      event.preventDefault();
-      this.dropdown.show();
-      this.menu.typeToSelect(event);
-    }
+  handleValueChange() {
+    const allOptions = this.getAllOptions();
+    const value = Array.isArray(this.value) ? this.value : [this.value];
+    this.setSelectedOptions(allOptions.filter((el) => value.includes(el.value)));
   }
-  handleLabelClick() {
-    this.focus();
-  }
-  handleMenuSelect(event) {
-    const item = event.detail.item;
-    const oldValue = this.value;
-    if (this.multiple) {
-      this.value = this.value.includes(item.value) ? this.value.filter((v) => v !== item.value) : [...this.value, item.value];
-    } else {
-      this.value = item.value;
-    }
-    if (this.value !== oldValue) {
-      this.emit("sl-change");
-      this.emit("sl-input");
-    }
-    this.syncItemsFromValue();
-  }
-  handleMenuShow() {
-    this.resizeMenu();
-    this.isOpen = true;
-  }
-  handleMenuHide() {
-    this.isOpen = false;
-    this.control.focus();
-  }
-  handleMenuItemLabelChange() {
-    if (!this.multiple) {
-      const checkedItem = this.menuItems.find((item) => item.value === this.value);
-      this.displayLabel = checkedItem ? checkedItem.getTextLabel() : "";
-    }
-  }
-  handleMultipleChange() {
-    var _a;
-    const value = this.getValueAsArray();
-    this.value = this.multiple ? value : (_a = value[0]) != null ? _a : "";
-    this.syncItemsFromValue();
-  }
-  async handleMenuSlotChange() {
-    this.menuItems = [...this.querySelectorAll("sl-menu-item")];
-    const values = [];
-    this.menuItems.forEach((item) => {
-      if (values.includes(item.value)) {
-        console.error(`Duplicate value found in <sl-select> menu item: '${item.value}'`, item);
-      }
-      values.push(item.value);
-    });
-    await Promise.all(this.menuItems.map((item) => item.render));
-    this.syncItemsFromValue();
-  }
-  handleTagInteraction(event) {
-    const path = event.composedPath();
-    const clearButton = path.find((el) => {
-      if (el instanceof HTMLElement) {
-        const element = el;
-        return element.classList.contains("tag__remove");
-      }
-      return false;
-    });
-    if (clearButton) {
-      event.stopPropagation();
-    }
-  }
-  async handleValueChange() {
-    this.syncItemsFromValue();
-    await this.updateComplete;
-    this.invalid = !this.input.checkValidity();
-  }
-  resizeMenu() {
-    this.menu.style.width = `${this.control.clientWidth}px`;
-    requestAnimationFrame(() => this.dropdown.reposition());
-  }
-  syncItemsFromValue() {
-    const value = this.getValueAsArray();
-    this.menuItems.forEach((item) => item.checked = value.includes(item.value));
-    if (this.multiple) {
-      const checkedItems = this.menuItems.filter((item) => value.includes(item.value));
-      this.displayLabel = checkedItems.length > 0 ? checkedItems[0].getTextLabel() : "";
-      this.displayTags = checkedItems.map((item) => {
-        return y$1`
-          <sl-tag
-            part="tag"
-            exportparts="
-              base:tag__base,
-              content:tag__content,
-              remove-button:tag__remove-button
-            "
-            variant="neutral"
-            size=${this.size}
-            ?pill=${this.pill}
-            removable
-            @click=${this.handleTagInteraction}
-            @keydown=${this.handleTagInteraction}
-            @sl-remove=${(event) => {
-          event.stopPropagation();
-          if (!this.disabled) {
-            item.checked = false;
-            this.syncValueFromItems();
-          }
-        }}
-          >
-            ${item.getTextLabel()}
-          </sl-tag>
-        `;
+  async handleOpenChange() {
+    if (this.open && !this.disabled) {
+      this.setCurrentOption(this.selectedOptions[0] || this.getFirstOption());
+      this.emit("sl-show");
+      this.addOpenListeners();
+      await stopAnimations(this);
+      this.listbox.hidden = false;
+      this.popup.active = true;
+      requestAnimationFrame(() => {
+        this.setCurrentOption(this.currentOption);
       });
-      if (this.maxTagsVisible > 0 && this.displayTags.length > this.maxTagsVisible) {
-        const total = this.displayTags.length;
-        this.displayLabel = "";
-        this.displayTags = this.displayTags.slice(0, this.maxTagsVisible);
-        this.displayTags.push(y$1`
-          <sl-tag
-            part="tag"
-            exportparts="
-              base:tag__base,
-              content:tag__content,
-              remove-button:tag__remove-button
-            "
-            variant="neutral"
-            size=${this.size}
-          >
-            +${total - this.maxTagsVisible}
-          </sl-tag>
-        `);
+      const { keyframes, options } = getAnimation(this, "select.show", { dir: this.localize.dir() });
+      await animateTo(this.popup.popup, keyframes, options);
+      if (this.currentOption) {
+        scrollIntoView(this.currentOption, this.listbox, "vertical", "auto");
       }
+      this.emit("sl-after-show");
     } else {
-      const checkedItem = this.menuItems.find((item) => item.value === value[0]);
-      this.displayLabel = checkedItem ? checkedItem.getTextLabel() : "";
-      this.displayTags = [];
+      this.emit("sl-hide");
+      this.removeOpenListeners();
+      await stopAnimations(this);
+      const { keyframes, options } = getAnimation(this, "select.hide", { dir: this.localize.dir() });
+      await animateTo(this.popup.popup, keyframes, options);
+      this.listbox.hidden = true;
+      this.popup.active = false;
+      this.emit("sl-after-hide");
     }
   }
-  syncValueFromItems() {
-    const checkedItems = this.menuItems.filter((item) => item.checked);
-    const checkedValues = checkedItems.map((item) => item.value);
-    const oldValue = this.value;
-    if (this.multiple) {
-      this.value = this.value.filter((val) => checkedValues.includes(val));
-    } else {
-      this.value = checkedValues.length > 0 ? checkedValues[0] : "";
+  async show() {
+    if (this.open || this.disabled) {
+      this.open = false;
+      return void 0;
     }
-    if (this.value !== oldValue) {
-      this.emit("sl-change");
-      this.emit("sl-input");
+    this.open = true;
+    return waitForEvent(this, "sl-after-show");
+  }
+  async hide() {
+    if (!this.open || this.disabled) {
+      this.open = false;
+      return void 0;
     }
+    this.open = false;
+    return waitForEvent(this, "sl-after-hide");
+  }
+  checkValidity() {
+    return this.valueInput.checkValidity();
+  }
+  reportValidity() {
+    return this.valueInput.reportValidity();
+  }
+  setCustomValidity(message) {
+    this.valueInput.setCustomValidity(message);
+    this.invalid = !this.valueInput.checkValidity();
+  }
+  focus(options) {
+    this.displayInput.focus(options);
+  }
+  blur() {
+    this.displayInput.blur();
   }
   render() {
     const hasLabelSlot = this.hasSlotController.test("label");
     const hasHelpTextSlot = this.hasSlotController.test("help-text");
-    const hasSelection = this.multiple ? this.value.length > 0 : this.value !== "";
     const hasLabel = this.label ? true : !!hasLabelSlot;
     const hasHelpText = this.helpText ? true : !!hasHelpTextSlot;
-    const hasClearIcon = this.clearable && !this.disabled && hasSelection;
+    const hasClearIcon = this.clearable && !this.disabled && this.value.length > 0;
     return y$1`
       <div
         part="form-control"
@@ -6209,9 +6293,9 @@ var SlSelect = class extends ShoelaceElement {
     })}
       >
         <label
+          id="label"
           part="form-control-label"
           class="form-control__label"
-          for="input"
           aria-hidden=${hasLabel ? "false" : "true"}
           @click=${this.handleLabelClick}
         >
@@ -6219,62 +6303,108 @@ var SlSelect = class extends ShoelaceElement {
         </label>
 
         <div part="form-control-input" class="form-control-input">
-          <sl-dropdown
-            part="base"
-            .hoist=${this.hoist}
-            .placement=${this.placement === "bottom" ? "bottom-start" : "top-start"}
-            .stayOpenOnSelect=${this.multiple}
-            .containingElement=${this}
-            ?disabled=${this.disabled}
+          <sl-popup
             class=${o$7({
       select: true,
-      "select--open": this.isOpen,
-      "select--empty": !this.value,
-      "select--focused": this.hasFocus,
-      "select--clearable": this.clearable,
+      "select--standard": true,
+      "select--filled": this.filled,
+      "select--pill": this.pill,
+      "select--open": this.open,
       "select--disabled": this.disabled,
       "select--multiple": this.multiple,
-      "select--standard": !this.filled,
-      "select--filled": this.filled,
-      "select--has-tags": this.multiple && this.displayTags.length > 0,
-      "select--placeholder-visible": this.displayLabel === "",
+      "select--focused": this.hasFocus,
+      "select--top": this.placement === "top",
+      "select--bottom": this.placement === "bottom",
       "select--small": this.size === "small",
       "select--medium": this.size === "medium",
-      "select--large": this.size === "large",
-      "select--pill": this.pill,
-      "select--invalid": this.invalid
+      "select--large": this.size === "large"
     })}
-            @sl-show=${this.handleMenuShow}
-            @sl-hide=${this.handleMenuHide}
+            placement=${this.placement}
+            strategy=${this.hoist ? "fixed" : "absolute"}
+            flip
+            shift
+            sync="width"
+            auto-size="vertical"
+            auto-size-padding="10"
           >
             <div
-              part="control"
-              slot="trigger"
-              id="input"
-              class="select__control"
-              role="combobox"
-              aria-describedby="help-text"
-              aria-haspopup="true"
-              aria-disabled=${this.disabled ? "true" : "false"}
-              aria-expanded=${this.isOpen ? "true" : "false"}
-              aria-controls="menu"
-              tabindex=${this.disabled ? "-1" : "0"}
-              @blur=${this.handleBlur}
-              @focus=${this.handleFocus}
-              @keydown=${this.handleKeyDown}
+              part="combobox"
+              class="select__combobox"
+              slot="anchor"
+              @keydown=${this.handleComboboxKeyDown}
+              @mousedown=${this.handleComboboxMouseDown}
             >
-              <slot name="prefix" part="prefix" class="select__prefix"></slot>
+              <slot part="prefix" name="prefix" class="select__prefix"></slot>
 
-              <div part="display-label" class="select__label">
-                ${this.displayTags.length > 0 ? y$1` <span part="tags" class="select__tags"> ${this.displayTags} </span> ` : this.displayLabel.length > 0 ? this.displayLabel : this.placeholder}
-              </div>
+              <input
+                part="display-input"
+                class="select__display-input"
+                type="text"
+                placeholder=${this.placeholder}
+                .disabled=${this.disabled}
+                .value=${this.displayLabel}
+                autocomplete="off"
+                spellcheck="false"
+                autocapitalize="off"
+                readonly
+                aria-controls="listbox"
+                aria-expanded=${this.open ? "true" : "false"}
+                aria-haspopup="listbox"
+                aria-labelledby="label"
+                aria-disabled=${this.disabled ? "true" : "false"}
+                aria-describedby="help-text"
+                role="combobox"
+                tabindex="0"
+                @focus=${this.handleFocus}
+                @blur=${this.handleBlur}
+              />
+
+              ${this.multiple ? y$1`
+                    <div part="tags" class="select__tags">
+                      ${this.selectedOptions.map((option, index) => {
+      if (index < this.maxOptionsVisible || this.maxOptionsVisible <= 0) {
+        return y$1`
+                            <sl-tag
+                              size=${this.size}
+                              removable
+                              @sl-remove=${(event) => {
+          event.stopPropagation();
+          if (!this.disabled) {
+            this.toggleOptionSelection(option, false);
+          }
+        }}
+                            >
+                              ${option.getTextLabel()}
+                            </sl-tag>
+                          `;
+      } else if (index === this.maxOptionsVisible) {
+        return y$1` <sl-tag size=${this.size}> +${this.selectedOptions.length - index} </sl-tag> `;
+      } else {
+        return null;
+      }
+    })}
+                    </div>
+                  ` : ""}
+
+              <input
+                class="select__value-input"
+                type="text"
+                ?disabled=${this.disabled}
+                ?required=${this.required}
+                .value=${Array.isArray(this.value) ? this.value.join(", ") : this.value}
+                tabindex="-1"
+                aria-hidden="true"
+                @focus=${() => this.focus()}
+              />
 
               ${hasClearIcon ? y$1`
                     <button
                       part="clear-button"
                       class="select__clear"
-                      @click=${this.handleClearClick}
+                      type="button"
                       aria-label=${this.localize.term("clearEntry")}
+                      @mousedown=${this.handleClearMouseDown}
+                      @click=${this.handleClearClick}
                       tabindex="-1"
                     >
                       <slot name="clear-icon">
@@ -6283,40 +6413,35 @@ var SlSelect = class extends ShoelaceElement {
                     </button>
                   ` : ""}
 
-              <slot name="suffix" part="suffix" class="select__suffix"></slot>
-
-              <span part="icon" class="select__icon" aria-hidden="true">
-                <sl-icon name="chevron-down" library="system"></sl-icon>
-              </span>
-
-              <!-- The hidden input tricks the browser's built-in validation so it works as expected. We use an input
-              instead of a select because, otherwise, iOS will show a list of options during validation. The focus
-              handler is used to move focus to the primary control when it's marked invalid.  -->
-              <input
-                class="select__hidden-select"
-                aria-hidden="true"
-                ?required=${this.required}
-                .value=${hasSelection ? "1" : ""}
-                tabindex="-1"
-                @focus=${() => this.control.focus()}
-              />
+              <slot name="expand-icon" part="expand-icon" class="select__expand-icon">
+                <sl-icon library="system" name="chevron-down"></sl-icon>
+              </slot>
             </div>
 
-            <sl-menu part="menu" id="menu" class="select__menu" @sl-select=${this.handleMenuSelect}>
-              <slot @slotchange=${this.handleMenuSlotChange} @sl-label-change=${this.handleMenuItemLabelChange}></slot>
-            </sl-menu>
-          </sl-dropdown>
-        </div>
+            <slot
+              id="listbox"
+              role="listbox"
+              aria-expanded=${this.open ? "true" : "false"}
+              aria-multiselectable=${this.multiple ? "true" : "false"}
+              aria-labelledby="label"
+              part="listbox"
+              class="select__listbox"
+              tabindex="-1"
+              @mouseup=${this.handleOptionClick}
+              @slotchange=${this.handleDefaultSlotChange}
+            ></slot>
+          </sl-popup>
 
-        <slot
-          name="help-text"
-          part="form-control-help-text"
-          id="help-text"
-          class="form-control__help-text"
-          aria-hidden=${hasHelpText ? "false" : "true"}
-        >
-          ${this.helpText}
-        </slot>
+          <slot
+            name="help-text"
+            part="form-control-help-text"
+            id="help-text"
+            class="form-control__help-text"
+            aria-hidden=${hasHelpText ? "false" : "true"}
+          >
+            ${this.helpText}
+          </slot>
+        </div>
       </div>
     `;
   }
@@ -6324,52 +6449,69 @@ var SlSelect = class extends ShoelaceElement {
 SlSelect.styles = select_styles_default;
 __decorateClass([
   i2$2(".select")
-], SlSelect.prototype, "dropdown", 2);
+], SlSelect.prototype, "popup", 2);
 __decorateClass([
-  i2$2(".select__control")
-], SlSelect.prototype, "control", 2);
+  i2$2(".select__combobox")
+], SlSelect.prototype, "combobox", 2);
 __decorateClass([
-  i2$2(".select__hidden-select")
-], SlSelect.prototype, "input", 2);
+  i2$2(".select__display-input")
+], SlSelect.prototype, "displayInput", 2);
 __decorateClass([
-  i2$2(".select__menu")
-], SlSelect.prototype, "menu", 2);
+  i2$2(".select__value-input")
+], SlSelect.prototype, "valueInput", 2);
+__decorateClass([
+  i2$2(".select__listbox")
+], SlSelect.prototype, "listbox", 2);
 __decorateClass([
   t$5()
 ], SlSelect.prototype, "hasFocus", 2);
 __decorateClass([
   t$5()
-], SlSelect.prototype, "isOpen", 2);
-__decorateClass([
-  t$5()
 ], SlSelect.prototype, "displayLabel", 2);
 __decorateClass([
   t$5()
-], SlSelect.prototype, "displayTags", 2);
+], SlSelect.prototype, "currentOption", 2);
+__decorateClass([
+  t$5()
+], SlSelect.prototype, "selectedOptions", 2);
 __decorateClass([
   t$5()
 ], SlSelect.prototype, "invalid", 2);
 __decorateClass([
-  e2$1({ type: Boolean, reflect: true })
-], SlSelect.prototype, "multiple", 2);
-__decorateClass([
-  e2$1({ attribute: "max-tags-visible", type: Number })
-], SlSelect.prototype, "maxTagsVisible", 2);
-__decorateClass([
-  e2$1({ type: Boolean, reflect: true })
-], SlSelect.prototype, "disabled", 2);
-__decorateClass([
   e2$1()
 ], SlSelect.prototype, "name", 2);
 __decorateClass([
-  e2$1()
+  e2$1({
+    converter: {
+      fromAttribute: (value) => value.split(" "),
+      toAttribute: (value) => value.join(" ")
+    }
+  })
 ], SlSelect.prototype, "value", 2);
+__decorateClass([
+  defaultValue()
+], SlSelect.prototype, "defaultValue", 2);
+__decorateClass([
+  e2$1()
+], SlSelect.prototype, "size", 2);
 __decorateClass([
   e2$1()
 ], SlSelect.prototype, "placeholder", 2);
 __decorateClass([
-  e2$1()
-], SlSelect.prototype, "size", 2);
+  e2$1({ type: Boolean, reflect: true })
+], SlSelect.prototype, "multiple", 2);
+__decorateClass([
+  e2$1({ attribute: "max-options-visible", type: Number })
+], SlSelect.prototype, "maxOptionsVisible", 2);
+__decorateClass([
+  e2$1({ type: Boolean, reflect: true })
+], SlSelect.prototype, "disabled", 2);
+__decorateClass([
+  e2$1({ type: Boolean })
+], SlSelect.prototype, "clearable", 2);
+__decorateClass([
+  e2$1({ type: Boolean, reflect: true })
+], SlSelect.prototype, "open", 2);
 __decorateClass([
   e2$1({ type: Boolean })
 ], SlSelect.prototype, "hoist", 2);
@@ -6383,7 +6525,7 @@ __decorateClass([
   e2$1()
 ], SlSelect.prototype, "label", 2);
 __decorateClass([
-  e2$1()
+  e2$1({ reflect: true })
 ], SlSelect.prototype, "placement", 2);
 __decorateClass([
   e2$1({ attribute: "help-text" })
@@ -6392,23 +6534,31 @@ __decorateClass([
   e2$1({ type: Boolean, reflect: true })
 ], SlSelect.prototype, "required", 2);
 __decorateClass([
-  e2$1({ type: Boolean })
-], SlSelect.prototype, "clearable", 2);
-__decorateClass([
-  defaultValue()
-], SlSelect.prototype, "defaultValue", 2);
-__decorateClass([
   watch("disabled", { waitUntilFirstUpdate: true })
 ], SlSelect.prototype, "handleDisabledChange", 1);
 __decorateClass([
-  watch("multiple")
-], SlSelect.prototype, "handleMultipleChange", 1);
-__decorateClass([
   watch("value", { waitUntilFirstUpdate: true })
 ], SlSelect.prototype, "handleValueChange", 1);
+__decorateClass([
+  watch("open", { waitUntilFirstUpdate: true })
+], SlSelect.prototype, "handleOpenChange", 1);
 SlSelect = __decorateClass([
   e$7("sl-select")
 ], SlSelect);
+setDefaultAnimation("select.show", {
+  keyframes: [
+    { opacity: 0, scale: 0.9 },
+    { opacity: 1, scale: 1 }
+  ],
+  options: { duration: 100, easing: "ease" }
+});
+setDefaultAnimation("select.hide", {
+  keyframes: [
+    { opacity: 1, scale: 1 },
+    { opacity: 0, scale: 0.9 }
+  ],
+  options: { duration: 100, easing: "ease" }
+});
 
 // src/components/tag/tag.styles.ts
 var tag_styles_default = i$7`
@@ -6425,7 +6575,6 @@ var tag_styles_default = i$7`
     line-height: 1;
     white-space: nowrap;
     user-select: none;
-    cursor: default;
   }
 
   .tag__remove::part(base) {
@@ -6443,10 +6592,18 @@ var tag_styles_default = i$7`
     color: var(--sl-color-primary-800);
   }
 
+  .tag--primary:active > sl-icon-button {
+    color: var(--sl-color-primary-600);
+  }
+
   .tag--success {
     background-color: var(--sl-color-success-50);
     border-color: var(--sl-color-success-200);
     color: var(--sl-color-success-800);
+  }
+
+  .tag--success:active > sl-icon-button {
+    color: var(--sl-color-success-600);
   }
 
   .tag--neutral {
@@ -6455,16 +6612,28 @@ var tag_styles_default = i$7`
     color: var(--sl-color-neutral-800);
   }
 
+  .tag--neutral:active > sl-icon-button {
+    color: var(--sl-color-neutral-600);
+  }
+
   .tag--warning {
     background-color: var(--sl-color-warning-50);
     border-color: var(--sl-color-warning-200);
     color: var(--sl-color-warning-800);
   }
 
+  .tag--warning:active > sl-icon-button {
+    color: var(--sl-color-warning-600);
+  }
+
   .tag--danger {
     background-color: var(--sl-color-danger-50);
     border-color: var(--sl-color-danger-200);
     color: var(--sl-color-danger-800);
+  }
+
+  .tag--danger:active > sl-icon-button {
+    color: var(--sl-color-danger-600);
   }
 
   /*
@@ -6551,6 +6720,7 @@ var SlTag = class extends ShoelaceElement {
                 label=${this.localize.term("remove")}
                 class="tag__remove"
                 @click=${this.handleRemoveClick}
+                tabindex="-1"
               ></sl-icon-button>
             ` : ""}
       </span>
@@ -6573,604 +6743,6 @@ __decorateClass([
 SlTag = __decorateClass([
   e$7("sl-tag")
 ], SlTag);
-
-// src/components/menu/menu.styles.ts
-var menu_styles_default = i$7`
-  ${component_styles_default}
-
-  :host {
-    display: block;
-    position: relative;
-    background: var(--sl-panel-background-color);
-    border: solid var(--sl-panel-border-width) var(--sl-panel-border-color);
-    border-radius: var(--sl-border-radius-medium);
-    padding: var(--sl-spacing-x-small) 0;
-    overflow: auto;
-    overscroll-behavior: none;
-  }
-
-  ::slotted(sl-divider) {
-    --spacing: var(--sl-spacing-x-small);
-  }
-`;
-
-// src/components/menu/menu.ts
-var SlMenu = class extends ShoelaceElement {
-  constructor() {
-    super(...arguments);
-    this.typeToSelectString = "";
-  }
-  connectedCallback() {
-    super.connectedCallback();
-    this.setAttribute("role", "menu");
-  }
-  getAllItems(options = { includeDisabled: true }) {
-    return [...this.defaultSlot.assignedElements({ flatten: true })].filter((el) => {
-      if (el.getAttribute("role") !== "menuitem") {
-        return false;
-      }
-      if (!options.includeDisabled && el.disabled) {
-        return false;
-      }
-      return true;
-    });
-  }
-  getCurrentItem() {
-    return this.getAllItems({ includeDisabled: false }).find((i2) => i2.getAttribute("tabindex") === "0");
-  }
-  setCurrentItem(item) {
-    const items = this.getAllItems({ includeDisabled: false });
-    const activeItem = item.disabled ? items[0] : item;
-    items.forEach((i2) => {
-      i2.setAttribute("tabindex", i2 === activeItem ? "0" : "-1");
-    });
-  }
-  typeToSelect(event) {
-    var _a;
-    const items = this.getAllItems({ includeDisabled: false });
-    clearTimeout(this.typeToSelectTimeout);
-    this.typeToSelectTimeout = window.setTimeout(() => this.typeToSelectString = "", 1e3);
-    if (event.key === "Backspace") {
-      if (event.metaKey || event.ctrlKey) {
-        this.typeToSelectString = "";
-      } else {
-        this.typeToSelectString = this.typeToSelectString.slice(0, -1);
-      }
-    } else {
-      this.typeToSelectString += event.key.toLowerCase();
-    }
-    for (const item of items) {
-      const slot = (_a = item.shadowRoot) == null ? void 0 : _a.querySelector("slot:not([name])");
-      const label = getTextContent(slot).toLowerCase().trim();
-      if (label.startsWith(this.typeToSelectString)) {
-        this.setCurrentItem(item);
-        item.focus();
-        break;
-      }
-    }
-  }
-  handleClick(event) {
-    const target = event.target;
-    const item = target.closest("sl-menu-item");
-    if ((item == null ? void 0 : item.disabled) === false) {
-      this.emit("sl-select", { detail: { item } });
-    }
-  }
-  handleKeyDown(event) {
-    if (event.key === "Enter") {
-      const item = this.getCurrentItem();
-      event.preventDefault();
-      item == null ? void 0 : item.click();
-    }
-    if (event.key === " ") {
-      event.preventDefault();
-    }
-    if (["ArrowDown", "ArrowUp", "Home", "End"].includes(event.key)) {
-      const items = this.getAllItems({ includeDisabled: false });
-      const activeItem = this.getCurrentItem();
-      let index = activeItem ? items.indexOf(activeItem) : 0;
-      if (items.length > 0) {
-        event.preventDefault();
-        if (event.key === "ArrowDown") {
-          index++;
-        } else if (event.key === "ArrowUp") {
-          index--;
-        } else if (event.key === "Home") {
-          index = 0;
-        } else if (event.key === "End") {
-          index = items.length - 1;
-        }
-        if (index < 0) {
-          index = items.length - 1;
-        }
-        if (index > items.length - 1) {
-          index = 0;
-        }
-        this.setCurrentItem(items[index]);
-        items[index].focus();
-        return;
-      }
-    }
-    this.typeToSelect(event);
-  }
-  handleMouseDown(event) {
-    const target = event.target;
-    if (target.getAttribute("role") === "menuitem") {
-      this.setCurrentItem(target);
-    }
-  }
-  handleSlotChange() {
-    const items = this.getAllItems({ includeDisabled: false });
-    if (items.length > 0) {
-      this.setCurrentItem(items[0]);
-    }
-  }
-  render() {
-    return y$1`
-      <slot
-        @slotchange=${this.handleSlotChange}
-        @click=${this.handleClick}
-        @keydown=${this.handleKeyDown}
-        @mousedown=${this.handleMouseDown}
-      ></slot>
-    `;
-  }
-};
-SlMenu.styles = menu_styles_default;
-__decorateClass([
-  i2$2("slot")
-], SlMenu.prototype, "defaultSlot", 2);
-SlMenu = __decorateClass([
-  e$7("sl-menu")
-], SlMenu);
-
-// src/components/dropdown/dropdown.styles.ts
-var dropdown_styles_default = i$7`
-  ${component_styles_default}
-
-  :host {
-    display: inline-block;
-  }
-
-  .dropdown::part(popup) {
-    z-index: var(--sl-z-index-dropdown);
-  }
-
-  .dropdown[data-current-placement^='top']::part(popup) {
-    transform-origin: bottom;
-  }
-
-  .dropdown[data-current-placement^='bottom']::part(popup) {
-    transform-origin: top;
-  }
-
-  .dropdown[data-current-placement^='left']::part(popup) {
-    transform-origin: right;
-  }
-
-  .dropdown[data-current-placement^='right']::part(popup) {
-    transform-origin: left;
-  }
-
-  .dropdown__trigger {
-    display: block;
-  }
-
-  .dropdown__panel {
-    font-family: var(--sl-font-sans);
-    font-size: var(--sl-font-size-medium);
-    font-weight: var(--sl-font-weight-normal);
-    color: var(--color);
-    box-shadow: var(--sl-shadow-large);
-    border-radius: var(--sl-border-radius-medium);
-    pointer-events: none;
-  }
-
-  .dropdown--open .dropdown__panel {
-    display: block;
-    pointer-events: all;
-  }
-
-  /* When users slot a menu, make sure it conforms to the popup's auto-size */
-  ::slotted(sl-menu) {
-    max-width: var(--auto-size-available-width) !important;
-    max-height: var(--auto-size-available-height) !important;
-  }
-`;
-
-// src/internal/tabbable.ts
-function isTabbable(el) {
-  const tag = el.tagName.toLowerCase();
-  if (el.getAttribute("tabindex") === "-1") {
-    return false;
-  }
-  if (el.hasAttribute("disabled")) {
-    return false;
-  }
-  if (el.hasAttribute("aria-disabled") && el.getAttribute("aria-disabled") !== "false") {
-    return false;
-  }
-  if (tag === "input" && el.getAttribute("type") === "radio" && !el.hasAttribute("checked")) {
-    return false;
-  }
-  if (el.offsetParent === null) {
-    return false;
-  }
-  if (window.getComputedStyle(el).visibility === "hidden") {
-    return false;
-  }
-  if ((tag === "audio" || tag === "video") && el.hasAttribute("controls")) {
-    return true;
-  }
-  if (el.hasAttribute("tabindex")) {
-    return true;
-  }
-  if (el.hasAttribute("contenteditable") && el.getAttribute("contenteditable") !== "false") {
-    return true;
-  }
-  return ["button", "input", "select", "textarea", "a", "audio", "video", "summary"].includes(tag);
-}
-function getTabbableBoundary(root) {
-  var _a, _b;
-  const allElements = [];
-  function walk(el) {
-    if (el instanceof HTMLElement) {
-      allElements.push(el);
-      if (el.shadowRoot !== null && el.shadowRoot.mode === "open") {
-        walk(el.shadowRoot);
-      }
-    }
-    [...el.children].forEach((e) => walk(e));
-  }
-  walk(root);
-  const start = (_a = allElements.find((el) => isTabbable(el))) != null ? _a : null;
-  const end = (_b = allElements.reverse().find((el) => isTabbable(el))) != null ? _b : null;
-  return { start, end };
-}
-
-// src/internal/offset.ts
-function getOffset(element, parent) {
-  return {
-    top: Math.round(element.getBoundingClientRect().top - parent.getBoundingClientRect().top),
-    left: Math.round(element.getBoundingClientRect().left - parent.getBoundingClientRect().left)
-  };
-}
-function scrollIntoView(element, container, direction = "vertical", behavior = "smooth") {
-  const offset = getOffset(element, container);
-  const offsetTop = offset.top + container.scrollTop;
-  const offsetLeft = offset.left + container.scrollLeft;
-  const minX = container.scrollLeft;
-  const maxX = container.scrollLeft + container.offsetWidth;
-  const minY = container.scrollTop;
-  const maxY = container.scrollTop + container.offsetHeight;
-  if (direction === "horizontal" || direction === "both") {
-    if (offsetLeft < minX) {
-      container.scrollTo({ left: offsetLeft, behavior });
-    } else if (offsetLeft + element.clientWidth > maxX) {
-      container.scrollTo({ left: offsetLeft - container.offsetWidth + element.clientWidth, behavior });
-    }
-  }
-  if (direction === "vertical" || direction === "both") {
-    if (offsetTop < minY) {
-      container.scrollTo({ top: offsetTop, behavior });
-    } else if (offsetTop + element.clientHeight > maxY) {
-      container.scrollTo({ top: offsetTop - container.offsetHeight + element.clientHeight, behavior });
-    }
-  }
-}
-
-// src/components/dropdown/dropdown.ts
-var SlDropdown = class extends ShoelaceElement {
-  constructor() {
-    super(...arguments);
-    this.localize = new LocalizeController2(this);
-    this.open = false;
-    this.placement = "bottom-start";
-    this.disabled = false;
-    this.stayOpenOnSelect = false;
-    this.distance = 0;
-    this.skidding = 0;
-    this.hoist = false;
-  }
-  connectedCallback() {
-    super.connectedCallback();
-    this.handleMenuItemActivate = this.handleMenuItemActivate.bind(this);
-    this.handlePanelSelect = this.handlePanelSelect.bind(this);
-    this.handleKeyDown = this.handleKeyDown.bind(this);
-    this.handleDocumentKeyDown = this.handleDocumentKeyDown.bind(this);
-    this.handleDocumentMouseDown = this.handleDocumentMouseDown.bind(this);
-    if (!this.containingElement) {
-      this.containingElement = this;
-    }
-  }
-  firstUpdated() {
-    this.panel.hidden = !this.open;
-    if (this.open) {
-      this.addOpenListeners();
-      this.popup.active = true;
-    }
-  }
-  disconnectedCallback() {
-    super.disconnectedCallback();
-    this.removeOpenListeners();
-    this.hide();
-  }
-  focusOnTrigger() {
-    const trigger = this.trigger.assignedElements({ flatten: true })[0];
-    if (typeof (trigger == null ? void 0 : trigger.focus) === "function") {
-      trigger.focus();
-    }
-  }
-  getMenu() {
-    return this.panel.assignedElements({ flatten: true }).find((el) => el.tagName.toLowerCase() === "sl-menu");
-  }
-  handleKeyDown(event) {
-    if (this.open && event.key === "Escape") {
-      event.stopPropagation();
-      this.hide();
-      this.focusOnTrigger();
-    }
-  }
-  handleDocumentKeyDown(event) {
-    var _a;
-    if (event.key === "Tab") {
-      if (this.open && ((_a = document.activeElement) == null ? void 0 : _a.tagName.toLowerCase()) === "sl-menu-item") {
-        event.preventDefault();
-        this.hide();
-        this.focusOnTrigger();
-        return;
-      }
-      setTimeout(() => {
-        var _a2, _b, _c;
-        const activeElement = ((_a2 = this.containingElement) == null ? void 0 : _a2.getRootNode()) instanceof ShadowRoot ? (_c = (_b = document.activeElement) == null ? void 0 : _b.shadowRoot) == null ? void 0 : _c.activeElement : document.activeElement;
-        if (!this.containingElement || (activeElement == null ? void 0 : activeElement.closest(this.containingElement.tagName.toLowerCase())) !== this.containingElement) {
-          this.hide();
-        }
-      });
-    }
-  }
-  handleDocumentMouseDown(event) {
-    const path = event.composedPath();
-    if (this.containingElement && !path.includes(this.containingElement)) {
-      this.hide();
-    }
-  }
-  handleMenuItemActivate(event) {
-    const item = event.target;
-    scrollIntoView(item, this.panel);
-  }
-  handlePanelSelect(event) {
-    const target = event.target;
-    if (!this.stayOpenOnSelect && target.tagName.toLowerCase() === "sl-menu") {
-      this.hide();
-      this.focusOnTrigger();
-    }
-  }
-  handleTriggerClick() {
-    if (this.open) {
-      this.hide();
-    } else {
-      this.show();
-    }
-  }
-  handleTriggerKeyDown(event) {
-    if (event.key === "Escape" && this.open) {
-      event.stopPropagation();
-      this.focusOnTrigger();
-      this.hide();
-      return;
-    }
-    if ([" ", "Enter"].includes(event.key)) {
-      event.preventDefault();
-      this.handleTriggerClick();
-      return;
-    }
-    const menu = this.getMenu();
-    if (menu) {
-      const menuItems = menu.defaultSlot.assignedElements({ flatten: true });
-      const firstMenuItem = menuItems[0];
-      const lastMenuItem = menuItems[menuItems.length - 1];
-      if (["ArrowDown", "ArrowUp", "Home", "End"].includes(event.key)) {
-        event.preventDefault();
-        if (!this.open) {
-          this.show();
-        }
-        if (menuItems.length > 0) {
-          requestAnimationFrame(() => {
-            if (event.key === "ArrowDown" || event.key === "Home") {
-              menu.setCurrentItem(firstMenuItem);
-              firstMenuItem.focus();
-            }
-            if (event.key === "ArrowUp" || event.key === "End") {
-              menu.setCurrentItem(lastMenuItem);
-              lastMenuItem.focus();
-            }
-          });
-        }
-      }
-      const ignoredKeys = ["Tab", "Shift", "Meta", "Ctrl", "Alt"];
-      if (this.open && !ignoredKeys.includes(event.key)) {
-        menu.typeToSelect(event);
-      }
-    }
-  }
-  handleTriggerKeyUp(event) {
-    if (event.key === " ") {
-      event.preventDefault();
-    }
-  }
-  handleTriggerSlotChange() {
-    this.updateAccessibleTrigger();
-  }
-  updateAccessibleTrigger() {
-    const assignedElements = this.trigger.assignedElements({ flatten: true });
-    const accessibleTrigger = assignedElements.find((el) => getTabbableBoundary(el).start);
-    let target;
-    if (accessibleTrigger) {
-      switch (accessibleTrigger.tagName.toLowerCase()) {
-        case "sl-button":
-        case "sl-icon-button":
-          target = accessibleTrigger.button;
-          break;
-        default:
-          target = accessibleTrigger;
-      }
-      target.setAttribute("aria-haspopup", "true");
-      target.setAttribute("aria-expanded", this.open ? "true" : "false");
-    }
-  }
-  async show() {
-    if (this.open) {
-      return void 0;
-    }
-    this.open = true;
-    return waitForEvent(this, "sl-after-show");
-  }
-  async hide() {
-    if (!this.open) {
-      return void 0;
-    }
-    this.open = false;
-    return waitForEvent(this, "sl-after-hide");
-  }
-  reposition() {
-    this.popup.reposition();
-  }
-  addOpenListeners() {
-    this.panel.addEventListener("sl-activate", this.handleMenuItemActivate);
-    this.panel.addEventListener("sl-select", this.handlePanelSelect);
-    this.panel.addEventListener("keydown", this.handleKeyDown);
-    document.addEventListener("keydown", this.handleDocumentKeyDown);
-    document.addEventListener("mousedown", this.handleDocumentMouseDown);
-  }
-  removeOpenListeners() {
-    if (this.panel) {
-      this.panel.removeEventListener("sl-activate", this.handleMenuItemActivate);
-      this.panel.removeEventListener("sl-select", this.handlePanelSelect);
-      this.panel.removeEventListener("keydown", this.handleKeyDown);
-    }
-    document.removeEventListener("keydown", this.handleDocumentKeyDown);
-    document.removeEventListener("mousedown", this.handleDocumentMouseDown);
-  }
-  async handleOpenChange() {
-    if (this.disabled) {
-      this.open = false;
-      return;
-    }
-    this.updateAccessibleTrigger();
-    if (this.open) {
-      this.emit("sl-show");
-      this.addOpenListeners();
-      await stopAnimations(this);
-      this.panel.hidden = false;
-      this.popup.active = true;
-      const { keyframes, options } = getAnimation(this, "dropdown.show", { dir: this.localize.dir() });
-      await animateTo(this.popup.popup, keyframes, options);
-      this.emit("sl-after-show");
-    } else {
-      this.emit("sl-hide");
-      this.removeOpenListeners();
-      await stopAnimations(this);
-      const { keyframes, options } = getAnimation(this, "dropdown.hide", { dir: this.localize.dir() });
-      await animateTo(this.popup.popup, keyframes, options);
-      this.panel.hidden = true;
-      this.popup.active = false;
-      this.emit("sl-after-hide");
-    }
-  }
-  render() {
-    return y$1`
-      <sl-popup
-        part="base"
-        id="dropdown"
-        placement=${this.placement}
-        distance=${this.distance}
-        skidding=${this.skidding}
-        strategy=${this.hoist ? "fixed" : "absolute"}
-        flip
-        shift
-        auto-size="vertical"
-        auto-size-padding="10"
-        class=${o$7({
-      dropdown: true,
-      "dropdown--open": this.open
-    })}
-      >
-        <slot
-          name="trigger"
-          slot="anchor"
-          part="trigger"
-          class="dropdown__trigger"
-          @click=${this.handleTriggerClick}
-          @keydown=${this.handleTriggerKeyDown}
-          @keyup=${this.handleTriggerKeyUp}
-          @slotchange=${this.handleTriggerSlotChange}
-        ></slot>
-
-        <slot
-          part="panel"
-          class="dropdown__panel"
-          aria-hidden=${this.open ? "false" : "true"}
-          aria-labelledby="dropdown"
-        ></slot>
-      </sl-popup>
-    `;
-  }
-};
-SlDropdown.styles = dropdown_styles_default;
-__decorateClass([
-  i2$2(".dropdown")
-], SlDropdown.prototype, "popup", 2);
-__decorateClass([
-  i2$2(".dropdown__trigger")
-], SlDropdown.prototype, "trigger", 2);
-__decorateClass([
-  i2$2(".dropdown__panel")
-], SlDropdown.prototype, "panel", 2);
-__decorateClass([
-  e2$1({ type: Boolean, reflect: true })
-], SlDropdown.prototype, "open", 2);
-__decorateClass([
-  e2$1({ reflect: true })
-], SlDropdown.prototype, "placement", 2);
-__decorateClass([
-  e2$1({ type: Boolean, reflect: true })
-], SlDropdown.prototype, "disabled", 2);
-__decorateClass([
-  e2$1({ attribute: "stay-open-on-select", type: Boolean, reflect: true })
-], SlDropdown.prototype, "stayOpenOnSelect", 2);
-__decorateClass([
-  e2$1({ attribute: false })
-], SlDropdown.prototype, "containingElement", 2);
-__decorateClass([
-  e2$1({ type: Number })
-], SlDropdown.prototype, "distance", 2);
-__decorateClass([
-  e2$1({ type: Number })
-], SlDropdown.prototype, "skidding", 2);
-__decorateClass([
-  e2$1({ type: Boolean })
-], SlDropdown.prototype, "hoist", 2);
-__decorateClass([
-  watch("open", { waitUntilFirstUpdate: true })
-], SlDropdown.prototype, "handleOpenChange", 1);
-SlDropdown = __decorateClass([
-  e$7("sl-dropdown")
-], SlDropdown);
-setDefaultAnimation("dropdown.show", {
-  keyframes: [
-    { opacity: 0, scale: 0.9 },
-    { opacity: 1, scale: 1 }
-  ],
-  options: { duration: 100, easing: "ease" }
-});
-setDefaultAnimation("dropdown.hide", {
-  keyframes: [
-    { opacity: 1, scale: 1 },
-    { opacity: 0, scale: 0.9 }
-  ],
-  options: { duration: 100, easing: "ease" }
-});
 
 // src/components/popup/popup.styles.ts
 var popup_styles_default = i$7`
@@ -7629,6 +7201,23 @@ var SlPopup = class extends ShoelaceElement {
   disconnectedCallback() {
     this.stop();
   }
+  async updated(changedProps) {
+    super.updated(changedProps);
+    if (changedProps.has("active")) {
+      if (this.active) {
+        this.start();
+      } else {
+        this.stop();
+      }
+    }
+    if (changedProps.has("anchor")) {
+      this.handleAnchorChange();
+    }
+    if (this.active) {
+      await this.updateComplete;
+      this.reposition();
+    }
+  }
   async handleAnchorChange() {
     await this.stop();
     if (this.anchor && typeof this.anchor === "string") {
@@ -7670,23 +7259,6 @@ var SlPopup = class extends ShoelaceElement {
         resolve();
       }
     });
-  }
-  async updated(changedProps) {
-    super.updated(changedProps);
-    if (changedProps.has("active")) {
-      if (this.active) {
-        this.start();
-      } else {
-        this.stop();
-      }
-    }
-    if (changedProps.has("anchor")) {
-      this.handleAnchorChange();
-    }
-    if (this.active) {
-      await this.updateComplete;
-      this.reposition();
-    }
   }
   reposition() {
     if (!this.active || !this.anchorEl) {
@@ -7909,6 +7481,129 @@ SlPopup = __decorateClass([
   e$7("sl-popup")
 ], SlPopup);
 
+// src/components/menu/menu.styles.ts
+var menu_styles_default = i$7`
+  ${component_styles_default}
+
+  :host {
+    display: block;
+    position: relative;
+    background: var(--sl-panel-background-color);
+    border: solid var(--sl-panel-border-width) var(--sl-panel-border-color);
+    border-radius: var(--sl-border-radius-medium);
+    padding: var(--sl-spacing-x-small) 0;
+    overflow: auto;
+    overscroll-behavior: none;
+  }
+
+  ::slotted(sl-divider) {
+    --spacing: var(--sl-spacing-x-small);
+  }
+`;
+
+// src/components/menu/menu.ts
+var SlMenu = class extends ShoelaceElement {
+  connectedCallback() {
+    super.connectedCallback();
+    this.setAttribute("role", "menu");
+  }
+  getAllItems() {
+    return [...this.defaultSlot.assignedElements({ flatten: true })].filter((el) => {
+      if (!this.isMenuItem(el)) {
+        return false;
+      }
+      return true;
+    });
+  }
+  handleClick(event) {
+    const target = event.target;
+    const item = target.closest("sl-menu-item");
+    if ((item == null ? void 0 : item.disabled) === false) {
+      if (item.type === "checkbox") {
+        item.checked = !item.checked;
+      }
+      this.emit("sl-select", { detail: { item } });
+    }
+  }
+  handleKeyDown(event) {
+    if (event.key === "Enter") {
+      const item = this.getCurrentItem();
+      event.preventDefault();
+      item == null ? void 0 : item.click();
+    }
+    if (event.key === " ") {
+      event.preventDefault();
+    }
+    if (["ArrowDown", "ArrowUp", "Home", "End"].includes(event.key)) {
+      const items = this.getAllItems();
+      const activeItem = this.getCurrentItem();
+      let index = activeItem ? items.indexOf(activeItem) : 0;
+      if (items.length > 0) {
+        event.preventDefault();
+        if (event.key === "ArrowDown") {
+          index++;
+        } else if (event.key === "ArrowUp") {
+          index--;
+        } else if (event.key === "Home") {
+          index = 0;
+        } else if (event.key === "End") {
+          index = items.length - 1;
+        }
+        if (index < 0) {
+          index = items.length - 1;
+        }
+        if (index > items.length - 1) {
+          index = 0;
+        }
+        this.setCurrentItem(items[index]);
+        items[index].focus();
+      }
+    }
+  }
+  handleMouseDown(event) {
+    const target = event.target;
+    if (this.isMenuItem(target)) {
+      this.setCurrentItem(target);
+    }
+  }
+  handleSlotChange() {
+    const items = this.getAllItems();
+    if (items.length > 0) {
+      this.setCurrentItem(items[0]);
+    }
+  }
+  isMenuItem(item) {
+    var _a;
+    return item.tagName.toLowerCase() === "sl-menu-item" || ["menuitem", "menuitemcheckbox", "menuitemradio"].includes((_a = item.getAttribute("role")) != null ? _a : "");
+  }
+  getCurrentItem() {
+    return this.getAllItems().find((i2) => i2.getAttribute("tabindex") === "0");
+  }
+  setCurrentItem(item) {
+    const items = this.getAllItems();
+    items.forEach((i2) => {
+      i2.setAttribute("tabindex", i2 === item ? "0" : "-1");
+    });
+  }
+  render() {
+    return y$1`
+      <slot
+        @slotchange=${this.handleSlotChange}
+        @click=${this.handleClick}
+        @keydown=${this.handleKeyDown}
+        @mousedown=${this.handleMouseDown}
+      ></slot>
+    `;
+  }
+};
+SlMenu.styles = menu_styles_default;
+__decorateClass([
+  i2$2("slot")
+], SlMenu.prototype, "defaultSlot", 2);
+SlMenu = __decorateClass([
+  e$7("sl-menu")
+], SlMenu);
+
 // src/components/menu-item/menu-item.styles.ts
 var menu_item_styles_default = i$7`
   ${component_styles_default}
@@ -7969,11 +7664,16 @@ var menu_item_styles_default = i$7`
     outline: none;
   }
 
-  :host(:hover:not([aria-disabled='true'])) .menu-item,
-  :host(:focus-visible:not(.sl-focus-invisible):not([aria-disabled='true'])) .menu-item {
+  :host(:hover:not([aria-disabled='true'])) .menu-item {
+    background-color: var(--sl-color-neutral-100);
+    color: var(--sl-color-neutral-1000);
+  }
+
+  :host(:focus-visible) .menu-item {
     outline: none;
     background-color: var(--sl-color-primary-600);
     color: var(--sl-color-neutral-0);
+    opacity: 1;
   }
 
   .menu-item .menu-item__check,
@@ -7993,7 +7693,7 @@ var menu_item_styles_default = i$7`
 
   @media (forced-colors: active) {
     :host(:hover:not([aria-disabled='true'])) .menu-item,
-    :host(:focus-visible:not(.sl-focus-invisible):not([aria-disabled='true'])) .menu-item {
+    :host(:focus-visible) .menu-item {
       outline: dashed 1px SelectedItem;
       outline-offset: -1px;
     }
@@ -8004,21 +7704,10 @@ var menu_item_styles_default = i$7`
 var SlMenuItem = class extends ShoelaceElement {
   constructor() {
     super(...arguments);
+    this.type = "normal";
     this.checked = false;
     this.value = "";
     this.disabled = false;
-  }
-  firstUpdated() {
-    this.setAttribute("role", "menuitem");
-  }
-  getTextLabel() {
-    return getTextContent(this.defaultSlot);
-  }
-  handleCheckedChange() {
-    this.setAttribute("aria-checked", this.checked ? "true" : "false");
-  }
-  handleDisabledChange() {
-    this.setAttribute("aria-disabled", this.disabled ? "true" : "false");
   }
   handleDefaultSlotChange() {
     const textLabel = this.getTextLabel();
@@ -8028,8 +7717,35 @@ var SlMenuItem = class extends ShoelaceElement {
     }
     if (textLabel !== this.cachedTextLabel) {
       this.cachedTextLabel = textLabel;
-      this.emit("sl-label-change");
+      this.emit("slotchange", { bubbles: true, composed: false, cancelable: false });
     }
+  }
+  handleCheckedChange() {
+    if (this.checked && this.type !== "checkbox") {
+      this.checked = false;
+      console.error('The checked attribute can only be used on menu items with type="checkbox"', this);
+      return;
+    }
+    if (this.type === "checkbox") {
+      this.setAttribute("aria-checked", this.checked ? "true" : "false");
+    } else {
+      this.removeAttribute("aria-checked");
+    }
+  }
+  handleDisabledChange() {
+    this.setAttribute("aria-disabled", this.disabled ? "true" : "false");
+  }
+  handleTypeChange() {
+    if (this.type === "checkbox") {
+      this.setAttribute("role", "menuitemcheckbox");
+      this.setAttribute("aria-checked", this.checked ? "true" : "false");
+    } else {
+      this.setAttribute("role", "menuitem");
+      this.removeAttribute("aria-checked");
+    }
+  }
+  getTextLabel() {
+    return getTextContent(this.defaultSlot);
   }
   render() {
     return y$1`
@@ -8067,6 +7783,9 @@ __decorateClass([
   i2$2(".menu-item")
 ], SlMenuItem.prototype, "menuItem", 2);
 __decorateClass([
+  e2$1()
+], SlMenuItem.prototype, "type", 2);
+__decorateClass([
   e2$1({ type: Boolean, reflect: true })
 ], SlMenuItem.prototype, "checked", 2);
 __decorateClass([
@@ -8081,9 +7800,424 @@ __decorateClass([
 __decorateClass([
   watch("disabled")
 ], SlMenuItem.prototype, "handleDisabledChange", 1);
+__decorateClass([
+  watch("type")
+], SlMenuItem.prototype, "handleTypeChange", 1);
 SlMenuItem = __decorateClass([
   e$7("sl-menu-item")
 ], SlMenuItem);
+
+// src/components/dropdown/dropdown.styles.ts
+var dropdown_styles_default = i$7`
+  ${component_styles_default}
+
+  :host {
+    display: inline-block;
+  }
+
+  .dropdown::part(popup) {
+    z-index: var(--sl-z-index-dropdown);
+  }
+
+  .dropdown[data-current-placement^='top']::part(popup) {
+    transform-origin: bottom;
+  }
+
+  .dropdown[data-current-placement^='bottom']::part(popup) {
+    transform-origin: top;
+  }
+
+  .dropdown[data-current-placement^='left']::part(popup) {
+    transform-origin: right;
+  }
+
+  .dropdown[data-current-placement^='right']::part(popup) {
+    transform-origin: left;
+  }
+
+  .dropdown__trigger {
+    display: block;
+  }
+
+  .dropdown__panel {
+    font-family: var(--sl-font-sans);
+    font-size: var(--sl-font-size-medium);
+    font-weight: var(--sl-font-weight-normal);
+    box-shadow: var(--sl-shadow-large);
+    border-radius: var(--sl-border-radius-medium);
+    pointer-events: none;
+  }
+
+  .dropdown--open .dropdown__panel {
+    display: block;
+    pointer-events: all;
+  }
+
+  /* When users slot a menu, make sure it conforms to the popup's auto-size */
+  ::slotted(sl-menu) {
+    max-width: var(--auto-size-available-width) !important;
+    max-height: var(--auto-size-available-height) !important;
+  }
+`;
+
+// src/internal/tabbable.ts
+function isTabbable(el) {
+  const tag = el.tagName.toLowerCase();
+  if (el.getAttribute("tabindex") === "-1") {
+    return false;
+  }
+  if (el.hasAttribute("disabled")) {
+    return false;
+  }
+  if (el.hasAttribute("aria-disabled") && el.getAttribute("aria-disabled") !== "false") {
+    return false;
+  }
+  if (tag === "input" && el.getAttribute("type") === "radio" && !el.hasAttribute("checked")) {
+    return false;
+  }
+  if (el.offsetParent === null) {
+    return false;
+  }
+  if (window.getComputedStyle(el).visibility === "hidden") {
+    return false;
+  }
+  if ((tag === "audio" || tag === "video") && el.hasAttribute("controls")) {
+    return true;
+  }
+  if (el.hasAttribute("tabindex")) {
+    return true;
+  }
+  if (el.hasAttribute("contenteditable") && el.getAttribute("contenteditable") !== "false") {
+    return true;
+  }
+  return ["button", "input", "select", "textarea", "a", "audio", "video", "summary"].includes(tag);
+}
+function getTabbableBoundary(root) {
+  var _a, _b;
+  const allElements = [];
+  function walk(el) {
+    if (el instanceof HTMLElement) {
+      allElements.push(el);
+      if (el.shadowRoot !== null && el.shadowRoot.mode === "open") {
+        walk(el.shadowRoot);
+      }
+    }
+    [...el.children].forEach((e) => walk(e));
+  }
+  walk(root);
+  const start = (_a = allElements.find((el) => isTabbable(el))) != null ? _a : null;
+  const end = (_b = allElements.reverse().find((el) => isTabbable(el))) != null ? _b : null;
+  return { start, end };
+}
+
+// src/components/dropdown/dropdown.ts
+var SlDropdown = class extends ShoelaceElement {
+  constructor() {
+    super(...arguments);
+    this.localize = new LocalizeController2(this);
+    this.open = false;
+    this.placement = "bottom-start";
+    this.disabled = false;
+    this.stayOpenOnSelect = false;
+    this.distance = 0;
+    this.skidding = 0;
+    this.hoist = false;
+  }
+  connectedCallback() {
+    super.connectedCallback();
+    this.handleMenuItemActivate = this.handleMenuItemActivate.bind(this);
+    this.handlePanelSelect = this.handlePanelSelect.bind(this);
+    this.handleKeyDown = this.handleKeyDown.bind(this);
+    this.handleDocumentKeyDown = this.handleDocumentKeyDown.bind(this);
+    this.handleDocumentMouseDown = this.handleDocumentMouseDown.bind(this);
+    if (!this.containingElement) {
+      this.containingElement = this;
+    }
+  }
+  firstUpdated() {
+    this.panel.hidden = !this.open;
+    if (this.open) {
+      this.addOpenListeners();
+      this.popup.active = true;
+    }
+  }
+  disconnectedCallback() {
+    super.disconnectedCallback();
+    this.removeOpenListeners();
+    this.hide();
+  }
+  focusOnTrigger() {
+    const trigger = this.trigger.assignedElements({ flatten: true })[0];
+    if (typeof (trigger == null ? void 0 : trigger.focus) === "function") {
+      trigger.focus();
+    }
+  }
+  getMenu() {
+    return this.panel.assignedElements({ flatten: true }).find((el) => el.tagName.toLowerCase() === "sl-menu");
+  }
+  handleKeyDown(event) {
+    if (this.open && event.key === "Escape") {
+      event.stopPropagation();
+      this.hide();
+      this.focusOnTrigger();
+    }
+  }
+  handleDocumentKeyDown(event) {
+    var _a;
+    if (event.key === "Tab") {
+      if (this.open && ((_a = document.activeElement) == null ? void 0 : _a.tagName.toLowerCase()) === "sl-menu-item") {
+        event.preventDefault();
+        this.hide();
+        this.focusOnTrigger();
+        return;
+      }
+      setTimeout(() => {
+        var _a2, _b, _c;
+        const activeElement = ((_a2 = this.containingElement) == null ? void 0 : _a2.getRootNode()) instanceof ShadowRoot ? (_c = (_b = document.activeElement) == null ? void 0 : _b.shadowRoot) == null ? void 0 : _c.activeElement : document.activeElement;
+        if (!this.containingElement || (activeElement == null ? void 0 : activeElement.closest(this.containingElement.tagName.toLowerCase())) !== this.containingElement) {
+          this.hide();
+        }
+      });
+    }
+  }
+  handleDocumentMouseDown(event) {
+    const path = event.composedPath();
+    if (this.containingElement && !path.includes(this.containingElement)) {
+      this.hide();
+    }
+  }
+  handleMenuItemActivate(event) {
+    const item = event.target;
+    scrollIntoView(item, this.panel);
+  }
+  handlePanelSelect(event) {
+    const target = event.target;
+    if (!this.stayOpenOnSelect && target.tagName.toLowerCase() === "sl-menu") {
+      this.hide();
+      this.focusOnTrigger();
+    }
+  }
+  handleTriggerClick() {
+    if (this.open) {
+      this.hide();
+    } else {
+      this.show();
+    }
+  }
+  handleTriggerKeyDown(event) {
+    if (event.key === "Escape" && this.open) {
+      event.stopPropagation();
+      this.focusOnTrigger();
+      this.hide();
+      return;
+    }
+    if ([" ", "Enter"].includes(event.key)) {
+      event.preventDefault();
+      this.handleTriggerClick();
+      return;
+    }
+    const menu = this.getMenu();
+    if (menu) {
+      const menuItems = menu.defaultSlot.assignedElements({ flatten: true });
+      const firstMenuItem = menuItems[0];
+      const lastMenuItem = menuItems[menuItems.length - 1];
+      if (["ArrowDown", "ArrowUp", "Home", "End"].includes(event.key)) {
+        event.preventDefault();
+        if (!this.open) {
+          this.show();
+        }
+        if (menuItems.length > 0) {
+          requestAnimationFrame(() => {
+            if (event.key === "ArrowDown" || event.key === "Home") {
+              menu.setCurrentItem(firstMenuItem);
+              firstMenuItem.focus();
+            }
+            if (event.key === "ArrowUp" || event.key === "End") {
+              menu.setCurrentItem(lastMenuItem);
+              lastMenuItem.focus();
+            }
+          });
+        }
+      }
+    }
+  }
+  handleTriggerKeyUp(event) {
+    if (event.key === " ") {
+      event.preventDefault();
+    }
+  }
+  handleTriggerSlotChange() {
+    this.updateAccessibleTrigger();
+  }
+  updateAccessibleTrigger() {
+    const assignedElements = this.trigger.assignedElements({ flatten: true });
+    const accessibleTrigger = assignedElements.find((el) => getTabbableBoundary(el).start);
+    let target;
+    if (accessibleTrigger) {
+      switch (accessibleTrigger.tagName.toLowerCase()) {
+        case "sl-button":
+        case "sl-icon-button":
+          target = accessibleTrigger.button;
+          break;
+        default:
+          target = accessibleTrigger;
+      }
+      target.setAttribute("aria-haspopup", "true");
+      target.setAttribute("aria-expanded", this.open ? "true" : "false");
+    }
+  }
+  async show() {
+    if (this.open) {
+      return void 0;
+    }
+    this.open = true;
+    return waitForEvent(this, "sl-after-show");
+  }
+  async hide() {
+    if (!this.open) {
+      return void 0;
+    }
+    this.open = false;
+    return waitForEvent(this, "sl-after-hide");
+  }
+  reposition() {
+    this.popup.reposition();
+  }
+  addOpenListeners() {
+    this.panel.addEventListener("sl-activate", this.handleMenuItemActivate);
+    this.panel.addEventListener("sl-select", this.handlePanelSelect);
+    this.panel.addEventListener("keydown", this.handleKeyDown);
+    document.addEventListener("keydown", this.handleDocumentKeyDown);
+    document.addEventListener("mousedown", this.handleDocumentMouseDown);
+  }
+  removeOpenListeners() {
+    if (this.panel) {
+      this.panel.removeEventListener("sl-activate", this.handleMenuItemActivate);
+      this.panel.removeEventListener("sl-select", this.handlePanelSelect);
+      this.panel.removeEventListener("keydown", this.handleKeyDown);
+    }
+    document.removeEventListener("keydown", this.handleDocumentKeyDown);
+    document.removeEventListener("mousedown", this.handleDocumentMouseDown);
+  }
+  async handleOpenChange() {
+    if (this.disabled) {
+      this.open = false;
+      return;
+    }
+    this.updateAccessibleTrigger();
+    if (this.open) {
+      this.emit("sl-show");
+      this.addOpenListeners();
+      await stopAnimations(this);
+      this.panel.hidden = false;
+      this.popup.active = true;
+      const { keyframes, options } = getAnimation(this, "dropdown.show", { dir: this.localize.dir() });
+      await animateTo(this.popup.popup, keyframes, options);
+      this.emit("sl-after-show");
+    } else {
+      this.emit("sl-hide");
+      this.removeOpenListeners();
+      await stopAnimations(this);
+      const { keyframes, options } = getAnimation(this, "dropdown.hide", { dir: this.localize.dir() });
+      await animateTo(this.popup.popup, keyframes, options);
+      this.panel.hidden = true;
+      this.popup.active = false;
+      this.emit("sl-after-hide");
+    }
+  }
+  render() {
+    return y$1`
+      <sl-popup
+        part="base"
+        id="dropdown"
+        placement=${this.placement}
+        distance=${this.distance}
+        skidding=${this.skidding}
+        strategy=${this.hoist ? "fixed" : "absolute"}
+        flip
+        shift
+        auto-size="vertical"
+        auto-size-padding="10"
+        class=${o$7({
+      dropdown: true,
+      "dropdown--open": this.open
+    })}
+      >
+        <slot
+          name="trigger"
+          slot="anchor"
+          part="trigger"
+          class="dropdown__trigger"
+          @click=${this.handleTriggerClick}
+          @keydown=${this.handleTriggerKeyDown}
+          @keyup=${this.handleTriggerKeyUp}
+          @slotchange=${this.handleTriggerSlotChange}
+        ></slot>
+
+        <slot
+          part="panel"
+          class="dropdown__panel"
+          aria-hidden=${this.open ? "false" : "true"}
+          aria-labelledby="dropdown"
+        ></slot>
+      </sl-popup>
+    `;
+  }
+};
+SlDropdown.styles = dropdown_styles_default;
+__decorateClass([
+  i2$2(".dropdown")
+], SlDropdown.prototype, "popup", 2);
+__decorateClass([
+  i2$2(".dropdown__trigger")
+], SlDropdown.prototype, "trigger", 2);
+__decorateClass([
+  i2$2(".dropdown__panel")
+], SlDropdown.prototype, "panel", 2);
+__decorateClass([
+  e2$1({ type: Boolean, reflect: true })
+], SlDropdown.prototype, "open", 2);
+__decorateClass([
+  e2$1({ reflect: true })
+], SlDropdown.prototype, "placement", 2);
+__decorateClass([
+  e2$1({ type: Boolean, reflect: true })
+], SlDropdown.prototype, "disabled", 2);
+__decorateClass([
+  e2$1({ attribute: "stay-open-on-select", type: Boolean, reflect: true })
+], SlDropdown.prototype, "stayOpenOnSelect", 2);
+__decorateClass([
+  e2$1({ attribute: false })
+], SlDropdown.prototype, "containingElement", 2);
+__decorateClass([
+  e2$1({ type: Number })
+], SlDropdown.prototype, "distance", 2);
+__decorateClass([
+  e2$1({ type: Number })
+], SlDropdown.prototype, "skidding", 2);
+__decorateClass([
+  e2$1({ type: Boolean })
+], SlDropdown.prototype, "hoist", 2);
+__decorateClass([
+  watch("open", { waitUntilFirstUpdate: true })
+], SlDropdown.prototype, "handleOpenChange", 1);
+SlDropdown = __decorateClass([
+  e$7("sl-dropdown")
+], SlDropdown);
+setDefaultAnimation("dropdown.show", {
+  keyframes: [
+    { opacity: 0, scale: 0.9 },
+    { opacity: 1, scale: 1 }
+  ],
+  options: { duration: 100, easing: "ease" }
+});
+setDefaultAnimation("dropdown.hide", {
+  keyframes: [
+    { opacity: 1, scale: 1 },
+    { opacity: 0, scale: 0.9 }
+  ],
+  options: { duration: 100, easing: "ease" }
+});
 
 // src/components/tab-group/tab-group.styles.ts
 var tab_group_styles_default = i$7`
@@ -8362,12 +8496,6 @@ var SlTabGroup = class extends ShoelaceElement {
     this.mutationObserver.disconnect();
     this.resizeObserver.unobserve(this.nav);
   }
-  show(panel) {
-    const tab = this.tabs.find((el) => el.panel === panel);
-    if (tab) {
-      this.setActiveTab(tab, { scrollBehavior: "smooth" });
-    }
-  }
   getAllTabs(options = { includeDisabled: true }) {
     const slot = this.shadowRoot.querySelector('slot[name="nav"]');
     return [...slot.assignedElements()].filter((el) => {
@@ -8447,13 +8575,6 @@ var SlTabGroup = class extends ShoelaceElement {
       behavior: "smooth"
     });
   }
-  updateScrollControls() {
-    if (this.noScrollControls) {
-      this.hasScrollControls = false;
-    } else {
-      this.hasScrollControls = ["top", "bottom"].includes(this.placement) && this.nav.scrollWidth > this.nav.clientWidth;
-    }
-  }
   setActiveTab(tab, options) {
     options = __spreadValues({
       emitEvents: true,
@@ -8487,15 +8608,6 @@ var SlTabGroup = class extends ShoelaceElement {
         panel.setAttribute("aria-labelledby", tab.getAttribute("id"));
       }
     });
-  }
-  syncIndicator() {
-    const tab = this.getActiveTab();
-    if (tab) {
-      this.indicator.style.display = "block";
-      this.repositionIndicator();
-    } else {
-      this.indicator.style.display = "none";
-    }
   }
   repositionIndicator() {
     const currentTab = this.getActiveTab();
@@ -8533,6 +8645,28 @@ var SlTabGroup = class extends ShoelaceElement {
     this.tabs = this.getAllTabs({ includeDisabled: false });
     this.panels = this.getAllPanels();
     this.syncIndicator();
+  }
+  updateScrollControls() {
+    if (this.noScrollControls) {
+      this.hasScrollControls = false;
+    } else {
+      this.hasScrollControls = ["top", "bottom"].includes(this.placement) && this.nav.scrollWidth > this.nav.clientWidth;
+    }
+  }
+  syncIndicator() {
+    const tab = this.getActiveTab();
+    if (tab) {
+      this.indicator.style.display = "block";
+      this.repositionIndicator();
+    } else {
+      this.indicator.style.display = "none";
+    }
+  }
+  show(panel) {
+    const tab = this.tabs.find((el) => el.panel === panel);
+    if (tab) {
+      this.setActiveTab(tab, { scrollBehavior: "smooth" });
+    }
   }
   render() {
     const isRtl = this.localize.dir() === "rtl";
@@ -8775,12 +8909,6 @@ var SlTab = class extends ShoelaceElement {
     super.connectedCallback();
     this.setAttribute("role", "tab");
   }
-  focus(options) {
-    this.tab.focus(options);
-  }
-  blur() {
-    this.tab.blur();
-  }
   handleCloseClick() {
     this.emit("sl-close");
   }
@@ -8789,6 +8917,12 @@ var SlTab = class extends ShoelaceElement {
   }
   handleDisabledChange() {
     this.setAttribute("aria-disabled", this.disabled ? "true" : "false");
+  }
+  focus(options) {
+    this.tab.focus(options);
+  }
+  blur() {
+    this.tab.blur();
   }
   render() {
     this.id = this.id.length > 0 ? this.id : this.componentId;
@@ -8947,29 +9081,6 @@ var SlTooltip = class extends ShoelaceElement {
     this.removeEventListener("mouseover", this.handleMouseOver);
     this.removeEventListener("mouseout", this.handleMouseOut);
   }
-  async show() {
-    if (this.open) {
-      return void 0;
-    }
-    this.open = true;
-    return waitForEvent(this, "sl-after-show");
-  }
-  async hide() {
-    if (!this.open) {
-      return void 0;
-    }
-    this.open = false;
-    return waitForEvent(this, "sl-after-hide");
-  }
-  getTarget() {
-    const target = [...this.children].find(
-      (el) => el.tagName.toLowerCase() !== "style" && el.getAttribute("slot") !== "content"
-    );
-    if (!target) {
-      throw new Error("Invalid tooltip target: no child element was found.");
-    }
-    return target;
-  }
   handleBlur() {
     if (this.hasTrigger("focus")) {
       this.hide();
@@ -9009,6 +9120,10 @@ var SlTooltip = class extends ShoelaceElement {
       this.hoverTimeout = window.setTimeout(() => this.hide(), delay);
     }
   }
+  hasTrigger(triggerType) {
+    const triggers = this.trigger.split(" ");
+    return triggers.includes(triggerType);
+  }
   async handleOpenChange() {
     if (this.open) {
       if (this.disabled) {
@@ -9042,9 +9157,19 @@ var SlTooltip = class extends ShoelaceElement {
       this.hide();
     }
   }
-  hasTrigger(triggerType) {
-    const triggers = this.trigger.split(" ");
-    return triggers.includes(triggerType);
+  async show() {
+    if (this.open) {
+      return void 0;
+    }
+    this.open = true;
+    return waitForEvent(this, "sl-after-show");
+  }
+  async hide() {
+    if (!this.open) {
+      return void 0;
+    }
+    this.open = false;
+    return waitForEvent(this, "sl-after-hide");
   }
   render() {
     return y$1`
@@ -9307,7 +9432,7 @@ var SlSwitch = class extends ShoelaceElement {
   constructor() {
     super(...arguments);
     this.formSubmitController = new FormSubmitController(this, {
-      value: (control) => control.checked ? control.value : void 0,
+      value: (control) => control.checked ? control.value || "on" : void 0,
       defaultValue: (control) => control.defaultChecked,
       setValue: (control, checked) => control.checked = checked
     });
@@ -9322,26 +9447,7 @@ var SlSwitch = class extends ShoelaceElement {
     this.defaultChecked = false;
   }
   firstUpdated() {
-    this.invalid = !this.input.checkValidity();
-  }
-  click() {
-    this.input.click();
-  }
-  focus(options) {
-    this.input.focus(options);
-  }
-  blur() {
-    this.input.blur();
-  }
-  checkValidity() {
-    return this.input.checkValidity();
-  }
-  reportValidity() {
-    return this.input.reportValidity();
-  }
-  setCustomValidity(message) {
-    this.input.setCustomValidity(message);
-    this.invalid = !this.input.checkValidity();
+    this.invalid = !this.checkValidity();
   }
   handleBlur() {
     this.hasFocus = false;
@@ -9350,17 +9456,9 @@ var SlSwitch = class extends ShoelaceElement {
   handleInput() {
     this.emit("sl-input");
   }
-  handleCheckedChange() {
-    this.input.checked = this.checked;
-    this.invalid = !this.input.checkValidity();
-  }
   handleClick() {
     this.checked = !this.checked;
     this.emit("sl-change");
-  }
-  handleDisabledChange() {
-    this.input.disabled = this.disabled;
-    this.invalid = !this.input.checkValidity();
   }
   handleFocus() {
     this.hasFocus = true;
@@ -9379,6 +9477,33 @@ var SlSwitch = class extends ShoelaceElement {
       this.emit("sl-change");
       this.emit("sl-input");
     }
+  }
+  handleCheckedChange() {
+    this.input.checked = this.checked;
+    this.invalid = !this.checkValidity();
+  }
+  handleDisabledChange() {
+    this.input.disabled = this.disabled;
+    this.invalid = !this.checkValidity();
+  }
+  click() {
+    this.input.click();
+  }
+  focus(options) {
+    this.input.focus(options);
+  }
+  blur() {
+    this.input.blur();
+  }
+  checkValidity() {
+    return this.input.checkValidity();
+  }
+  reportValidity() {
+    return this.input.reportValidity();
+  }
+  setCustomValidity(message) {
+    this.input.setCustomValidity(message);
+    this.invalid = !this.checkValidity();
   }
   render() {
     return y$1`
@@ -9476,14 +9601,14 @@ const t$3=window,e$6=t$3.ShadowRoot&&(void 0===t$3.ShadyCSS||t$3.ShadyCSS.native
  * @license
  * Copyright 2017 Google LLC
  * SPDX-License-Identifier: BSD-3-Clause
- */var s$5;const e$5=window,r$3=e$5.trustedTypes,h$3=r$3?r$3.emptyScript:"",o$3=e$5.reactiveElementPolyfillSupport,n$5={toAttribute(t,i){switch(i){case Boolean:t=t?h$3:null;break;case Object:case Array:t=null==t?t:JSON.stringify(t);}return t},fromAttribute(t,i){let s=t;switch(i){case Boolean:s=null!==t;break;case Number:s=null===t?null:Number(t);break;case Object:case Array:try{s=JSON.parse(t);}catch(t){s=null;}}return s}},a$1=(t,i)=>i!==t&&(i==i||t==t),l$4={attribute:!0,type:String,converter:n$5,reflect:!1,hasChanged:a$1};let d$1 = class d extends HTMLElement{constructor(){super(),this._$Ei=new Map,this.isUpdatePending=!1,this.hasUpdated=!1,this._$El=null,this.u();}static addInitializer(t){var i;this.finalize(),(null!==(i=this.h)&&void 0!==i?i:this.h=[]).push(t);}static get observedAttributes(){this.finalize();const t=[];return this.elementProperties.forEach(((i,s)=>{const e=this._$Ep(s,i);void 0!==e&&(this._$Ev.set(e,s),t.push(e));})),t}static createProperty(t,i=l$4){if(i.state&&(i.attribute=!1),this.finalize(),this.elementProperties.set(t,i),!i.noAccessor&&!this.prototype.hasOwnProperty(t)){const s="symbol"==typeof t?Symbol():"__"+t,e=this.getPropertyDescriptor(t,s,i);void 0!==e&&Object.defineProperty(this.prototype,t,e);}}static getPropertyDescriptor(t,i,s){return {get(){return this[i]},set(e){const r=this[t];this[i]=e,this.requestUpdate(t,r,s);},configurable:!0,enumerable:!0}}static getPropertyOptions(t){return this.elementProperties.get(t)||l$4}static finalize(){if(this.hasOwnProperty("finalized"))return !1;this.finalized=!0;const t=Object.getPrototypeOf(this);if(t.finalize(),void 0!==t.h&&(this.h=[...t.h]),this.elementProperties=new Map(t.elementProperties),this._$Ev=new Map,this.hasOwnProperty("properties")){const t=this.properties,i=[...Object.getOwnPropertyNames(t),...Object.getOwnPropertySymbols(t)];for(const s of i)this.createProperty(s,t[s]);}return this.elementStyles=this.finalizeStyles(this.styles),!0}static finalizeStyles(i){const s=[];if(Array.isArray(i)){const e=new Set(i.flat(1/0).reverse());for(const i of e)s.unshift(c$5(i));}else void 0!==i&&s.push(c$5(i));return s}static _$Ep(t,i){const s=i.attribute;return !1===s?void 0:"string"==typeof s?s:"string"==typeof t?t.toLowerCase():void 0}u(){var t;this._$E_=new Promise((t=>this.enableUpdating=t)),this._$AL=new Map,this._$Eg(),this.requestUpdate(),null===(t=this.constructor.h)||void 0===t||t.forEach((t=>t(this)));}addController(t){var i,s;(null!==(i=this._$ES)&&void 0!==i?i:this._$ES=[]).push(t),void 0!==this.renderRoot&&this.isConnected&&(null===(s=t.hostConnected)||void 0===s||s.call(t));}removeController(t){var i;null===(i=this._$ES)||void 0===i||i.splice(this._$ES.indexOf(t)>>>0,1);}_$Eg(){this.constructor.elementProperties.forEach(((t,i)=>{this.hasOwnProperty(i)&&(this._$Ei.set(i,this[i]),delete this[i]);}));}createRenderRoot(){var t;const s=null!==(t=this.shadowRoot)&&void 0!==t?t:this.attachShadow(this.constructor.shadowRootOptions);return S$1(s,this.constructor.elementStyles),s}connectedCallback(){var t;void 0===this.renderRoot&&(this.renderRoot=this.createRenderRoot()),this.enableUpdating(!0),null===(t=this._$ES)||void 0===t||t.forEach((t=>{var i;return null===(i=t.hostConnected)||void 0===i?void 0:i.call(t)}));}enableUpdating(t){}disconnectedCallback(){var t;null===(t=this._$ES)||void 0===t||t.forEach((t=>{var i;return null===(i=t.hostDisconnected)||void 0===i?void 0:i.call(t)}));}attributeChangedCallback(t,i,s){this._$AK(t,s);}_$EO(t,i,s=l$4){var e;const r=this.constructor._$Ep(t,s);if(void 0!==r&&!0===s.reflect){const h=(void 0!==(null===(e=s.converter)||void 0===e?void 0:e.toAttribute)?s.converter:n$5).toAttribute(i,s.type);this._$El=t,null==h?this.removeAttribute(r):this.setAttribute(r,h),this._$El=null;}}_$AK(t,i){var s;const e=this.constructor,r=e._$Ev.get(t);if(void 0!==r&&this._$El!==r){const t=e.getPropertyOptions(r),h="function"==typeof t.converter?{fromAttribute:t.converter}:void 0!==(null===(s=t.converter)||void 0===s?void 0:s.fromAttribute)?t.converter:n$5;this._$El=r,this[r]=h.fromAttribute(i,t.type),this._$El=null;}}requestUpdate(t,i,s){let e=!0;void 0!==t&&(((s=s||this.constructor.getPropertyOptions(t)).hasChanged||a$1)(this[t],i)?(this._$AL.has(t)||this._$AL.set(t,i),!0===s.reflect&&this._$El!==t&&(void 0===this._$EC&&(this._$EC=new Map),this._$EC.set(t,s))):e=!1),!this.isUpdatePending&&e&&(this._$E_=this._$Ej());}async _$Ej(){this.isUpdatePending=!0;try{await this._$E_;}catch(t){Promise.reject(t);}const t=this.scheduleUpdate();return null!=t&&await t,!this.isUpdatePending}scheduleUpdate(){return this.performUpdate()}performUpdate(){var t;if(!this.isUpdatePending)return;this.hasUpdated,this._$Ei&&(this._$Ei.forEach(((t,i)=>this[i]=t)),this._$Ei=void 0);let i=!1;const s=this._$AL;try{i=this.shouldUpdate(s),i?(this.willUpdate(s),null===(t=this._$ES)||void 0===t||t.forEach((t=>{var i;return null===(i=t.hostUpdate)||void 0===i?void 0:i.call(t)})),this.update(s)):this._$Ek();}catch(t){throw i=!1,this._$Ek(),t}i&&this._$AE(s);}willUpdate(t){}_$AE(t){var i;null===(i=this._$ES)||void 0===i||i.forEach((t=>{var i;return null===(i=t.hostUpdated)||void 0===i?void 0:i.call(t)})),this.hasUpdated||(this.hasUpdated=!0,this.firstUpdated(t)),this.updated(t);}_$Ek(){this._$AL=new Map,this.isUpdatePending=!1;}get updateComplete(){return this.getUpdateComplete()}getUpdateComplete(){return this._$E_}shouldUpdate(t){return !0}update(t){void 0!==this._$EC&&(this._$EC.forEach(((t,i)=>this._$EO(i,this[i],t))),this._$EC=void 0),this._$Ek();}updated(t){}firstUpdated(t){}};d$1.finalized=!0,d$1.elementProperties=new Map,d$1.elementStyles=[],d$1.shadowRootOptions={mode:"open"},null==o$3||o$3({ReactiveElement:d$1}),(null!==(s$5=e$5.reactiveElementVersions)&&void 0!==s$5?s$5:e$5.reactiveElementVersions=[]).push("1.5.0");
+ */var s$5;const e$5=window,r$3=e$5.trustedTypes,h$3=r$3?r$3.emptyScript:"",o$3=e$5.reactiveElementPolyfillSupport,n$5={toAttribute(t,i){switch(i){case Boolean:t=t?h$3:null;break;case Object:case Array:t=null==t?t:JSON.stringify(t);}return t},fromAttribute(t,i){let s=t;switch(i){case Boolean:s=null!==t;break;case Number:s=null===t?null:Number(t);break;case Object:case Array:try{s=JSON.parse(t);}catch(t){s=null;}}return s}},a$1=(t,i)=>i!==t&&(i==i||t==t),l$4={attribute:!0,type:String,converter:n$5,reflect:!1,hasChanged:a$1};let d$1 = class d extends HTMLElement{constructor(){super(),this._$Ei=new Map,this.isUpdatePending=!1,this.hasUpdated=!1,this._$El=null,this.u();}static addInitializer(t){var i;this.finalize(),(null!==(i=this.h)&&void 0!==i?i:this.h=[]).push(t);}static get observedAttributes(){this.finalize();const t=[];return this.elementProperties.forEach(((i,s)=>{const e=this._$Ep(s,i);void 0!==e&&(this._$Ev.set(e,s),t.push(e));})),t}static createProperty(t,i=l$4){if(i.state&&(i.attribute=!1),this.finalize(),this.elementProperties.set(t,i),!i.noAccessor&&!this.prototype.hasOwnProperty(t)){const s="symbol"==typeof t?Symbol():"__"+t,e=this.getPropertyDescriptor(t,s,i);void 0!==e&&Object.defineProperty(this.prototype,t,e);}}static getPropertyDescriptor(t,i,s){return {get(){return this[i]},set(e){const r=this[t];this[i]=e,this.requestUpdate(t,r,s);},configurable:!0,enumerable:!0}}static getPropertyOptions(t){return this.elementProperties.get(t)||l$4}static finalize(){if(this.hasOwnProperty("finalized"))return !1;this.finalized=!0;const t=Object.getPrototypeOf(this);if(t.finalize(),void 0!==t.h&&(this.h=[...t.h]),this.elementProperties=new Map(t.elementProperties),this._$Ev=new Map,this.hasOwnProperty("properties")){const t=this.properties,i=[...Object.getOwnPropertyNames(t),...Object.getOwnPropertySymbols(t)];for(const s of i)this.createProperty(s,t[s]);}return this.elementStyles=this.finalizeStyles(this.styles),!0}static finalizeStyles(i){const s=[];if(Array.isArray(i)){const e=new Set(i.flat(1/0).reverse());for(const i of e)s.unshift(c$5(i));}else void 0!==i&&s.push(c$5(i));return s}static _$Ep(t,i){const s=i.attribute;return !1===s?void 0:"string"==typeof s?s:"string"==typeof t?t.toLowerCase():void 0}u(){var t;this._$E_=new Promise((t=>this.enableUpdating=t)),this._$AL=new Map,this._$Eg(),this.requestUpdate(),null===(t=this.constructor.h)||void 0===t||t.forEach((t=>t(this)));}addController(t){var i,s;(null!==(i=this._$ES)&&void 0!==i?i:this._$ES=[]).push(t),void 0!==this.renderRoot&&this.isConnected&&(null===(s=t.hostConnected)||void 0===s||s.call(t));}removeController(t){var i;null===(i=this._$ES)||void 0===i||i.splice(this._$ES.indexOf(t)>>>0,1);}_$Eg(){this.constructor.elementProperties.forEach(((t,i)=>{this.hasOwnProperty(i)&&(this._$Ei.set(i,this[i]),delete this[i]);}));}createRenderRoot(){var t;const s=null!==(t=this.shadowRoot)&&void 0!==t?t:this.attachShadow(this.constructor.shadowRootOptions);return S$1(s,this.constructor.elementStyles),s}connectedCallback(){var t;void 0===this.renderRoot&&(this.renderRoot=this.createRenderRoot()),this.enableUpdating(!0),null===(t=this._$ES)||void 0===t||t.forEach((t=>{var i;return null===(i=t.hostConnected)||void 0===i?void 0:i.call(t)}));}enableUpdating(t){}disconnectedCallback(){var t;null===(t=this._$ES)||void 0===t||t.forEach((t=>{var i;return null===(i=t.hostDisconnected)||void 0===i?void 0:i.call(t)}));}attributeChangedCallback(t,i,s){this._$AK(t,s);}_$EO(t,i,s=l$4){var e;const r=this.constructor._$Ep(t,s);if(void 0!==r&&!0===s.reflect){const h=(void 0!==(null===(e=s.converter)||void 0===e?void 0:e.toAttribute)?s.converter:n$5).toAttribute(i,s.type);this._$El=t,null==h?this.removeAttribute(r):this.setAttribute(r,h),this._$El=null;}}_$AK(t,i){var s;const e=this.constructor,r=e._$Ev.get(t);if(void 0!==r&&this._$El!==r){const t=e.getPropertyOptions(r),h="function"==typeof t.converter?{fromAttribute:t.converter}:void 0!==(null===(s=t.converter)||void 0===s?void 0:s.fromAttribute)?t.converter:n$5;this._$El=r,this[r]=h.fromAttribute(i,t.type),this._$El=null;}}requestUpdate(t,i,s){let e=!0;void 0!==t&&(((s=s||this.constructor.getPropertyOptions(t)).hasChanged||a$1)(this[t],i)?(this._$AL.has(t)||this._$AL.set(t,i),!0===s.reflect&&this._$El!==t&&(void 0===this._$EC&&(this._$EC=new Map),this._$EC.set(t,s))):e=!1),!this.isUpdatePending&&e&&(this._$E_=this._$Ej());}async _$Ej(){this.isUpdatePending=!0;try{await this._$E_;}catch(t){Promise.reject(t);}const t=this.scheduleUpdate();return null!=t&&await t,!this.isUpdatePending}scheduleUpdate(){return this.performUpdate()}performUpdate(){var t;if(!this.isUpdatePending)return;this.hasUpdated,this._$Ei&&(this._$Ei.forEach(((t,i)=>this[i]=t)),this._$Ei=void 0);let i=!1;const s=this._$AL;try{i=this.shouldUpdate(s),i?(this.willUpdate(s),null===(t=this._$ES)||void 0===t||t.forEach((t=>{var i;return null===(i=t.hostUpdate)||void 0===i?void 0:i.call(t)})),this.update(s)):this._$Ek();}catch(t){throw i=!1,this._$Ek(),t}i&&this._$AE(s);}willUpdate(t){}_$AE(t){var i;null===(i=this._$ES)||void 0===i||i.forEach((t=>{var i;return null===(i=t.hostUpdated)||void 0===i?void 0:i.call(t)})),this.hasUpdated||(this.hasUpdated=!0,this.firstUpdated(t)),this.updated(t);}_$Ek(){this._$AL=new Map,this.isUpdatePending=!1;}get updateComplete(){return this.getUpdateComplete()}getUpdateComplete(){return this._$E_}shouldUpdate(t){return !0}update(t){void 0!==this._$EC&&(this._$EC.forEach(((t,i)=>this._$EO(i,this[i],t))),this._$EC=void 0),this._$Ek();}updated(t){}firstUpdated(t){}};d$1.finalized=!0,d$1.elementProperties=new Map,d$1.elementStyles=[],d$1.shadowRootOptions={mode:"open"},null==o$3||o$3({ReactiveElement:d$1}),(null!==(s$5=e$5.reactiveElementVersions)&&void 0!==s$5?s$5:e$5.reactiveElementVersions=[]).push("1.6.1");
 
 /**
  * @license
  * Copyright 2017 Google LLC
  * SPDX-License-Identifier: BSD-3-Clause
  */
-var t$2;const i$3=window,s$4=i$3.trustedTypes,e$4=s$4?s$4.createPolicy("lit-html",{createHTML:t=>t}):void 0,o$2=`lit$${(Math.random()+"").slice(9)}$`,n$4="?"+o$2,l$3=`<${n$4}>`,h$2=document,r$2=(t="")=>h$2.createComment(t),d=t=>null===t||"object"!=typeof t&&"function"!=typeof t,u$2=Array.isArray,c$4=t=>u$2(t)||"function"==typeof(null==t?void 0:t[Symbol.iterator]),v=/<(?:(!--|\/[^a-zA-Z])|(\/?[a-zA-Z][^>\s]*)|(\/?$))/g,a=/-->/g,f$1=/>/g,_=RegExp(">|[ \t\n\f\r](?:([^\\s\"'>=/]+)([ \t\n\f\r]*=[ \t\n\f\r]*(?:[^ \t\n\f\r\"'`<>=]|(\"|')|))|$)","g"),m$1=/'/g,p$1=/"/g,$=/^(?:script|style|textarea|title)$/i,g=t=>(i,...s)=>({_$litType$:t,strings:i,values:s}),y=g(1),x=Symbol.for("lit-noChange"),b=Symbol.for("lit-nothing"),T=new WeakMap,A=h$2.createTreeWalker(h$2,129,null,!1),E=(t,i)=>{const s=t.length-1,n=[];let h,r=2===i?"<svg>":"",d=v;for(let i=0;i<s;i++){const s=t[i];let e,u,c=-1,g=0;for(;g<s.length&&(d.lastIndex=g,u=d.exec(s),null!==u);)g=d.lastIndex,d===v?"!--"===u[1]?d=a:void 0!==u[1]?d=f$1:void 0!==u[2]?($.test(u[2])&&(h=RegExp("</"+u[2],"g")),d=_):void 0!==u[3]&&(d=_):d===_?">"===u[0]?(d=null!=h?h:v,c=-1):void 0===u[1]?c=-2:(c=d.lastIndex-u[2].length,e=u[1],d=void 0===u[3]?_:'"'===u[3]?p$1:m$1):d===p$1||d===m$1?d=_:d===a||d===f$1?d=v:(d=_,h=void 0);const y=d===_&&t[i+1].startsWith("/>")?" ":"";r+=d===v?s+l$3:c>=0?(n.push(e),s.slice(0,c)+"$lit$"+s.slice(c)+o$2+y):s+o$2+(-2===c?(n.push(void 0),i):y);}const u=r+(t[s]||"<?>")+(2===i?"</svg>":"");if(!Array.isArray(t)||!t.hasOwnProperty("raw"))throw Error("invalid template strings array");return [void 0!==e$4?e$4.createHTML(u):u,n]};class C{constructor({strings:t,_$litType$:i},e){let l;this.parts=[];let h=0,d=0;const u=t.length-1,c=this.parts,[v,a]=E(t,i);if(this.el=C.createElement(v,e),A.currentNode=this.el.content,2===i){const t=this.el.content,i=t.firstChild;i.remove(),t.append(...i.childNodes);}for(;null!==(l=A.nextNode())&&c.length<u;){if(1===l.nodeType){if(l.hasAttributes()){const t=[];for(const i of l.getAttributeNames())if(i.endsWith("$lit$")||i.startsWith(o$2)){const s=a[d++];if(t.push(i),void 0!==s){const t=l.getAttribute(s.toLowerCase()+"$lit$").split(o$2),i=/([.?@])?(.*)/.exec(s);c.push({type:1,index:h,name:i[2],strings:t,ctor:"."===i[1]?M:"?"===i[1]?k:"@"===i[1]?H:S});}else c.push({type:6,index:h});}for(const i of t)l.removeAttribute(i);}if($.test(l.tagName)){const t=l.textContent.split(o$2),i=t.length-1;if(i>0){l.textContent=s$4?s$4.emptyScript:"";for(let s=0;s<i;s++)l.append(t[s],r$2()),A.nextNode(),c.push({type:2,index:++h});l.append(t[i],r$2());}}}else if(8===l.nodeType)if(l.data===n$4)c.push({type:2,index:h});else {let t=-1;for(;-1!==(t=l.data.indexOf(o$2,t+1));)c.push({type:7,index:h}),t+=o$2.length-1;}h++;}}static createElement(t,i){const s=h$2.createElement("template");return s.innerHTML=t,s}}function P(t,i,s=t,e){var o,n,l,h;if(i===x)return i;let r=void 0!==e?null===(o=s._$Co)||void 0===o?void 0:o[e]:s._$Cl;const u=d(i)?void 0:i._$litDirective$;return (null==r?void 0:r.constructor)!==u&&(null===(n=null==r?void 0:r._$AO)||void 0===n||n.call(r,!1),void 0===u?r=void 0:(r=new u(t),r._$AT(t,s,e)),void 0!==e?(null!==(l=(h=s)._$Co)&&void 0!==l?l:h._$Co=[])[e]=r:s._$Cl=r),void 0!==r&&(i=P(t,r._$AS(t,i.values),r,e)),i}class V{constructor(t,i){this.u=[],this._$AN=void 0,this._$AD=t,this._$AM=i;}get parentNode(){return this._$AM.parentNode}get _$AU(){return this._$AM._$AU}v(t){var i;const{el:{content:s},parts:e}=this._$AD,o=(null!==(i=null==t?void 0:t.creationScope)&&void 0!==i?i:h$2).importNode(s,!0);A.currentNode=o;let n=A.nextNode(),l=0,r=0,d=e[0];for(;void 0!==d;){if(l===d.index){let i;2===d.type?i=new N(n,n.nextSibling,this,t):1===d.type?i=new d.ctor(n,d.name,d.strings,this,t):6===d.type&&(i=new I(n,this,t)),this.u.push(i),d=e[++r];}l!==(null==d?void 0:d.index)&&(n=A.nextNode(),l++);}return o}p(t){let i=0;for(const s of this.u)void 0!==s&&(void 0!==s.strings?(s._$AI(t,s,i),i+=s.strings.length-2):s._$AI(t[i])),i++;}}class N{constructor(t,i,s,e){var o;this.type=2,this._$AH=b,this._$AN=void 0,this._$AA=t,this._$AB=i,this._$AM=s,this.options=e,this._$Cm=null===(o=null==e?void 0:e.isConnected)||void 0===o||o;}get _$AU(){var t,i;return null!==(i=null===(t=this._$AM)||void 0===t?void 0:t._$AU)&&void 0!==i?i:this._$Cm}get parentNode(){let t=this._$AA.parentNode;const i=this._$AM;return void 0!==i&&11===t.nodeType&&(t=i.parentNode),t}get startNode(){return this._$AA}get endNode(){return this._$AB}_$AI(t,i=this){t=P(this,t,i),d(t)?t===b||null==t||""===t?(this._$AH!==b&&this._$AR(),this._$AH=b):t!==this._$AH&&t!==x&&this.g(t):void 0!==t._$litType$?this.$(t):void 0!==t.nodeType?this.T(t):c$4(t)?this.k(t):this.g(t);}O(t,i=this._$AB){return this._$AA.parentNode.insertBefore(t,i)}T(t){this._$AH!==t&&(this._$AR(),this._$AH=this.O(t));}g(t){this._$AH!==b&&d(this._$AH)?this._$AA.nextSibling.data=t:this.T(h$2.createTextNode(t)),this._$AH=t;}$(t){var i;const{values:s,_$litType$:e}=t,o="number"==typeof e?this._$AC(t):(void 0===e.el&&(e.el=C.createElement(e.h,this.options)),e);if((null===(i=this._$AH)||void 0===i?void 0:i._$AD)===o)this._$AH.p(s);else {const t=new V(o,this),i=t.v(this.options);t.p(s),this.T(i),this._$AH=t;}}_$AC(t){let i=T.get(t.strings);return void 0===i&&T.set(t.strings,i=new C(t)),i}k(t){u$2(this._$AH)||(this._$AH=[],this._$AR());const i=this._$AH;let s,e=0;for(const o of t)e===i.length?i.push(s=new N(this.O(r$2()),this.O(r$2()),this,this.options)):s=i[e],s._$AI(o),e++;e<i.length&&(this._$AR(s&&s._$AB.nextSibling,e),i.length=e);}_$AR(t=this._$AA.nextSibling,i){var s;for(null===(s=this._$AP)||void 0===s||s.call(this,!1,!0,i);t&&t!==this._$AB;){const i=t.nextSibling;t.remove(),t=i;}}setConnected(t){var i;void 0===this._$AM&&(this._$Cm=t,null===(i=this._$AP)||void 0===i||i.call(this,t));}}class S{constructor(t,i,s,e,o){this.type=1,this._$AH=b,this._$AN=void 0,this.element=t,this.name=i,this._$AM=e,this.options=o,s.length>2||""!==s[0]||""!==s[1]?(this._$AH=Array(s.length-1).fill(new String),this.strings=s):this._$AH=b;}get tagName(){return this.element.tagName}get _$AU(){return this._$AM._$AU}_$AI(t,i=this,s,e){const o=this.strings;let n=!1;if(void 0===o)t=P(this,t,i,0),n=!d(t)||t!==this._$AH&&t!==x,n&&(this._$AH=t);else {const e=t;let l,h;for(t=o[0],l=0;l<o.length-1;l++)h=P(this,e[s+l],i,l),h===x&&(h=this._$AH[l]),n||(n=!d(h)||h!==this._$AH[l]),h===b?t=b:t!==b&&(t+=(null!=h?h:"")+o[l+1]),this._$AH[l]=h;}n&&!e&&this.j(t);}j(t){t===b?this.element.removeAttribute(this.name):this.element.setAttribute(this.name,null!=t?t:"");}}class M extends S{constructor(){super(...arguments),this.type=3;}j(t){this.element[this.name]=t===b?void 0:t;}}const R=s$4?s$4.emptyScript:"";class k extends S{constructor(){super(...arguments),this.type=4;}j(t){t&&t!==b?this.element.setAttribute(this.name,R):this.element.removeAttribute(this.name);}}class H extends S{constructor(t,i,s,e,o){super(t,i,s,e,o),this.type=5;}_$AI(t,i=this){var s;if((t=null!==(s=P(this,t,i,0))&&void 0!==s?s:b)===x)return;const e=this._$AH,o=t===b&&e!==b||t.capture!==e.capture||t.once!==e.once||t.passive!==e.passive,n=t!==b&&(e===b||o);o&&this.element.removeEventListener(this.name,this,e),n&&this.element.addEventListener(this.name,this,t),this._$AH=t;}handleEvent(t){var i,s;"function"==typeof this._$AH?this._$AH.call(null!==(s=null===(i=this.options)||void 0===i?void 0:i.host)&&void 0!==s?s:this.element,t):this._$AH.handleEvent(t);}}class I{constructor(t,i,s){this.element=t,this.type=6,this._$AN=void 0,this._$AM=i,this.options=s;}get _$AU(){return this._$AM._$AU}_$AI(t){P(this,t);}}const L={P:"$lit$",A:o$2,M:n$4,C:1,L:E,R:V,D:c$4,V:P,I:N,H:S,N:k,U:H,B:M,F:I},z=i$3.litHtmlPolyfillSupport;null==z||z(C,N),(null!==(t$2=i$3.litHtmlVersions)&&void 0!==t$2?t$2:i$3.litHtmlVersions=[]).push("2.5.0");const Z=(t,i,s)=>{var e,o;const n=null!==(e=null==s?void 0:s.renderBefore)&&void 0!==e?e:i;let l=n._$litPart$;if(void 0===l){const t=null!==(o=null==s?void 0:s.renderBefore)&&void 0!==o?o:null;n._$litPart$=l=new N(i.insertBefore(r$2(),t),t,void 0,null!=s?s:{});}return l._$AI(t),l};
+var t$2;const i$3=window,s$4=i$3.trustedTypes,e$4=s$4?s$4.createPolicy("lit-html",{createHTML:t=>t}):void 0,o$2=`lit$${(Math.random()+"").slice(9)}$`,n$4="?"+o$2,l$3=`<${n$4}>`,h$2=document,r$2=(t="")=>h$2.createComment(t),d=t=>null===t||"object"!=typeof t&&"function"!=typeof t,u$2=Array.isArray,c$4=t=>u$2(t)||"function"==typeof(null==t?void 0:t[Symbol.iterator]),v=/<(?:(!--|\/[^a-zA-Z])|(\/?[a-zA-Z][^>\s]*)|(\/?$))/g,a=/-->/g,f$1=/>/g,_=RegExp(">|[ \t\n\f\r](?:([^\\s\"'>=/]+)([ \t\n\f\r]*=[ \t\n\f\r]*(?:[^ \t\n\f\r\"'`<>=]|(\"|')|))|$)","g"),m$1=/'/g,p$1=/"/g,$=/^(?:script|style|textarea|title)$/i,g=t=>(i,...s)=>({_$litType$:t,strings:i,values:s}),y=g(1),x=Symbol.for("lit-noChange"),b=Symbol.for("lit-nothing"),T=new WeakMap,A=h$2.createTreeWalker(h$2,129,null,!1),E=(t,i)=>{const s=t.length-1,n=[];let h,r=2===i?"<svg>":"",d=v;for(let i=0;i<s;i++){const s=t[i];let e,u,c=-1,g=0;for(;g<s.length&&(d.lastIndex=g,u=d.exec(s),null!==u);)g=d.lastIndex,d===v?"!--"===u[1]?d=a:void 0!==u[1]?d=f$1:void 0!==u[2]?($.test(u[2])&&(h=RegExp("</"+u[2],"g")),d=_):void 0!==u[3]&&(d=_):d===_?">"===u[0]?(d=null!=h?h:v,c=-1):void 0===u[1]?c=-2:(c=d.lastIndex-u[2].length,e=u[1],d=void 0===u[3]?_:'"'===u[3]?p$1:m$1):d===p$1||d===m$1?d=_:d===a||d===f$1?d=v:(d=_,h=void 0);const y=d===_&&t[i+1].startsWith("/>")?" ":"";r+=d===v?s+l$3:c>=0?(n.push(e),s.slice(0,c)+"$lit$"+s.slice(c)+o$2+y):s+o$2+(-2===c?(n.push(void 0),i):y);}const u=r+(t[s]||"<?>")+(2===i?"</svg>":"");if(!Array.isArray(t)||!t.hasOwnProperty("raw"))throw Error("invalid template strings array");return [void 0!==e$4?e$4.createHTML(u):u,n]};class C{constructor({strings:t,_$litType$:i},e){let l;this.parts=[];let h=0,d=0;const u=t.length-1,c=this.parts,[v,a]=E(t,i);if(this.el=C.createElement(v,e),A.currentNode=this.el.content,2===i){const t=this.el.content,i=t.firstChild;i.remove(),t.append(...i.childNodes);}for(;null!==(l=A.nextNode())&&c.length<u;){if(1===l.nodeType){if(l.hasAttributes()){const t=[];for(const i of l.getAttributeNames())if(i.endsWith("$lit$")||i.startsWith(o$2)){const s=a[d++];if(t.push(i),void 0!==s){const t=l.getAttribute(s.toLowerCase()+"$lit$").split(o$2),i=/([.?@])?(.*)/.exec(s);c.push({type:1,index:h,name:i[2],strings:t,ctor:"."===i[1]?M:"?"===i[1]?k:"@"===i[1]?H:S});}else c.push({type:6,index:h});}for(const i of t)l.removeAttribute(i);}if($.test(l.tagName)){const t=l.textContent.split(o$2),i=t.length-1;if(i>0){l.textContent=s$4?s$4.emptyScript:"";for(let s=0;s<i;s++)l.append(t[s],r$2()),A.nextNode(),c.push({type:2,index:++h});l.append(t[i],r$2());}}}else if(8===l.nodeType)if(l.data===n$4)c.push({type:2,index:h});else {let t=-1;for(;-1!==(t=l.data.indexOf(o$2,t+1));)c.push({type:7,index:h}),t+=o$2.length-1;}h++;}}static createElement(t,i){const s=h$2.createElement("template");return s.innerHTML=t,s}}function P(t,i,s=t,e){var o,n,l,h;if(i===x)return i;let r=void 0!==e?null===(o=s._$Co)||void 0===o?void 0:o[e]:s._$Cl;const u=d(i)?void 0:i._$litDirective$;return (null==r?void 0:r.constructor)!==u&&(null===(n=null==r?void 0:r._$AO)||void 0===n||n.call(r,!1),void 0===u?r=void 0:(r=new u(t),r._$AT(t,s,e)),void 0!==e?(null!==(l=(h=s)._$Co)&&void 0!==l?l:h._$Co=[])[e]=r:s._$Cl=r),void 0!==r&&(i=P(t,r._$AS(t,i.values),r,e)),i}class V{constructor(t,i){this.u=[],this._$AN=void 0,this._$AD=t,this._$AM=i;}get parentNode(){return this._$AM.parentNode}get _$AU(){return this._$AM._$AU}v(t){var i;const{el:{content:s},parts:e}=this._$AD,o=(null!==(i=null==t?void 0:t.creationScope)&&void 0!==i?i:h$2).importNode(s,!0);A.currentNode=o;let n=A.nextNode(),l=0,r=0,d=e[0];for(;void 0!==d;){if(l===d.index){let i;2===d.type?i=new N(n,n.nextSibling,this,t):1===d.type?i=new d.ctor(n,d.name,d.strings,this,t):6===d.type&&(i=new I(n,this,t)),this.u.push(i),d=e[++r];}l!==(null==d?void 0:d.index)&&(n=A.nextNode(),l++);}return o}p(t){let i=0;for(const s of this.u)void 0!==s&&(void 0!==s.strings?(s._$AI(t,s,i),i+=s.strings.length-2):s._$AI(t[i])),i++;}}class N{constructor(t,i,s,e){var o;this.type=2,this._$AH=b,this._$AN=void 0,this._$AA=t,this._$AB=i,this._$AM=s,this.options=e,this._$Cm=null===(o=null==e?void 0:e.isConnected)||void 0===o||o;}get _$AU(){var t,i;return null!==(i=null===(t=this._$AM)||void 0===t?void 0:t._$AU)&&void 0!==i?i:this._$Cm}get parentNode(){let t=this._$AA.parentNode;const i=this._$AM;return void 0!==i&&11===t.nodeType&&(t=i.parentNode),t}get startNode(){return this._$AA}get endNode(){return this._$AB}_$AI(t,i=this){t=P(this,t,i),d(t)?t===b||null==t||""===t?(this._$AH!==b&&this._$AR(),this._$AH=b):t!==this._$AH&&t!==x&&this.g(t):void 0!==t._$litType$?this.$(t):void 0!==t.nodeType?this.T(t):c$4(t)?this.k(t):this.g(t);}O(t,i=this._$AB){return this._$AA.parentNode.insertBefore(t,i)}T(t){this._$AH!==t&&(this._$AR(),this._$AH=this.O(t));}g(t){this._$AH!==b&&d(this._$AH)?this._$AA.nextSibling.data=t:this.T(h$2.createTextNode(t)),this._$AH=t;}$(t){var i;const{values:s,_$litType$:e}=t,o="number"==typeof e?this._$AC(t):(void 0===e.el&&(e.el=C.createElement(e.h,this.options)),e);if((null===(i=this._$AH)||void 0===i?void 0:i._$AD)===o)this._$AH.p(s);else {const t=new V(o,this),i=t.v(this.options);t.p(s),this.T(i),this._$AH=t;}}_$AC(t){let i=T.get(t.strings);return void 0===i&&T.set(t.strings,i=new C(t)),i}k(t){u$2(this._$AH)||(this._$AH=[],this._$AR());const i=this._$AH;let s,e=0;for(const o of t)e===i.length?i.push(s=new N(this.O(r$2()),this.O(r$2()),this,this.options)):s=i[e],s._$AI(o),e++;e<i.length&&(this._$AR(s&&s._$AB.nextSibling,e),i.length=e);}_$AR(t=this._$AA.nextSibling,i){var s;for(null===(s=this._$AP)||void 0===s||s.call(this,!1,!0,i);t&&t!==this._$AB;){const i=t.nextSibling;t.remove(),t=i;}}setConnected(t){var i;void 0===this._$AM&&(this._$Cm=t,null===(i=this._$AP)||void 0===i||i.call(this,t));}}class S{constructor(t,i,s,e,o){this.type=1,this._$AH=b,this._$AN=void 0,this.element=t,this.name=i,this._$AM=e,this.options=o,s.length>2||""!==s[0]||""!==s[1]?(this._$AH=Array(s.length-1).fill(new String),this.strings=s):this._$AH=b;}get tagName(){return this.element.tagName}get _$AU(){return this._$AM._$AU}_$AI(t,i=this,s,e){const o=this.strings;let n=!1;if(void 0===o)t=P(this,t,i,0),n=!d(t)||t!==this._$AH&&t!==x,n&&(this._$AH=t);else {const e=t;let l,h;for(t=o[0],l=0;l<o.length-1;l++)h=P(this,e[s+l],i,l),h===x&&(h=this._$AH[l]),n||(n=!d(h)||h!==this._$AH[l]),h===b?t=b:t!==b&&(t+=(null!=h?h:"")+o[l+1]),this._$AH[l]=h;}n&&!e&&this.j(t);}j(t){t===b?this.element.removeAttribute(this.name):this.element.setAttribute(this.name,null!=t?t:"");}}class M extends S{constructor(){super(...arguments),this.type=3;}j(t){this.element[this.name]=t===b?void 0:t;}}const R=s$4?s$4.emptyScript:"";class k extends S{constructor(){super(...arguments),this.type=4;}j(t){t&&t!==b?this.element.setAttribute(this.name,R):this.element.removeAttribute(this.name);}}class H extends S{constructor(t,i,s,e,o){super(t,i,s,e,o),this.type=5;}_$AI(t,i=this){var s;if((t=null!==(s=P(this,t,i,0))&&void 0!==s?s:b)===x)return;const e=this._$AH,o=t===b&&e!==b||t.capture!==e.capture||t.once!==e.once||t.passive!==e.passive,n=t!==b&&(e===b||o);o&&this.element.removeEventListener(this.name,this,e),n&&this.element.addEventListener(this.name,this,t),this._$AH=t;}handleEvent(t){var i,s;"function"==typeof this._$AH?this._$AH.call(null!==(s=null===(i=this.options)||void 0===i?void 0:i.host)&&void 0!==s?s:this.element,t):this._$AH.handleEvent(t);}}class I{constructor(t,i,s){this.element=t,this.type=6,this._$AN=void 0,this._$AM=i,this.options=s;}get _$AU(){return this._$AM._$AU}_$AI(t){P(this,t);}}const L={P:"$lit$",A:o$2,M:n$4,C:1,L:E,R:V,D:c$4,V:P,I:N,H:S,N:k,U:H,B:M,F:I},z=i$3.litHtmlPolyfillSupport;null==z||z(C,N),(null!==(t$2=i$3.litHtmlVersions)&&void 0!==t$2?t$2:i$3.litHtmlVersions=[]).push("2.6.1");const Z=(t,i,s)=>{var e,o;const n=null!==(e=null==s?void 0:s.renderBefore)&&void 0!==e?e:i;let l=n._$litPart$;if(void 0===l){const t=null!==(o=null==s?void 0:s.renderBefore)&&void 0!==o?o:null;n._$litPart$=l=new N(i.insertBefore(r$2(),t),t,void 0,null!=s?s:{});}return l._$AI(t),l};
 
 /**
  * @license
@@ -10157,7 +10282,10 @@ let MainNav = class MainNav extends s$3 {
                 name="profile"
                 @click="${this.#clickOnNav}"
                 image="${c(content.then(function (data) {
-            return data.avatar || imgs.avatar;
+            if (data.avatar) {
+                return `${data.avatar}avatar_small.webp`;
+            }
+            return imgs.avatar;
         }), imgs.avatar)}"
                 label="${msg('Your profile avatar')}"
             ></sl-avatar>
@@ -10198,9 +10326,9 @@ MainNav = __decorate$5([
 ], MainNav);
 
 /*!
- * @kurkle/color v0.3.1
+ * @kurkle/color v0.3.2
  * https://github.com/kurkle/color#readme
- * (c) 2022 Jukka Kurkela
+ * (c) 2023 Jukka Kurkela
  * Released under the MIT License
  */
 function round(v) {
@@ -10779,9 +10907,9 @@ class Color {
 }
 
 /*!
- * Chart.js v4.1.1
+ * Chart.js v4.1.2
  * https://www.chartjs.org
- * (c) 2022 Chart.js Contributors
+ * (c) 2023 Chart.js Contributors
  * Released under the MIT License
  */
 
@@ -13375,9 +13503,9 @@ function styleChanged(style, prevStyle) {
 }
 
 /*!
- * Chart.js v4.1.1
+ * Chart.js v4.1.2
  * https://www.chartjs.org
- * (c) 2022 Chart.js Contributors
+ * (c) 2023 Chart.js Contributors
  * Released under the MIT License
  */
 
@@ -16826,7 +16954,7 @@ function _detectPlatform(canvas) {
     return DomPlatform;
 }
 
-class Element {
+let Element$1 = class Element {
     static defaults = {};
     static defaultRoutes = undefined;
     active = false;
@@ -16855,7 +16983,7 @@ class Element {
         });
         return ret;
     }
-}
+};
 
 function autoSkip(scale, ticks) {
     const tickOpts = scale.options.ticks;
@@ -17085,7 +17213,7 @@ function titleArgs(scale, offset, position, align) {
         rotation
     };
 }
-class Scale extends Element {
+class Scale extends Element$1 {
     constructor(cfg){
         super();
          this.id = cfg.id;
@@ -18313,7 +18441,7 @@ function isIChartComponent(proto) {
 class Registry {
     constructor(){
         this.controllers = new TypedRegistry(DatasetController, 'datasets', true);
-        this.elements = new TypedRegistry(Element, 'elements');
+        this.elements = new TypedRegistry(Element$1, 'elements');
         this.plugins = new TypedRegistry(Object, 'plugins');
         this.scales = new TypedRegistry(Scale, 'scales');
         this._typedRegistries = [
@@ -18837,7 +18965,7 @@ function needContext(proxy, names) {
     return false;
 }
 
-var version = "4.1.1";
+var version = "4.1.2";
 
 const KNOWN_POSITIONS = [
     'top',
@@ -19942,7 +20070,7 @@ function drawBorder(ctx, element, offset, spacing, circular) {
         ctx.stroke();
     }
 }
-class ArcElement extends Element {
+class ArcElement extends Element$1 {
     static id = 'arc';
     static defaults = {
         borderAlign: 'center',
@@ -20190,7 +20318,7 @@ function draw(ctx, line, start, count) {
         strokePathDirect(ctx, line, start, count);
     }
 }
-class LineElement extends Element {
+class LineElement extends Element$1 {
     static id = 'line';
  static defaults = {
         borderCapStyle: 'butt',
@@ -20331,7 +20459,7 @@ function inRange$1(el, pos, axis, useFinalPosition) {
     ], useFinalPosition);
     return Math.abs(pos - value) < options.radius + options.hitRadius;
 }
-class PointElement extends Element {
+class PointElement extends Element$1 {
     static id = 'point';
     /**
    * @type {any}
@@ -20521,7 +20649,7 @@ function inflateRect(rect, amount, refRect = {}) {
         radius: rect.radius
     };
 }
-class BarElement extends Element {
+class BarElement extends Element$1 {
     static id = 'bar';
  static defaults = {
         borderSkipped: 'start',
@@ -21465,7 +21593,7 @@ const getBoxSize = (labelOpts, fontSize)=>{
     };
 };
 const itemsEqual = (a, b)=>a !== null && b !== null && a.datasetIndex === b.datasetIndex && a.index === b.index;
-class Legend extends Element {
+class Legend extends Element$1 {
  constructor(config){
         super();
         this._added = false;
@@ -22003,7 +22131,7 @@ var plugin_legend = {
     }
 };
 
-class Title extends Element {
+class Title extends Element$1 {
  constructor(config){
         super();
         this.chart = config.chart;
@@ -22492,7 +22620,7 @@ const defaultCallbacks = {
     }
     return result;
 }
-class Tooltip extends Element {
+class Tooltip extends Element$1 {
  static positioners = positioners;
     constructor(config){
         super();
@@ -24886,6 +25014,12 @@ function toast (variant, title, text) {
     alert.toast();
 }
 
+const avatarSizes = Object.freeze({
+    large: 224,
+    medium: 128,
+    small: 44,
+});
+
 var __decorate$2 = (undefined && undefined.__decorate) || function (decorators, target, key, desc) {
     var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
     if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
@@ -25113,6 +25247,7 @@ let ProfileView = class ProfileView extends ViewLayout$1 {
             }),
         });
         await request.json();
+        return toast('success', msg('avatar'), msg('Avatar changed successfully, refresh to see changes'));
     }
     async #changeAvatarEvent(e) {
         const reader = new FileReader();
@@ -25122,6 +25257,9 @@ let ProfileView = class ProfileView extends ViewLayout$1 {
         reader.onload = (event) => {
             imgTag.src = url;
             imgTag.onload = () => {
+                if (imgTag.width < avatarSizes.large || imgTag.height < avatarSizes.large) {
+                    return toast('warning', msg('avatar'), msg('Image is too small, min 224x224'));
+                }
                 this.#sendAvatar(file, imgTag, event);
                 URL.revokeObjectURL(url);
             };
@@ -25179,7 +25317,10 @@ let ProfileView = class ProfileView extends ViewLayout$1 {
                             @click="${this.#clickUploadAvatar}"
                             style="--size: 14rem;"
                             image="${c(content.then(function (data) {
-            return data.avatar || imgs.avatar;
+            if (data.avatar) {
+                return `${data.avatar}avatar_large.webp`;
+            }
+            return imgs.avatar;
         }), imgs.avatar)}"
                         ></sl-avatar>
                         <input
@@ -25303,7 +25444,9 @@ let ProfileView = class ProfileView extends ViewLayout$1 {
                                     data-id="${member._id}"
                                     tabindex="0"
                                 >
-                                    <sl-avatar image="${member.avatar || imgs.avatar}"></sl-avatar>
+                                    <sl-avatar
+                                        image="${member.avatar ? `${member.avatar}avatar_small.webp` : imgs.avatar}"
+                                    ></sl-avatar>
                                     <div>
                                         <p>${member.username}</p>
                                         <p>${msg('role')}: ${member.role}</p>
@@ -25314,7 +25457,10 @@ let ProfileView = class ProfileView extends ViewLayout$1 {
                 </div>
             </div>
             <div class="selected-team-section">
-                <sl-avatar style="--size: 8rem;" image="${this.user.avatar || imgs.avatar}"></sl-avatar>
+                <sl-avatar
+                    style="--size: 8rem;"
+                    image="${this.user.avatar ? `${this.user.avatar}avatar_medium.webp` : imgs.avatar}"
+                ></sl-avatar>
 
                 <h2 class="text-2xl font-bold">
                     ${msg('{{1}} member of {{2}}')
@@ -25504,7 +25650,7 @@ AppLayout = __decorate([
 document.addEventListener('DOMContentLoaded', function () {
     const app = document.querySelector('app-layout');
     app.bootstrapActiveMenu();
-    console.log('v:0.0.1 at: "2023-01-13T17:59:14.521Z" ');
+    console.log('v:0.0.1 at: "2023-01-15T19:04:28.014Z" ');
 });
 
 /* CSS */

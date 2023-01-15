@@ -5,8 +5,8 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
     return c > 3 && r && Object.defineProperty(target, key, r), r;
 };
 import { html } from 'lit';
-import { customElement, property } from 'lit/decorators.js';
 import { msg, localized } from '@lit/localize';
+import { customElement, property } from 'lit/decorators.js';
 import ViewLayout from '../view';
 import header from '../../data/header';
 import { setLocale } from '../../utilities/language/language';
@@ -17,6 +17,7 @@ import { client } from '../../data/misc';
 import toast from '../../utilities/toast/toast';
 import { repeat } from 'lit/directives/repeat.js';
 import { imgs } from '../../data/fallbacks';
+import avatarSize from '../../data/shared/avatarSizes';
 const passwordMinLength = 8;
 const passwordMaxLength = 35;
 const maxLengthAbout = 560;
@@ -238,6 +239,7 @@ let ProfileView = class ProfileView extends ViewLayout {
             }),
         });
         const json = await request.json();
+        return toast('success', msg('avatar'), msg('Avatar changed successfully, refresh to see changes'));
     }
     async #changeAvatarEvent(e) {
         const reader = new FileReader();
@@ -247,6 +249,9 @@ let ProfileView = class ProfileView extends ViewLayout {
         reader.onload = (event) => {
             imgTag.src = url;
             imgTag.onload = () => {
+                if (imgTag.width < avatarSize.large || imgTag.height < avatarSize.large) {
+                    return toast('warning', msg('avatar'), msg('Image is too small, min 224x224'));
+                }
                 this.#sendAvatar(file, imgTag, event);
                 URL.revokeObjectURL(url);
             };
@@ -304,7 +309,10 @@ let ProfileView = class ProfileView extends ViewLayout {
                             @click="${this.#clickUploadAvatar}"
                             style="--size: 14rem;"
                             image="${until(content.then(function (data) {
-            return data.avatar || imgs.avatar;
+            if (data.avatar) {
+                return `${data.avatar}avatar_large.webp`;
+            }
+            return imgs.avatar;
         }), imgs.avatar)}"
                         ></sl-avatar>
                         <input
@@ -428,7 +436,9 @@ let ProfileView = class ProfileView extends ViewLayout {
                                     data-id="${member._id}"
                                     tabindex="0"
                                 >
-                                    <sl-avatar image="${member.avatar || imgs.avatar}"></sl-avatar>
+                                    <sl-avatar
+                                        image="${member.avatar ? `${member.avatar}avatar_small.webp` : imgs.avatar}"
+                                    ></sl-avatar>
                                     <div>
                                         <p>${member.username}</p>
                                         <p>${msg('role')}: ${member.role}</p>
@@ -439,7 +449,10 @@ let ProfileView = class ProfileView extends ViewLayout {
                 </div>
             </div>
             <div class="selected-team-section">
-                <sl-avatar style="--size: 8rem;" image="${this.user.avatar || imgs.avatar}"></sl-avatar>
+                <sl-avatar
+                    style="--size: 8rem;"
+                    image="${this.user.avatar ? `${this.user.avatar}avatar_medium.webp` : imgs.avatar}"
+                ></sl-avatar>
 
                 <h2 class="text-2xl font-bold">
                     ${msg('{{1}} member of {{2}}')

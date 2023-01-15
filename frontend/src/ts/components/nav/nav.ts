@@ -96,7 +96,11 @@ export default class MainNav extends LitElement {
                 @click="${this.#clickOnNav}"
                 image="${until(
                     content.then(function (data) {
-                        return data.avatar || imgs.avatar;
+                        if (data.avatar) {
+                            return `${data.avatar}avatar_small.webp`;
+                        }
+
+                        return imgs.avatar;
                     }),
                     imgs.avatar,
                 )}"

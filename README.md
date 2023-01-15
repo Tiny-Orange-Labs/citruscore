@@ -23,6 +23,7 @@ so I am creating this gigantic overengineered boilerplate. This abomination incl
 -   a ton lot of hapi plugins
 -   mongodb / mongoose
 -   redis
+-   sharp
 -   typescript
 -   lit
 -   lit-localize
@@ -170,6 +171,11 @@ npm run generate
 
 After you did the setup and tested the build you can
 start developing.
+
+### shard data
+
+Everything from `./frontend/src/ts/data/shared` is copied to `./backend/src/data/shared` which
+happens through `npm run copy-data`. `npm run copy-data` is also triggered by `npm run build-backend-ts`.
 
 ## Frontend
 

@@ -55,5 +55,8 @@
 'sf1992e3514447d4d': `Änderungen gespeichert`,
 'sfa23d9ef19afc32c': `team`,
 'sfe2dbf7c7b16633c': `Neues Passwort darf keine leerzeichen enthalten`,
+'sdfe2526362bc3224': `avatar`,
+'s38431e2477552a47': `Avatar changed successfully, refresh to see changes`,
+'s9af4247d2770e0c1': `Image is too small, min 224x224`,
     };
   
