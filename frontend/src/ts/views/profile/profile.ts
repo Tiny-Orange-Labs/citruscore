@@ -13,6 +13,8 @@ import { repeat } from 'lit/directives/repeat.js';
 import SlInput from '@shoelace-style/shoelace/dist/components/input/input';
 import { imgs } from '../../data/fallbacks';
 import avatarSize from '../../data/shared/avatarSizes';
+import Rights from '../../data/shared/rights';
+import { transRights, transRightsInfo } from '../../utilities/trans/trans';
 
 const passwordMinLength = 8;
 const passwordMaxLength = 35;
@@ -24,48 +26,45 @@ type Member = {
     username: string;
     role: string;
     email: string;
-    rights: {
-        _id: string;
-        [key: string]: boolean | string;
-    };
+    rights: Rights;
     about: string;
     avatar: string;
+    member: string | undefined;
+};
+type Team = {
+    _id: string;
+    maxMembers: number;
+    name: string;
+    members: Member[];
+};
+
+const fallbackUser: Member = {
+    _id: '',
+    username: '',
+    role: '',
+    rights: {
+        _id: '',
+        addTeamMember: false,
+        changeTeamMemberRights: false,
+        changeTeamMemberRole: false,
+        removeTeamMember: false,
+    },
+    email: '',
+    about: '',
+    avatar: '',
+    member: undefined,
 };
 
 @localized()
 @customElement('profile-layout')
 export default class ProfileView extends ViewLayout {
-    @property() me = {
-        _id: '',
-        username: '',
-        email: '',
-        about: '',
-        avatar: '',
-    };
-    @property() user = {
-        _id: '',
-        username: '',
-        role: '',
-        email: '',
-        rights: { _id: '' },
-        about: '',
-        avatar: '',
-    };
-    @property({ type: Object, reflect: true }) team = {
+    @property() me: Member = structuredClone(fallbackUser);
+    @property() user: Member = structuredClone(fallbackUser);
+    @property({ type: Object, reflect: true }) team: Team = {
         _id: '',
         maxMembers: 0,
         name: 'loading…',
-        members: [
-            {
-                _id: '',
-                username: 'loading…',
-                role: 'loading…',
-                email: '',
-                rights: { _id: '' },
-                about: '',
-                avatar: '',
-            },
-        ],
+        members: [structuredClone(fallbackUser)],
     };
 
     constructor() {
@@ -99,7 +98,7 @@ export default class ProfileView extends ViewLayout {
 
     async #hasUserDataChanged(newData: any) {
         const user = await this.#getUserData();
-        const sameUsername = newData.username === user.username;
+        const sameUsername = newData.username === user.username.toLowerCase();
         const sameEmail = newData.email === user.email;
         const sameAbout = newData.about === (user.about || '');
 
@@ -115,7 +114,7 @@ export default class ProfileView extends ViewLayout {
         const emailElem = this.querySelector('#mail') as SlInput;
         const aboutElem = this.querySelector('#about') as SlInput;
         const newData = {
-            username: usernameElem.value.trim(),
+            username: usernameElem.value.trim().toLowerCase(),
             email: emailElem.value,
             about: aboutElem.value.trim(),
         };
@@ -171,7 +170,7 @@ export default class ProfileView extends ViewLayout {
             class="md:w-1/4"
         >
             ${repeat(languages, function ({ name, code }) {
-                return html` <sl-menu-item size="small" value="${code}">${name}</sl-menu-item>`;
+                return html` <sl-option size="small" value="${code}">${name}</sl-option>`;
             })}
         </sl-select>`;
     }
@@ -462,15 +461,15 @@ export default class ProfileView extends ViewLayout {
                 ...header,
                 body: JSON.stringify({
                     data: {
-                        ids: team.members.map((member: any) => member.member),
+                        ids: team.members.map((member: Member) => member.member),
                     },
                     client,
                 }),
             });
             const members = await membersRequest.json();
 
-            this.team = team;
-            this.team.members = this.team.members.map((member: any, i: number) => {
+            this.team = team as Team;
+            this.team.members = this.team.members.map((member: Member, i: number) => {
                 return {
                     ...member,
                     ...members[i],
@@ -481,6 +480,31 @@ export default class ProfileView extends ViewLayout {
                 this.#bootstrapFirstClickOnTeamTab();
             });
         }
+    }
+
+    async #changedTeamMemberRightsEvent(member: Member, key: keyof Rights, value: boolean) {
+        const request = await fetch('/team/changeTeamMemberRights', {
+            method: 'POST',
+            ...header,
+            body: JSON.stringify({
+                data: {
+                    member,
+                    rights: {
+                        ...member.rights,
+                        [key]: value,
+                    },
+                },
+                client,
+            }),
+        });
+        await request.json();
+
+        Object.defineProperty(member.rights, key, { value: value });
+        this.team.members.forEach((tMember: Member) => {
+            if (member._id === tMember.member) {
+                Object.defineProperty(tMember.rights, key, { value: value });
+            }
+        });
     }
 
     #clickOnteamMember(member: Member) {
@@ -501,6 +525,13 @@ export default class ProfileView extends ViewLayout {
 
     #renderTeamSection() {
         const { _id, ...rights } = this.user.rights;
+        const myRights = this.team.members.find((member: Member) => member.member === this.me._id)?.rights;
+        const activeButton = html`<sl-button variant="danger" size="small" class="float-right">
+            <sl-icon slot="prefix" name="x-lg"></sl-icon>Remove</sl-button
+        >`;
+        const disabledButton = html`<sl-button variant="danger" size="small" class="float-right" disabled>
+            <sl-icon slot="prefix" name="x-lg"></sl-icon>Remove</sl-button
+        >`;
 
         return html`<div class="team-section">
             <div>
@@ -542,18 +573,46 @@ export default class ProfileView extends ViewLayout {
                     ${msg('{{1}} member of {{2}}')
                         .replace('{{1}}', this.user.username)
                         .replace('{{2}}', this.team.name)}
+                    ${this.me._id === this.user._id || !myRights?.removeTeamMember ? disabledButton : activeButton}
                 </h2>
                 <sl-divider style="--width: 2px;"></sl-divider>
                 <div>
-                    <p class="text-xl">${capitalize(msg('rights'))}</p>
+                    <p class="text-xl mb-4">${capitalize(msg('rights'))}</p>
+                    <div class="selected-team-section-rights">
+                        ${repeat(
+                            Object.entries(rights),
+                            kvPair => kvPair[0],
+                            ([key, value]) => {
+                                const itsMe = this.me._id === this.user._id;
+                                const slSwitch = value
+                                    ? html`<sl-switch
+                                          @sl-change="${() =>
+                                              this.#changedTeamMemberRightsEvent(
+                                                  this.user,
+                                                  key as keyof Rights,
+                                                  !value,
+                                              )}"
+                                          ?disabled="${itsMe || !myRights?.changeTeamMemberRights}"
+                                          checked
+                                      ></sl-switch>`
+                                    : html`<sl-switch
+                                          @sl-change="${() =>
+                                              this.#changedTeamMemberRightsEvent(
+                                                  this.user,
+                                                  key as keyof Rights,
+                                                  !value,
+                                              )}"
+                                          ?disabled="${itsMe || !myRights?.changeTeamMemberRights}"
+                                      ></sl-switch>`;
 
-                    ${Object.entries(rights).map(([key, value]) => {
-                        console.log(value);
-                        const slSwitch = value ? html`<sl-switch checked></sl-switch>` : html`<sl-switch></sl-switch>`;
-                        return html`<div class="selected-team-section-rights">
-                            <div>${key} ${slSwitch}</div>
-                        </div>`;
-                    })}
+                                return html`<div class="selected-team-section-right">
+                                    <span>${transRights(key)}</span> ${slSwitch}
+                                    <p class="text-xs text-gray-600">${transRightsInfo(key)}</p>
+                                    <i></i>
+                                </div>`;
+                            },
+                        )}
+                    </div>
                 </div>
                 <sl-divider style="--width: 2px;"></sl-divider>
                 <div class="selected-team-section-stats">
@@ -595,6 +654,11 @@ export default class ProfileView extends ViewLayout {
             <sl-tab-panel class="mt-8" name="team">${this.#renderTeamSection()}</sl-tab-panel>
         </sl-tab-group> `;
         return [row1];
+    }
+
+    connectedCallback(): void {
+        super.connectedCallback();
+        this.#getUserData();
     }
 
     render() {

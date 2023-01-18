@@ -1,4 +1,4 @@
-import { getMe, setUser, getUser, uploadAvatar } from '../controller/user';
+import { getMe, setUser, getUsers, uploadAvatar } from '../controller/user';
 export default async function user(server) {
     server.route([
         {
@@ -26,7 +26,7 @@ export default async function user(server) {
         {
             method: 'POST',
             path: '/getUsers',
-            handler: getUser,
+            handler: getUsers,
             options: {
                 auth: {
                     mode: 'required',

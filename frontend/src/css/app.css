@@ -150,5 +150,10 @@ sl-divider {
 }
 
 .selected-team-section-rights {
-    @apply flex flex-col gap-8;
+    @apply grid gap-8;
+}
+
+.selected-team-section-right {
+    grid-template-columns: 1fr auto;
+    @apply grid;
 }

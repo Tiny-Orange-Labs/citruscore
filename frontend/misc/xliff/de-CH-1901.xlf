@@ -195,6 +195,30 @@
 <trans-unit id="s38431e2477552a47">
   <source>Avatar changed successfully, refresh to see changes</source>
 </trans-unit>
+<trans-unit id="sa6ae25f85d073955">
+  <source>Add Team Member</source>
+</trans-unit>
+<trans-unit id="sfd4eae222487d9fc">
+  <source>Remove Team Member</source>
+</trans-unit>
+<trans-unit id="s34a24a22e9a81f5c">
+  <source>Change Team Member Role</source>
+</trans-unit>
+<trans-unit id="sce0b11b46ba22d47">
+  <source>Change Team Member Rights</source>
+</trans-unit>
+<trans-unit id="sb96de5ab76cc11a1">
+  <source>Team member can add other team members</source>
+</trans-unit>
+<trans-unit id="sfef5b72c519df9a8">
+  <source>Team member can remove other team members</source>
+</trans-unit>
+<trans-unit id="sa01b0c19355e616a">
+  <source>Team member can change the role of other team members</source>
+</trans-unit>
+<trans-unit id="s9fcaa62b7dc4223c">
+  <source>Team membeer can change the rights of other team members</source>
+</trans-unit>
 </body>
 </file>
 </xliff>

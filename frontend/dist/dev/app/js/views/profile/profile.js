@@ -18,42 +18,35 @@ import toast from '../../utilities/toast/toast';
 import { repeat } from 'lit/directives/repeat.js';
 import { imgs } from '../../data/fallbacks';
 import avatarSize from '../../data/shared/avatarSizes';
+import { transRights, transRightsInfo } from '../../utilities/trans/trans';
 const passwordMinLength = 8;
 const passwordMaxLength = 35;
 const maxLengthAbout = 560;
 const activeMemberClass = 'team-member-active';
+const fallbackUser = {
+    _id: '',
+    username: '',
+    role: '',
+    rights: {
+        _id: '',
+        addTeamMember: false,
+        changeTeamMemberRights: false,
+        changeTeamMemberRole: false,
+        removeTeamMember: false,
+    },
+    email: '',
+    about: '',
+    avatar: '',
+    member: undefined,
+};
 let ProfileView = class ProfileView extends ViewLayout {
-    me = {
-        _id: '',
-        username: '',
-        email: '',
-        about: '',
-        avatar: '',
-    };
-    user = {
-        _id: '',
-        username: '',
-        role: '',
-        email: '',
-        rights: { _id: '' },
-        about: '',
-        avatar: '',
-    };
+    me = structuredClone(fallbackUser);
+    user = structuredClone(fallbackUser);
     team = {
         _id: '',
         maxMembers: 0,
         name: 'loading…',
-        members: [
-            {
-                _id: '',
-                username: 'loading…',
-                role: 'loading…',
-                email: '',
-                rights: { _id: '' },
-                about: '',
-                avatar: '',
-            },
-        ],
+        members: [structuredClone(fallbackUser)],
     };
     constructor() {
         super();
@@ -79,7 +72,7 @@ let ProfileView = class ProfileView extends ViewLayout {
     }
     async #hasUserDataChanged(newData) {
         const user = await this.#getUserData();
-        const sameUsername = newData.username === user.username;
+        const sameUsername = newData.username === user.username.toLowerCase();
         const sameEmail = newData.email === user.email;
         const sameAbout = newData.about === (user.about || '');
         if (sameUsername && sameEmail && sameAbout) {
@@ -92,7 +85,7 @@ let ProfileView = class ProfileView extends ViewLayout {
         const emailElem = this.querySelector('#mail');
         const aboutElem = this.querySelector('#about');
         const newData = {
-            username: usernameElem.value.trim(),
+            username: usernameElem.value.trim().toLowerCase(),
             email: emailElem.value,
             about: aboutElem.value.trim(),
         };
@@ -141,7 +134,7 @@ let ProfileView = class ProfileView extends ViewLayout {
             class="md:w-1/4"
         >
             ${repeat(languages, function ({ name, code }) {
-            return html ` <sl-menu-item size="small" value="${code}">${name}</sl-menu-item>`;
+            return html ` <sl-option size="small" value="${code}">${name}</sl-option>`;
         })}
         </sl-select>`;
     }
@@ -409,6 +402,29 @@ let ProfileView = class ProfileView extends ViewLayout {
             });
         }
     }
+    async #changedTeamMemberRightsEvent(member, key, value) {
+        const request = await fetch('/team/changeTeamMemberRights', {
+            method: 'POST',
+            ...header,
+            body: JSON.stringify({
+                data: {
+                    member,
+                    rights: {
+                        ...member.rights,
+                        [key]: value,
+                    },
+                },
+                client,
+            }),
+        });
+        await request.json();
+        Object.defineProperty(member.rights, key, { value: value });
+        this.team.members.forEach((tMember) => {
+            if (member._id === tMember.member) {
+                Object.defineProperty(tMember.rights, key, { value: value });
+            }
+        });
+    }
     #clickOnteamMember(member) {
         const hasActive = this.querySelector(`.team-member.${activeMemberClass}`);
         const active_id = hasActive?.getAttribute('data-id');
@@ -422,6 +438,13 @@ let ProfileView = class ProfileView extends ViewLayout {
     }
     #renderTeamSection() {
         const { _id, ...rights } = this.user.rights;
+        const myRights = this.team.members.find((member) => member.member === this.me._id)?.rights;
+        const activeButton = html `<sl-button variant="danger" size="small" class="float-right">
+            <sl-icon slot="prefix" name="x-lg"></sl-icon>Remove</sl-button
+        >`;
+        const disabledButton = html `<sl-button variant="danger" size="small" class="float-right" disabled>
+            <sl-icon slot="prefix" name="x-lg"></sl-icon>Remove</sl-button
+        >`;
         return html `<div class="team-section">
             <div>
                 <div>
@@ -458,18 +481,31 @@ let ProfileView = class ProfileView extends ViewLayout {
                     ${msg('{{1}} member of {{2}}')
             .replace('{{1}}', this.user.username)
             .replace('{{2}}', this.team.name)}
+                    ${this.me._id === this.user._id || !myRights?.removeTeamMember ? disabledButton : activeButton}
                 </h2>
                 <sl-divider style="--width: 2px;"></sl-divider>
                 <div>
-                    <p class="text-xl">${capitalize(msg('rights'))}</p>
-
-                    ${Object.entries(rights).map(([key, value]) => {
-            console.log(value);
-            const slSwitch = value ? html `<sl-switch checked></sl-switch>` : html `<sl-switch></sl-switch>`;
-            return html `<div class="selected-team-section-rights">
-                            <div>${key} ${slSwitch}</div>
-                        </div>`;
+                    <p class="text-xl mb-4">${capitalize(msg('rights'))}</p>
+                    <div class="selected-team-section-rights">
+                        ${repeat(Object.entries(rights), kvPair => kvPair[0], ([key, value]) => {
+            const itsMe = this.me._id === this.user._id;
+            const slSwitch = value
+                ? html `<sl-switch
+                                          @sl-change="${() => this.#changedTeamMemberRightsEvent(this.user, key, !value)}"
+                                          ?disabled="${itsMe || !myRights?.changeTeamMemberRights}"
+                                          checked
+                                      ></sl-switch>`
+                : html `<sl-switch
+                                          @sl-change="${() => this.#changedTeamMemberRightsEvent(this.user, key, !value)}"
+                                          ?disabled="${itsMe || !myRights?.changeTeamMemberRights}"
+                                      ></sl-switch>`;
+            return html `<div class="selected-team-section-right">
+                                    <span>${transRights(key)}</span> ${slSwitch}
+                                    <p class="text-xs text-gray-600">${transRightsInfo(key)}</p>
+                                    <i></i>
+                                </div>`;
         })}
+                    </div>
                 </div>
                 <sl-divider style="--width: 2px;"></sl-divider>
                 <div class="selected-team-section-stats">
@@ -509,6 +545,10 @@ let ProfileView = class ProfileView extends ViewLayout {
             <sl-tab-panel class="mt-8" name="team">${this.#renderTeamSection()}</sl-tab-panel>
         </sl-tab-group> `;
         return [row1];
+    }
+    connectedCallback() {
+        super.connectedCallback();
+        this.#getUserData();
     }
     render() {
         const rows = this.#renderRows();

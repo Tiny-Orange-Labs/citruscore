@@ -1,5 +1,5 @@
 import { Server } from '@hapi/hapi';
-import { getMe, setUser, getUser, uploadAvatar } from '../controller/user';
+import { getMe, setUser, getUsers, uploadAvatar } from '../controller/user';
 
 export default async function user(server: Server) {
     server.route([
@@ -28,7 +28,7 @@ export default async function user(server: Server) {
         {
             method: 'POST',
             path: '/getUsers',
-            handler: getUser,
+            handler: getUsers,
             options: {
                 auth: {
                     mode: 'required',

@@ -1,26 +1,19 @@
 import mongoose from 'mongoose';
 
 // ToDo: add more rights later
-type rights = {
-    addTeamMember: boolean;
-    removeTeamMember: boolean;
-    changeTeamMemberRole: boolean;
-    changeTeamMemberRights: boolean;
-};
+import Rights from '../data/shared/rights';
 
 type member = {
     _id: mongoose.ObjectId;
     member: mongoose.ObjectId;
     role: string;
     rights: {
-        type: rights;
+        changeTeamMemberRights: boolean;
+        addTeamMember: boolean;
+        removeTeamMember: boolean;
+        changeTeamMemberRole: boolean;
+        type: Rights;
         required: true;
-        default: {
-            addTeamMember: false;
-            removeTeamMember: false;
-            changeTeamMemberRole: false;
-            changeTeamMemberRights: false;
-        };
     };
 };
 

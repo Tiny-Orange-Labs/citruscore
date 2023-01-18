@@ -7807,6 +7807,197 @@ SlMenuItem = __decorateClass([
   e$7("sl-menu-item")
 ], SlMenuItem);
 
+// src/components/option/option.styles.ts
+var option_styles_default = i$7`
+  ${component_styles_default}
+
+  :host {
+    display: block;
+    user-select: none;
+  }
+
+  :host(:focus) {
+    outline: none;
+  }
+
+  .option {
+    position: relative;
+    display: flex;
+    align-items: center;
+    font-family: var(--sl-font-sans);
+    font-size: var(--sl-font-size-medium);
+    font-weight: var(--sl-font-weight-normal);
+    line-height: var(--sl-line-height-normal);
+    letter-spacing: var(--sl-letter-spacing-normal);
+    color: var(--sl-color-neutral-700);
+    padding: var(--sl-spacing-x-small) var(--sl-spacing-medium) var(--sl-spacing-x-small) var(--sl-spacing-x-small);
+    transition: var(--sl-transition-fast) fill;
+    cursor: pointer;
+  }
+
+  .option--hover:not(.option--current):not(.option--disabled) {
+    background-color: var(--sl-color-neutral-100);
+    color: var(--sl-color-neutral-1000);
+  }
+
+  .option--current,
+  .option--current.option--disabled {
+    background-color: var(--sl-color-primary-600);
+    color: var(--sl-color-neutral-0);
+    opacity: 1;
+  }
+
+  .option--disabled {
+    outline: none;
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+
+  .option__label {
+    flex: 1 1 auto;
+    display: inline-block;
+    line-height: var(--sl-line-height-dense);
+  }
+
+  .option .option__check {
+    flex: 0 0 auto;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    visibility: hidden;
+    padding-inline-end: var(--sl-spacing-2x-small);
+  }
+
+  .option--selected .option__check {
+    visibility: visible;
+  }
+
+  .option__prefix,
+  .option__suffix {
+    flex: 0 0 auto;
+    display: flex;
+    align-items: center;
+  }
+
+  .option__prefix::slotted(*) {
+    margin-inline-end: var(--sl-spacing-x-small);
+  }
+
+  .option__suffix::slotted(*) {
+    margin-inline-start: var(--sl-spacing-x-small);
+  }
+
+  @media (forced-colors: active) {
+    :host(:hover:not([aria-disabled='true'])) .option {
+      outline: dashed 1px SelectedItem;
+      outline-offset: -1px;
+    }
+  }
+`;
+
+// src/components/option/option.ts
+var SlOption = class extends ShoelaceElement {
+  constructor() {
+    super(...arguments);
+    this.localize = new LocalizeController2(this);
+    this.current = false;
+    this.selected = false;
+    this.hasHover = false;
+    this.value = "";
+    this.disabled = false;
+  }
+  connectedCallback() {
+    super.connectedCallback();
+    this.setAttribute("role", "option");
+    this.setAttribute("aria-selected", "false");
+  }
+  handleDefaultSlotChange() {
+    const textLabel = this.getTextLabel();
+    if (typeof this.cachedTextLabel === "undefined") {
+      this.cachedTextLabel = textLabel;
+      return;
+    }
+    if (textLabel !== this.cachedTextLabel) {
+      this.cachedTextLabel = textLabel;
+      this.emit("slotchange", { bubbles: true, composed: false, cancelable: false });
+    }
+  }
+  handleMouseEnter() {
+    this.hasHover = true;
+  }
+  handleMouseLeave() {
+    this.hasHover = false;
+  }
+  handleDisabledChange() {
+    this.setAttribute("aria-disabled", this.disabled ? "true" : "false");
+  }
+  handleSelectedChange() {
+    this.setAttribute("aria-selected", this.selected ? "true" : "false");
+  }
+  handleValueChange() {
+    if (this.value.includes(" ")) {
+      console.error(`Option values cannot include a space. All spaces have been replaced with underscores.`, this);
+      this.value = this.value.replace(/ /g, "_");
+    }
+  }
+  getTextLabel() {
+    var _a;
+    return ((_a = this.textContent) != null ? _a : "").trim();
+  }
+  render() {
+    return y$1`
+      <div
+        part="base"
+        class=${o$7({
+      option: true,
+      "option--current": this.current,
+      "option--disabled": this.disabled,
+      "option--selected": this.selected,
+      "option--hover": this.hasHover
+    })}
+        @mouseenter=${this.handleMouseEnter}
+        @mouseleave=${this.handleMouseLeave}
+      >
+        <sl-icon part="checked-icon" class="option__check" name="check" library="system" aria-hidden="true"></sl-icon>
+        <slot part="prefix" name="prefix" class="option__prefix"></slot>
+        <slot part="label" class="option__label" @slotchange=${this.handleDefaultSlotChange}></slot>
+        <slot part="suffix" name="suffix" class="option__suffix"></slot>
+      </div>
+    `;
+  }
+};
+SlOption.styles = option_styles_default;
+__decorateClass([
+  i2$2(".option__label")
+], SlOption.prototype, "defaultSlot", 2);
+__decorateClass([
+  t$5()
+], SlOption.prototype, "current", 2);
+__decorateClass([
+  t$5()
+], SlOption.prototype, "selected", 2);
+__decorateClass([
+  t$5()
+], SlOption.prototype, "hasHover", 2);
+__decorateClass([
+  e2$1({ reflect: true })
+], SlOption.prototype, "value", 2);
+__decorateClass([
+  e2$1({ type: Boolean, reflect: true })
+], SlOption.prototype, "disabled", 2);
+__decorateClass([
+  watch("disabled")
+], SlOption.prototype, "handleDisabledChange", 1);
+__decorateClass([
+  watch("selected")
+], SlOption.prototype, "handleSelectedChange", 1);
+__decorateClass([
+  watch("value")
+], SlOption.prototype, "handleValueChange", 1);
+SlOption = __decorateClass([
+  e$7("sl-option")
+], SlOption);
+
 // src/components/dropdown/dropdown.styles.ts
 var dropdown_styles_default = i$7`
   ${component_styles_default}
@@ -25020,6 +25211,35 @@ const avatarSizes = Object.freeze({
     small: 44,
 });
 
+function transRights(key) {
+    if (key === 'addTeamMember') {
+        return msg('Add Team Member');
+    }
+    if (key === 'removeTeamMember') {
+        return msg('Remove Team Member');
+    }
+    if (key === 'changeTeamMemberRole') {
+        return msg('Change Team Member Role');
+    }
+    if (key === 'changeTeamMemberRights') {
+        return msg('Change Team Member Rights');
+    }
+}
+function transRightsInfo(key) {
+    if (key === 'addTeamMember') {
+        return msg('Team member can add other team members');
+    }
+    if (key === 'removeTeamMember') {
+        return msg('Team member can remove other team members');
+    }
+    if (key === 'changeTeamMemberRole') {
+        return msg('Team member can change the role of other team members');
+    }
+    if (key === 'changeTeamMemberRights') {
+        return msg('Team membeer can change the rights of other team members');
+    }
+}
+
 var __decorate$2 = (undefined && undefined.__decorate) || function (decorators, target, key, desc) {
     var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
     if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
@@ -25030,38 +25250,30 @@ const passwordMinLength = 8;
 const passwordMaxLength = 35;
 const maxLengthAbout = 560;
 const activeMemberClass = 'team-member-active';
+const fallbackUser = {
+    _id: '',
+    username: '',
+    role: '',
+    rights: {
+        _id: '',
+        addTeamMember: false,
+        changeTeamMemberRights: false,
+        changeTeamMemberRole: false,
+        removeTeamMember: false,
+    },
+    email: '',
+    about: '',
+    avatar: '',
+    member: undefined,
+};
 let ProfileView = class ProfileView extends ViewLayout$1 {
-    me = {
-        _id: '',
-        username: '',
-        email: '',
-        about: '',
-        avatar: '',
-    };
-    user = {
-        _id: '',
-        username: '',
-        role: '',
-        email: '',
-        rights: { _id: '' },
-        about: '',
-        avatar: '',
-    };
+    me = structuredClone(fallbackUser);
+    user = structuredClone(fallbackUser);
     team = {
         _id: '',
         maxMembers: 0,
         name: 'loading…',
-        members: [
-            {
-                _id: '',
-                username: 'loading…',
-                role: 'loading…',
-                email: '',
-                rights: { _id: '' },
-                about: '',
-                avatar: '',
-            },
-        ],
+        members: [structuredClone(fallbackUser)],
     };
     constructor() {
         super();
@@ -25087,7 +25299,7 @@ let ProfileView = class ProfileView extends ViewLayout$1 {
     }
     async #hasUserDataChanged(newData) {
         const user = await this.#getUserData();
-        const sameUsername = newData.username === user.username;
+        const sameUsername = newData.username === user.username.toLowerCase();
         const sameEmail = newData.email === user.email;
         const sameAbout = newData.about === (user.about || '');
         if (sameUsername && sameEmail && sameAbout) {
@@ -25100,7 +25312,7 @@ let ProfileView = class ProfileView extends ViewLayout$1 {
         const emailElem = this.querySelector('#mail');
         const aboutElem = this.querySelector('#about');
         const newData = {
-            username: usernameElem.value.trim(),
+            username: usernameElem.value.trim().toLowerCase(),
             email: emailElem.value,
             about: aboutElem.value.trim(),
         };
@@ -25149,7 +25361,7 @@ let ProfileView = class ProfileView extends ViewLayout$1 {
             class="md:w-1/4"
         >
             ${c$2(languages, function ({ name, code }) {
-            return y ` <sl-menu-item size="small" value="${code}">${name}</sl-menu-item>`;
+            return y ` <sl-option size="small" value="${code}">${name}</sl-option>`;
         })}
         </sl-select>`;
     }
@@ -25417,6 +25629,29 @@ let ProfileView = class ProfileView extends ViewLayout$1 {
             });
         }
     }
+    async #changedTeamMemberRightsEvent(member, key, value) {
+        const request = await fetch('/team/changeTeamMemberRights', {
+            method: 'POST',
+            ...header,
+            body: JSON.stringify({
+                data: {
+                    member,
+                    rights: {
+                        ...member.rights,
+                        [key]: value,
+                    },
+                },
+                client,
+            }),
+        });
+        await request.json();
+        Object.defineProperty(member.rights, key, { value: value });
+        this.team.members.forEach((tMember) => {
+            if (member._id === tMember.member) {
+                Object.defineProperty(tMember.rights, key, { value: value });
+            }
+        });
+    }
     #clickOnteamMember(member) {
         const hasActive = this.querySelector(`.team-member.${activeMemberClass}`);
         const active_id = hasActive?.getAttribute('data-id');
@@ -25430,6 +25665,13 @@ let ProfileView = class ProfileView extends ViewLayout$1 {
     }
     #renderTeamSection() {
         const { _id, ...rights } = this.user.rights;
+        const myRights = this.team.members.find((member) => member.member === this.me._id)?.rights;
+        const activeButton = y `<sl-button variant="danger" size="small" class="float-right">
+            <sl-icon slot="prefix" name="x-lg"></sl-icon>Remove</sl-button
+        >`;
+        const disabledButton = y `<sl-button variant="danger" size="small" class="float-right" disabled>
+            <sl-icon slot="prefix" name="x-lg"></sl-icon>Remove</sl-button
+        >`;
         return y `<div class="team-section">
             <div>
                 <div>
@@ -25466,18 +25708,31 @@ let ProfileView = class ProfileView extends ViewLayout$1 {
                     ${msg('{{1}} member of {{2}}')
             .replace('{{1}}', this.user.username)
             .replace('{{2}}', this.team.name)}
+                    ${this.me._id === this.user._id || !myRights?.removeTeamMember ? disabledButton : activeButton}
                 </h2>
                 <sl-divider style="--width: 2px;"></sl-divider>
                 <div>
-                    <p class="text-xl">${capitalize(msg('rights'))}</p>
-
-                    ${Object.entries(rights).map(([key, value]) => {
-            console.log(value);
-            const slSwitch = value ? y `<sl-switch checked></sl-switch>` : y `<sl-switch></sl-switch>`;
-            return y `<div class="selected-team-section-rights">
-                            <div>${key} ${slSwitch}</div>
-                        </div>`;
+                    <p class="text-xl mb-4">${capitalize(msg('rights'))}</p>
+                    <div class="selected-team-section-rights">
+                        ${c$2(Object.entries(rights), kvPair => kvPair[0], ([key, value]) => {
+            const itsMe = this.me._id === this.user._id;
+            const slSwitch = value
+                ? y `<sl-switch
+                                          @sl-change="${() => this.#changedTeamMemberRightsEvent(this.user, key, !value)}"
+                                          ?disabled="${itsMe || !myRights?.changeTeamMemberRights}"
+                                          checked
+                                      ></sl-switch>`
+                : y `<sl-switch
+                                          @sl-change="${() => this.#changedTeamMemberRightsEvent(this.user, key, !value)}"
+                                          ?disabled="${itsMe || !myRights?.changeTeamMemberRights}"
+                                      ></sl-switch>`;
+            return y `<div class="selected-team-section-right">
+                                    <span>${transRights(key)}</span> ${slSwitch}
+                                    <p class="text-xs text-gray-600">${transRightsInfo(key)}</p>
+                                    <i></i>
+                                </div>`;
         })}
+                    </div>
                 </div>
                 <sl-divider style="--width: 2px;"></sl-divider>
                 <div class="selected-team-section-stats">
@@ -25517,6 +25772,10 @@ let ProfileView = class ProfileView extends ViewLayout$1 {
             <sl-tab-panel class="mt-8" name="team">${this.#renderTeamSection()}</sl-tab-panel>
         </sl-tab-group> `;
         return [row1];
+    }
+    connectedCallback() {
+        super.connectedCallback();
+        this.#getUserData();
     }
     render() {
         const rows = this.#renderRows();
@@ -25650,7 +25909,7 @@ AppLayout = __decorate([
 document.addEventListener('DOMContentLoaded', function () {
     const app = document.querySelector('app-layout');
     app.bootstrapActiveMenu();
-    console.log('v:0.0.1 at: "2023-01-15T19:04:28.014Z" ');
+    console.log('v:0.0.1 at: "2023-01-18T14:51:54.683Z" ');
 });
 
 /* CSS */

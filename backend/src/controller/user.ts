@@ -10,8 +10,12 @@ export async function getMe(request: any): Promise<UserType> {
     return await userModel.findOne({ username }, { password: 0 }).lean();
 }
 
-export async function getUser(request: any): Promise<UserType[]> {
+export async function getUsers(request: any): Promise<UserType[]> {
     return await userModel.find().where('_id').in(request.payload.data.ids).exec();
+}
+
+export async function getUser(_id: string): Promise<UserType> {
+    return await userModel.findOne({ _id }).lean();
 }
 
 export async function setUser(request: any) {

@@ -8,8 +8,11 @@ export async function getMe(request) {
     const username = request.state['log-cookie'].username;
     return await userModel.findOne({ username }, { password: 0 }).lean();
 }
-export async function getUser(request) {
+export async function getUsers(request) {
     return await userModel.find().where('_id').in(request.payload.data.ids).exec();
+}
+export async function getUser(_id) {
+    return await userModel.findOne({ _id }).lean();
 }
 export async function setUser(request) {
     const user = await getMe(request);

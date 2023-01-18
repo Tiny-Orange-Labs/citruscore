@@ -268,6 +268,7 @@ npm run coverage
 
 # ToDo
 
+1. Remove users
 1. deployment
 1. add more tests
 1. improve code quality

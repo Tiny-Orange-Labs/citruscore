@@ -3,22 +3,30 @@ import { userModel } from '../backend/dist/models/user.mjs';
 import { teamModel } from '../backend/dist/models/team.mjs';
 import mongoose from 'mongoose';
 
+const password = '$2a$10$iqJSHD.BGr0E2IxQwYgJmeP3NvhPrXAeLSaGCj6IR/XU5QtjVu5Tm'; // secret
+
 const admin = new userModel({
     username: 'admin',
     email: 'admin@localhost.com',
-    password: '$2a$10$iqJSHD.BGr0E2IxQwYgJmeP3NvhPrXAeLSaGCj6IR/XU5QtjVu5Tm', // secret
+    password,
     about: 'Full rights admin acc for testing',
 });
 const operator = new userModel({
     username: 'operator',
     email: 'operator@localhost.com',
-    password: '$2a$10$iqJSHD.BGr0E2IxQwYgJmeP3NvhPrXAeLSaGCj6IR/XU5QtjVu5Tm', // secret
+    password,
     about: 'Add and remove rights for operator acc',
 });
 const member = new userModel({
     username: 'member',
     email: 'member@localhost.com',
-    password: '$2a$10$iqJSHD.BGr0E2IxQwYgJmeP3NvhPrXAeLSaGCj6IR/XU5QtjVu5Tm', // secret
+    password,
+    about: 'No rights member acc for testing',
+});
+const member2 = new userModel({
+    username: 'member2',
+    email: 'member@localhost.com',
+    password,
     about: 'No rights member acc for testing',
 });
 
@@ -38,6 +46,7 @@ process.on('SIGINT', function () {
 const adminMongo = await admin.save();
 const memberMongo = await member.save();
 const operatorMongo = await operator.save();
+const member2Mongo = await member2.save();
 const devTeam = new teamModel({
     name: 'superTeam',
     maxMembers: 5,
@@ -54,7 +63,7 @@ const devTeam = new teamModel({
             },
         },
         {
-            member: operator._id,
+            member: operatorMongo._id,
             role: 'operator',
             rights: {
                 addTeamMember: true,
@@ -65,6 +74,16 @@ const devTeam = new teamModel({
         },
         {
             member: memberMongo._id,
+            role: 'member',
+            rights: {
+                addTeamMember: false,
+                removeTeamMember: false,
+                changeTeamMemberRole: false,
+                changeTeamMemberRights: false,
+            },
+        },
+        {
+            member: member2Mongo._id,
             role: 'member',
             rights: {
                 addTeamMember: false,
