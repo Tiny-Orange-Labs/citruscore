@@ -19,30 +19,6 @@ const teamSchema = new mongoose.Schema({
         minLength: 1,
         maxLength: 560,
     },
-    members: [
-        {
-            member: mongoose.Schema.Types.ObjectId,
-            role: {
-                type: String,
-                default: 'member',
-                required: true,
-            },
-            rights: {
-                type: {
-                    addTeamMember: Boolean,
-                    removeTeamMember: Boolean,
-                    changeTeamMemberRole: Boolean,
-                    changeTeamMemberRights: Boolean,
-                },
-                required: true,
-                default: {
-                    addTeamMember: false,
-                    removeTeamMember: false,
-                    changeTeamMemberRole: false,
-                    changeTeamMemberRights: false,
-                },
-            },
-        },
-    ],
+    members: [mongoose.Schema.Types.ObjectId],
 });
 export const teamModel = mongoose.model('team', teamSchema);

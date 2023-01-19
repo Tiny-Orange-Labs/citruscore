@@ -18,7 +18,6 @@ import toast from '../../utilities/toast/toast';
 import { repeat } from 'lit/directives/repeat.js';
 import { imgs } from '../../data/fallbacks';
 import avatarSize from '../../data/shared/avatarSizes';
-import { transRights, transRightsInfo } from '../../utilities/trans/trans';
 const passwordMinLength = 8;
 const passwordMaxLength = 35;
 const maxLengthAbout = 560;
@@ -27,19 +26,23 @@ const fallbackUser = {
     _id: '',
     username: '',
     role: '',
-    rights: {
-        _id: '',
-        addTeamMember: false,
-        changeTeamMemberRights: false,
-        changeTeamMemberRole: false,
-        removeTeamMember: false,
-    },
+    roleName: '',
     email: '',
     about: '',
     avatar: '',
     member: undefined,
+    isSuperAdmin: false,
 };
 let ProfileView = class ProfileView extends ViewLayout {
+    rights = {
+        _id: '',
+        name: '',
+        addTeamMember: false,
+        removeTeamMember: false,
+        changeTeamMemberRole: false,
+        changeTeamMemberRights: false,
+        createRole: false,
+    };
     me = structuredClone(fallbackUser);
     user = structuredClone(fallbackUser);
     team = {
@@ -60,6 +63,15 @@ let ProfileView = class ProfileView extends ViewLayout {
     }
     createRenderRoot() {
         return this; // prevents creating a shadow root
+    }
+    async #getRole() {
+        const request = await fetch('/role/getRole', {
+            method: 'GET',
+            ...header,
+        });
+        const role = await request.json();
+        this.rights = role;
+        return role;
     }
     async #getUserData() {
         const request = await fetch('/me', {
@@ -231,7 +243,7 @@ let ProfileView = class ProfileView extends ViewLayout {
                 client,
             }),
         });
-        const json = await request.json();
+        await request.json();
         return toast('success', msg('avatar'), msg('Avatar changed successfully, refresh to see changes'));
     }
     async #changeAvatarEvent(e) {
@@ -265,18 +277,14 @@ let ProfileView = class ProfileView extends ViewLayout {
                             maxlength="20"
                             label="${capitalize(msg('username'))}"
                             size="small"
-                            value="${until(content.then(function (data) {
-            return data.username;
-        }), 'Loading...')}"
+                            value="${until(content.then(data => data.username), 'Loading...')}"
                         ></sl-input>
                         <sl-input
                             id="mail"
                             label="${capitalize(msg('Email address'))}"
                             type="email"
                             size="small"
-                            value="${until(content.then(function (data) {
-            return data.email;
-        }), 'Loading...')}"
+                            value="${until(content.then(data => data.email), 'Loading...')}"
                         >
                             <sl-icon name="envelope-at" slot="prefix"></sl-icon>
                         </sl-input>
@@ -290,9 +298,7 @@ let ProfileView = class ProfileView extends ViewLayout {
                         rows="7"
                         help-text="${msg('write something about you')}"
                         label="${capitalize(msg('about'))}"
-                        value="${until(content.then(function (data) {
-            return data.about;
-        }), '')}"
+                        value="${until(content.then(data => data.about), '')}"
                     ></sl-textarea>
                 </div>
                 <div>
@@ -383,12 +389,13 @@ let ProfileView = class ProfileView extends ViewLayout {
                 ...header,
                 body: JSON.stringify({
                     data: {
-                        ids: team.members.map((member) => member.member),
+                        ids: team.members,
                     },
                     client,
                 }),
             });
-            const members = await membersRequest.json();
+            const unsortMembers = await membersRequest.json();
+            const members = unsortMembers.sort((a, b) => a.username.localeCompare(b.username));
             this.team = team;
             this.team.members = this.team.members.map((member, i) => {
                 return {
@@ -402,29 +409,6 @@ let ProfileView = class ProfileView extends ViewLayout {
             });
         }
     }
-    async #changedTeamMemberRightsEvent(member, key, value) {
-        const request = await fetch('/team/changeTeamMemberRights', {
-            method: 'POST',
-            ...header,
-            body: JSON.stringify({
-                data: {
-                    member,
-                    rights: {
-                        ...member.rights,
-                        [key]: value,
-                    },
-                },
-                client,
-            }),
-        });
-        await request.json();
-        Object.defineProperty(member.rights, key, { value: value });
-        this.team.members.forEach((tMember) => {
-            if (member._id === tMember.member) {
-                Object.defineProperty(tMember.rights, key, { value: value });
-            }
-        });
-    }
     #clickOnteamMember(member) {
         const hasActive = this.querySelector(`.team-member.${activeMemberClass}`);
         const active_id = hasActive?.getAttribute('data-id');
@@ -436,26 +420,59 @@ let ProfileView = class ProfileView extends ViewLayout {
             return this.requestUpdate();
         }
     }
+    #closeRemoveTeamMemberDialog() {
+        const dialog = this.querySelector('#remove-team-member-dialog');
+        dialog?.hide();
+    }
+    #openRemoveTeamMemberDialog() {
+        const dialog = this.querySelector('#remove-team-member-dialog');
+        dialog?.show();
+    }
+    async #removeTeamMember() {
+        const request = await fetch('/team/removeMember', {
+            method: 'POST',
+            ...header,
+            body: JSON.stringify({
+                data: {
+                    member: this.user,
+                },
+                client,
+            }),
+        });
+        await request.json();
+        await this.#tabSwitchEvent({ detail: { name: 'team' } });
+        this.#closeRemoveTeamMemberDialog();
+    }
     #renderTeamSection() {
-        const { _id, ...rights } = this.user.rights;
-        const myRights = this.team.members.find((member) => member.member === this.me._id)?.rights;
-        const activeButton = html `<sl-button variant="danger" size="small" class="float-right">
+        const activeButton = html `<sl-button
+            variant="danger"
+            size="small"
+            class="float-right"
+            @click="${this.#openRemoveTeamMemberDialog}"
+        >
             <sl-icon slot="prefix" name="x-lg"></sl-icon>Remove</sl-button
         >`;
         const disabledButton = html `<sl-button variant="danger" size="small" class="float-right" disabled>
             <sl-icon slot="prefix" name="x-lg"></sl-icon>Remove</sl-button
         >`;
+        const isSuperAdmin = html `<div>
+            <p class="text-gray-600">${capitalize(msg('Super Admin'))}</p>
+            <sl-icon name="check2-all"></sl-icon>
+        </div>`;
+        const dialogText = msg('Are you sure you want to remove {{1}} from {{2}}?')
+            .replace('{{1}}', this.user.username)
+            .replace('{{2}}', this.team.name);
         return html `<div class="team-section">
-            <div>
-                <div>
+                <div class="overflow-hidden md:h-[calc(100vh - 175px)]">
                     <sl-input size="small" label="${capitalize(msg('search'))}">
                         <sl-icon name="search" type="text" slot="prefix"></sl-icon>
                     </sl-input>
-                    <div class="mt-4">
+                    <div class="team-section-members">
                         ${repeat(this.team.members, member => member._id, member => {
             return html `<div
                                     class="team-member"
                                     @click="${() => this.#clickOnteamMember(member)}"
+                                    @keyup="${() => this.#clickOnteamMember(member)}"
                                     data-id="${member._id}"
                                     tabindex="0"
                                 >
@@ -464,72 +481,73 @@ let ProfileView = class ProfileView extends ViewLayout {
                                     ></sl-avatar>
                                     <div>
                                         <p>${member.username}</p>
-                                        <p>${msg('role')}: ${member.role}</p>
+                                        <p>${msg('role')}: ${member.roleName}</p>
                                     </div>
                                 </div>`;
         })}
                     </div>
                 </div>
-            </div>
-            <div class="selected-team-section">
-                <sl-avatar
-                    style="--size: 8rem;"
-                    image="${this.user.avatar ? `${this.user.avatar}avatar_medium.webp` : imgs.avatar}"
-                ></sl-avatar>
+                <div class="selected-team-section">
+                    <sl-avatar
+                        style="--size: 8rem;"
+                        image="${this.user.avatar ? `${this.user.avatar}avatar_medium.webp` : imgs.avatar}"
+                    ></sl-avatar>
 
-                <h2 class="text-2xl font-bold">
-                    ${msg('{{1}} member of {{2}}')
+                    <h2 class="text-2xl font-bold">
+                        ${msg('{{1}} member of {{2}}')
             .replace('{{1}}', this.user.username)
             .replace('{{2}}', this.team.name)}
-                    ${this.me._id === this.user._id || !myRights?.removeTeamMember ? disabledButton : activeButton}
-                </h2>
-                <sl-divider style="--width: 2px;"></sl-divider>
-                <div>
-                    <p class="text-xl mb-4">${capitalize(msg('rights'))}</p>
-                    <div class="selected-team-section-rights">
-                        ${repeat(Object.entries(rights), kvPair => kvPair[0], ([key, value]) => {
-            const itsMe = this.me._id === this.user._id;
-            const slSwitch = value
-                ? html `<sl-switch
-                                          @sl-change="${() => this.#changedTeamMemberRightsEvent(this.user, key, !value)}"
-                                          ?disabled="${itsMe || !myRights?.changeTeamMemberRights}"
-                                          checked
-                                      ></sl-switch>`
-                : html `<sl-switch
-                                          @sl-change="${() => this.#changedTeamMemberRightsEvent(this.user, key, !value)}"
-                                          ?disabled="${itsMe || !myRights?.changeTeamMemberRights}"
-                                      ></sl-switch>`;
-            return html `<div class="selected-team-section-right">
-                                    <span>${transRights(key)}</span> ${slSwitch}
-                                    <p class="text-xs text-gray-600">${transRightsInfo(key)}</p>
-                                    <i></i>
-                                </div>`;
-        })}
+                        ${this.me._id === this.user._id || !this.rights.removeTeamMember
+            ? disabledButton
+            : activeButton}
+                    </h2>
+                    <sl-divider style="--width: 2px;"></sl-divider>
+                    <div class="selected-team-section-stats">
+                        <div>
+                            <p class="text-gray-600">${msg('name')}</p>
+                            <p>${this.user.username}</p>
+                        </div>
+                        <div>
+                            <p class="text-gray-600">${msg('Email address')}</p>
+                            <a href="mailto:${this.user.email}">${this.user.email}</a>
+                        </div>
+                        <div>
+                            <p class="text-gray-600">${capitalize(msg('role'))}</p>
+                            <p>${this.user.roleName}</p>
+                        </div>
+                        ${this.user.isSuperAdmin ? isSuperAdmin : ''}
                     </div>
-                </div>
-                <sl-divider style="--width: 2px;"></sl-divider>
-                <div class="selected-team-section-stats">
-                    <div>
-                        <p class="text-gray-600">${msg('name')}</p>
-                        <p>${this.user.username}</p>
-                    </div>
-                    <div>
-                        <p class="text-gray-600">${msg('Email address')}</p>
-                        <a href="mailto:${this.user.email}">${this.user.email}</a>
-                    </div>
-                    <div>
-                        <p class="text-gray-600">${capitalize(msg('role'))}</p>
-                        <p>${this.user.role}</p>
-                    </div>
-                </div>
 
-                <div>
-                    <p class="text-gray-600">${capitalize(msg('about'))}</p>
-                    <p>${this.user.about}</p>
+                    <div>
+                        <p class="text-gray-600">${capitalize(msg('about'))}</p>
+                        <p>${this.user.about}</p>
+                    </div>
+                    <br />
                 </div>
-                <br />
+                <div>
+                    ${this.rights.addTeamMember
+            ? html `<sl-button variant="success" size="small">
+                              <sl-icon slot="prefix" name="plus-lg"></sl-icon>
+                              ${capitalize(msg('Add Member'))}
+                          </sl-button>`
+            : html `<sl-button variant="success" size="small" disabled>
+                              <sl-icon slot="prefix" name="plus-lg"></sl-icon>
+                              ${capitalize(msg('Add Member'))}
+                          </sl-button>`}
+                </div>
             </div>
-        </div>`;
+            <sl-dialog label="${msg('attention')}" class="dialog-overview" id="remove-team-member-dialog">
+                ${dialogText}
+                <sl-button @click="${this.#removeTeamMember}" class="float-left" slot="footer" variant="danger"
+                    >${msg('yes')}</sl-button
+                >
+                <sl-button @click="${this.#closeRemoveTeamMemberDialog}" slot="footer" variant="neutral"
+                    >${msg('no')}</sl-button
+                >
+            </sl-dialog>`;
+    }
+    #renderRoleSection() {
+        return '';
     }
     #renderRows() {
         const content = fetch('/me', {
@@ -539,22 +557,28 @@ let ProfileView = class ProfileView extends ViewLayout {
             <sl-tab slot="nav" panel="account">${capitalize(msg('account'))}</sl-tab>
             <sl-tab slot="nav" panel="password">${capitalize(msg('password'))}</sl-tab>
             <sl-tab slot="nav" panel="team">${capitalize(msg('team'))}</sl-tab>
+            <sl-tab slot="nav" panel="role">${capitalize(msg('role'))}</sl-tab>
 
             <sl-tab-panel class="mt-8" name="account">${this.#renderAccountSection(content)}</sl-tab-panel>
             <sl-tab-panel class="mt-8" name="password">${this.#renderPasswordSection()}</sl-tab-panel>
             <sl-tab-panel class="mt-8" name="team">${this.#renderTeamSection()}</sl-tab-panel>
+            <sl-tab-panel class="mt-8" name="role">${this.#renderRoleSection()}</sl-tab-panel>
         </sl-tab-group> `;
         return [row1];
     }
     connectedCallback() {
         super.connectedCallback();
         this.#getUserData();
+        this.#getRole();
     }
     render() {
         const rows = this.#renderRows();
         return super.render(rows);
     }
 };
+__decorate([
+    property()
+], ProfileView.prototype, "rights", void 0);
 __decorate([
     property()
 ], ProfileView.prototype, "me", void 0);

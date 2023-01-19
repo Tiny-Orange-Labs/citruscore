@@ -1,5 +1,6 @@
 import { Server } from '@hapi/hapi';
 import { getMe, setUser, getUsers, uploadAvatar } from '../controller/user';
+import { strictRouteOptions } from '../data/routeOptions';
 
 export default async function user(server: Server) {
     server.route([
@@ -7,45 +8,25 @@ export default async function user(server: Server) {
             method: 'GET',
             path: '/me',
             handler: getMe,
-            options: {
-                auth: {
-                    mode: 'required',
-                    strategy: 'session',
-                },
-            },
+            options: strictRouteOptions,
         },
         {
             method: 'POST',
             path: '/user',
             handler: setUser,
-            options: {
-                auth: {
-                    mode: 'required',
-                    strategy: 'session',
-                },
-            },
+            options: strictRouteOptions,
         },
         {
             method: 'POST',
             path: '/getUsers',
             handler: getUsers,
-            options: {
-                auth: {
-                    mode: 'required',
-                    strategy: 'session',
-                },
-            },
+            options: strictRouteOptions,
         },
         {
             method: 'POST',
             path: '/changeAvatar',
             handler: uploadAvatar,
-            options: {
-                auth: {
-                    mode: 'required',
-                    strategy: 'session',
-                },
-            },
+            options: strictRouteOptions,
         },
     ]);
 }

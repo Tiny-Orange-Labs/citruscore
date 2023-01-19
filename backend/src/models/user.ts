@@ -7,6 +7,9 @@ export interface UserType {
     about: string;
     password: string;
     sessionID: string;
+    role: mongoose.ObjectId;
+    roleName: string | undefined;
+    isSuperAdmin: boolean;
     _id: mongoose.ObjectId;
 }
 
@@ -35,6 +38,14 @@ const userSchema = new mongoose.Schema<UserType>({
         type: String,
         minLength: 1,
         maxLength: 560,
+    },
+    role: {
+        type: mongoose.Schema.Types.ObjectId,
+    },
+    isSuperAdmin: {
+        type: Boolean,
+        default: false,
+        required: true,
     },
 });
 export const userModel = mongoose.model('user', userSchema);

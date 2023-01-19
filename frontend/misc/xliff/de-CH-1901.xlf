@@ -170,10 +170,6 @@
   <source>{{1}} member of {{2}}</source>
   <target>{{1}} mitglied von {{2}}</target>
 </trans-unit>
-<trans-unit id="sb8d7e19cf86bd082">
-  <source>rights</source>
-  <target>rechte</target>
-</trans-unit>
 <trans-unit id="sc4bcadba8e631b86">
   <source>name</source>
   <target>name</target>
@@ -218,6 +214,30 @@
 </trans-unit>
 <trans-unit id="s9fcaa62b7dc4223c">
   <source>Team membeer can change the rights of other team members</source>
+</trans-unit>
+<trans-unit id="s5e155029a998ab6e">
+  <source>Add Member</source>
+</trans-unit>
+<trans-unit id="sc592307ea80f16b9">
+  <source>Unknown</source>
+</trans-unit>
+<trans-unit id="sc7c9db3a033e8402">
+  <source>Unknown Rights, please add them to frontent/src/ts/utililties/trans/</source>
+</trans-unit>
+<trans-unit id="sbadaf48f968fa2a1">
+  <source>Are you sure you want to remove {{1}} from {{2}}?</source>
+</trans-unit>
+<trans-unit id="sbe5506cb0bb8f779">
+  <source>attention</source>
+</trans-unit>
+<trans-unit id="sb53f7a197981b790">
+  <source>yes</source>
+</trans-unit>
+<trans-unit id="s08b35907b5589afa">
+  <source>no</source>
+</trans-unit>
+<trans-unit id="s45999333981899f3">
+  <source>Super Admin</source>
 </trans-unit>
 </body>
 </file>

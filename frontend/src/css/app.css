@@ -128,7 +128,7 @@ sl-divider {
 }
 
 .team-section {
-    grid-template-columns: 300px 600px;
+    grid-template-columns: 300px 1fr auto;
     @apply grid gap-8 md:h-[calc(100vh_-_176px)] overflow-hidden;
 }
 
@@ -156,4 +156,8 @@ sl-divider {
 .selected-team-section-right {
     grid-template-columns: 1fr auto;
     @apply grid;
+}
+
+.team-section-members {
+    @apply flex flex-col gap-1 mt-4 h-full overflow-y-scroll;
 }

@@ -1,6 +1,7 @@
 import { Server } from '@hapi/hapi';
 import cokie from '@hapi/cookie';
 import { validate, login, logout, checkPassword, changePassword } from '../controller/auth';
+import { strictRouteOptions } from '../data/routeOptions';
 
 export default async function auth(server: Server) {
     await server.register(cokie);
@@ -31,34 +32,19 @@ export default async function auth(server: Server) {
             method: 'POST',
             path: '/changePassword',
             handler: changePassword,
-            options: {
-                auth: {
-                    mode: 'required',
-                    strategy: 'session',
-                },
-            },
+            options: strictRouteOptions,
         },
         {
             method: 'POST',
             path: '/checkPassword',
             handler: checkPassword,
-            options: {
-                auth: {
-                    mode: 'required',
-                    strategy: 'session',
-                },
-            },
+            options: strictRouteOptions,
         },
         {
             method: 'GET',
             path: '/logout',
             handler: logout,
-            options: {
-                auth: {
-                    mode: 'required',
-                    strategy: 'session',
-                },
-            },
+            options: strictRouteOptions,
         },
     ]);
 }

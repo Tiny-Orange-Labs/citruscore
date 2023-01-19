@@ -13,6 +13,7 @@ export function transRights(key: string) {
     if (key === 'changeTeamMemberRights') {
         return msg('Change Team Member Rights');
     }
+    return msg('Unknown');
 }
 
 export function transRightsInfo(key: string) {
@@ -28,4 +29,5 @@ export function transRightsInfo(key: string) {
     if (key === 'changeTeamMemberRights') {
         return msg('Team membeer can change the rights of other team members');
     }
+    return msg('Unknown Rights, please add them to frontent/src/ts/utililties/trans/');
 }

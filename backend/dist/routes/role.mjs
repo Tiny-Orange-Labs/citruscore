@@ -1,29 +1,29 @@
-import { getMe, setUser, getUsers, uploadAvatar } from '../controller/user';
+import { getRole, getRoles, removeRole, createRole } from '../controller/role';
 import { strictRouteOptions } from '../data/routeOptions';
 export default async function user(server) {
     server.route([
         {
             method: 'GET',
-            path: '/me',
-            handler: getMe,
+            path: '/role/getRole',
+            handler: getRole,
+            options: strictRouteOptions,
+        },
+        {
+            method: 'GET',
+            path: '/role/getRoles',
+            handler: getRoles,
             options: strictRouteOptions,
         },
         {
             method: 'POST',
-            path: '/user',
-            handler: setUser,
+            path: '/role/removeRole',
+            handler: removeRole,
             options: strictRouteOptions,
         },
         {
             method: 'POST',
-            path: '/getUsers',
-            handler: getUsers,
-            options: strictRouteOptions,
-        },
-        {
-            method: 'POST',
-            path: '/changeAvatar',
-            handler: uploadAvatar,
+            path: '/role/createRole',
+            handler: createRole,
             options: strictRouteOptions,
         },
     ]);

@@ -5904,6 +5904,19 @@ function getOffset(element, parent) {
     left: Math.round(element.getBoundingClientRect().left - parent.getBoundingClientRect().left)
   };
 }
+
+// src/internal/scroll.ts
+var locks = /* @__PURE__ */ new Set();
+function lockBodyScrolling(lockingEl) {
+  locks.add(lockingEl);
+  document.body.classList.add("sl-scroll-lock");
+}
+function unlockBodyScrolling(lockingEl) {
+  locks.delete(lockingEl);
+  if (locks.size === 0) {
+    document.body.classList.remove("sl-scroll-lock");
+  }
+}
 function scrollIntoView(element, container, direction = "vertical", behavior = "smooth") {
   const offset = getOffset(element, container);
   const offsetTop = offset.top + container.scrollTop;
@@ -9780,6 +9793,406 @@ __decorateClass([
 SlSwitch = __decorateClass([
   e$7("sl-switch")
 ], SlSwitch);
+
+// src/internal/modal.ts
+var activeModals = [];
+var Modal = class {
+  constructor(element) {
+    this.tabDirection = "forward";
+    this.element = element;
+    this.handleFocusIn = this.handleFocusIn.bind(this);
+    this.handleKeyDown = this.handleKeyDown.bind(this);
+    this.handleKeyUp = this.handleKeyUp.bind(this);
+  }
+  activate() {
+    activeModals.push(this.element);
+    document.addEventListener("focusin", this.handleFocusIn);
+    document.addEventListener("keydown", this.handleKeyDown);
+    document.addEventListener("keyup", this.handleKeyUp);
+  }
+  deactivate() {
+    activeModals = activeModals.filter((modal) => modal !== this.element);
+    document.removeEventListener("focusin", this.handleFocusIn);
+    document.removeEventListener("keydown", this.handleKeyDown);
+    document.removeEventListener("keyup", this.handleKeyUp);
+  }
+  isActive() {
+    return activeModals[activeModals.length - 1] === this.element;
+  }
+  checkFocus() {
+    if (this.isActive()) {
+      if (!this.element.matches(":focus-within")) {
+        const { start, end } = getTabbableBoundary(this.element);
+        const target = this.tabDirection === "forward" ? start : end;
+        if (typeof (target == null ? void 0 : target.focus) === "function") {
+          target.focus({ preventScroll: true });
+        }
+      }
+    }
+  }
+  handleFocusIn() {
+    this.checkFocus();
+  }
+  handleKeyDown(event) {
+    if (event.key === "Tab" && event.shiftKey) {
+      this.tabDirection = "backward";
+      requestAnimationFrame(() => this.checkFocus());
+    }
+  }
+  handleKeyUp() {
+    this.tabDirection = "forward";
+  }
+};
+
+// src/components/dialog/dialog.styles.ts
+var dialog_styles_default = i$7`
+  ${component_styles_default}
+
+  :host {
+    --width: 31rem;
+    --header-spacing: var(--sl-spacing-large);
+    --body-spacing: var(--sl-spacing-large);
+    --footer-spacing: var(--sl-spacing-large);
+
+    display: contents;
+  }
+
+  .dialog {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: fixed;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    z-index: var(--sl-z-index-dialog);
+  }
+
+  .dialog__panel {
+    display: flex;
+    flex-direction: column;
+    z-index: 2;
+    width: var(--width);
+    max-width: calc(100% - var(--sl-spacing-2x-large));
+    max-height: calc(100% - var(--sl-spacing-2x-large));
+    background-color: var(--sl-panel-background-color);
+    border-radius: var(--sl-border-radius-medium);
+    box-shadow: var(--sl-shadow-x-large);
+  }
+
+  .dialog__panel:focus {
+    outline: none;
+  }
+
+  /* Ensure there's enough vertical padding for phones that don't update vh when chrome appears (e.g. iPhone) */
+  @media screen and (max-width: 420px) {
+    .dialog__panel {
+      max-height: 80vh;
+    }
+  }
+
+  .dialog--open .dialog__panel {
+    display: flex;
+    opacity: 1;
+  }
+
+  .dialog__header {
+    flex: 0 0 auto;
+    display: flex;
+  }
+
+  .dialog__title {
+    flex: 1 1 auto;
+    font: inherit;
+    font-size: var(--sl-font-size-large);
+    line-height: var(--sl-line-height-dense);
+    padding: var(--header-spacing);
+    margin: 0;
+  }
+
+  .dialog__header-actions {
+    flex-shrink: 0;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: end;
+    gap: var(--sl-spacing-2x-small);
+    padding: 0 var(--header-spacing);
+  }
+
+  .dialog__header-actions sl-icon-button,
+  .dialog__header-actions ::slotted(sl-icon-button) {
+    flex: 0 0 auto;
+    display: flex;
+    align-items: center;
+    font-size: var(--sl-font-size-medium);
+  }
+
+  .dialog__body {
+    flex: 1 1 auto;
+    display: block;
+    padding: var(--body-spacing);
+    overflow: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .dialog__footer {
+    flex: 0 0 auto;
+    text-align: right;
+    padding: var(--footer-spacing);
+  }
+
+  .dialog__footer ::slotted(sl-button:not(:first-of-type)) {
+    margin-inline-start: var(--sl-spacing-x-small);
+  }
+
+  .dialog:not(.dialog--has-footer) .dialog__footer {
+    display: none;
+  }
+
+  .dialog__overlay {
+    position: fixed;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    background-color: var(--sl-overlay-background-color);
+  }
+
+  @media (forced-colors: active) {
+    .dialog__panel {
+      border: solid 1px var(--sl-color-neutral-0);
+    }
+  }
+`;
+
+// src/components/dialog/dialog.ts
+var SlDialog = class extends ShoelaceElement {
+  constructor() {
+    super(...arguments);
+    this.hasSlotController = new HasSlotController(this, "footer");
+    this.localize = new LocalizeController2(this);
+    this.open = false;
+    this.label = "";
+    this.noHeader = false;
+  }
+  connectedCallback() {
+    super.connectedCallback();
+    this.handleDocumentKeyDown = this.handleDocumentKeyDown.bind(this);
+    this.modal = new Modal(this);
+  }
+  firstUpdated() {
+    this.dialog.hidden = !this.open;
+    if (this.open) {
+      this.addOpenListeners();
+      this.modal.activate();
+      lockBodyScrolling(this);
+    }
+  }
+  disconnectedCallback() {
+    super.disconnectedCallback();
+    unlockBodyScrolling(this);
+  }
+  requestClose(source) {
+    const slRequestClose = this.emit("sl-request-close", {
+      cancelable: true,
+      detail: { source }
+    });
+    if (slRequestClose.defaultPrevented) {
+      const animation = getAnimation(this, "dialog.denyClose", { dir: this.localize.dir() });
+      animateTo(this.panel, animation.keyframes, animation.options);
+      return;
+    }
+    this.hide();
+  }
+  addOpenListeners() {
+    document.addEventListener("keydown", this.handleDocumentKeyDown);
+  }
+  removeOpenListeners() {
+    document.removeEventListener("keydown", this.handleDocumentKeyDown);
+  }
+  handleDocumentKeyDown(event) {
+    if (this.open && event.key === "Escape") {
+      event.stopPropagation();
+      this.requestClose("keyboard");
+    }
+  }
+  async handleOpenChange() {
+    if (this.open) {
+      this.emit("sl-show");
+      this.addOpenListeners();
+      this.originalTrigger = document.activeElement;
+      this.modal.activate();
+      lockBodyScrolling(this);
+      const autoFocusTarget = this.querySelector("[autofocus]");
+      if (autoFocusTarget) {
+        autoFocusTarget.removeAttribute("autofocus");
+      }
+      await Promise.all([stopAnimations(this.dialog), stopAnimations(this.overlay)]);
+      this.dialog.hidden = false;
+      requestAnimationFrame(() => {
+        const slInitialFocus = this.emit("sl-initial-focus", { cancelable: true });
+        if (!slInitialFocus.defaultPrevented) {
+          if (autoFocusTarget) {
+            autoFocusTarget.focus({ preventScroll: true });
+          } else {
+            this.panel.focus({ preventScroll: true });
+          }
+        }
+        if (autoFocusTarget) {
+          autoFocusTarget.setAttribute("autofocus", "");
+        }
+      });
+      const panelAnimation = getAnimation(this, "dialog.show", { dir: this.localize.dir() });
+      const overlayAnimation = getAnimation(this, "dialog.overlay.show", { dir: this.localize.dir() });
+      await Promise.all([
+        animateTo(this.panel, panelAnimation.keyframes, panelAnimation.options),
+        animateTo(this.overlay, overlayAnimation.keyframes, overlayAnimation.options)
+      ]);
+      this.emit("sl-after-show");
+    } else {
+      this.emit("sl-hide");
+      this.removeOpenListeners();
+      this.modal.deactivate();
+      await Promise.all([stopAnimations(this.dialog), stopAnimations(this.overlay)]);
+      const panelAnimation = getAnimation(this, "dialog.hide", { dir: this.localize.dir() });
+      const overlayAnimation = getAnimation(this, "dialog.overlay.hide", { dir: this.localize.dir() });
+      await Promise.all([
+        animateTo(this.overlay, overlayAnimation.keyframes, overlayAnimation.options).then(() => {
+          this.overlay.hidden = true;
+        }),
+        animateTo(this.panel, panelAnimation.keyframes, panelAnimation.options).then(() => {
+          this.panel.hidden = true;
+        })
+      ]);
+      this.dialog.hidden = true;
+      this.overlay.hidden = false;
+      this.panel.hidden = false;
+      unlockBodyScrolling(this);
+      const trigger = this.originalTrigger;
+      if (typeof (trigger == null ? void 0 : trigger.focus) === "function") {
+        setTimeout(() => trigger.focus());
+      }
+      this.emit("sl-after-hide");
+    }
+  }
+  async show() {
+    if (this.open) {
+      return void 0;
+    }
+    this.open = true;
+    return waitForEvent(this, "sl-after-show");
+  }
+  async hide() {
+    if (!this.open) {
+      return void 0;
+    }
+    this.open = false;
+    return waitForEvent(this, "sl-after-hide");
+  }
+  render() {
+    return y$1`
+      <div
+        part="base"
+        class=${o$7({
+      dialog: true,
+      "dialog--open": this.open,
+      "dialog--has-footer": this.hasSlotController.test("footer")
+    })}
+      >
+        <div part="overlay" class="dialog__overlay" @click=${() => this.requestClose("overlay")} tabindex="-1"></div>
+
+        <div
+          part="panel"
+          class="dialog__panel"
+          role="dialog"
+          aria-modal="true"
+          aria-hidden=${this.open ? "false" : "true"}
+          aria-label=${l$6(this.noHeader ? this.label : void 0)}
+          aria-labelledby=${l$6(!this.noHeader ? "title" : void 0)}
+          tabindex="0"
+        >
+          ${!this.noHeader ? y$1`
+                <header part="header" class="dialog__header">
+                  <h2 part="title" class="dialog__title" id="title">
+                    <slot name="label"> ${this.label.length > 0 ? this.label : String.fromCharCode(65279)} </slot>
+                  </h2>
+                  <div part="header-actions" class="dialog__header-actions">
+                    <slot name="header-actions"></slot>
+                    <sl-icon-button
+                      part="close-button"
+                      exportparts="base:close-button__base"
+                      class="dialog__close"
+                      name="x-lg"
+                      label=${this.localize.term("close")}
+                      library="system"
+                      @click="${() => this.requestClose("close-button")}"
+                    ></sl-icon-button>
+                  </div>
+                </header>
+              ` : ""}
+
+          <slot part="body" class="dialog__body"></slot>
+
+          <footer part="footer" class="dialog__footer">
+            <slot name="footer"></slot>
+          </footer>
+        </div>
+      </div>
+    `;
+  }
+};
+SlDialog.styles = dialog_styles_default;
+__decorateClass([
+  i2$2(".dialog")
+], SlDialog.prototype, "dialog", 2);
+__decorateClass([
+  i2$2(".dialog__panel")
+], SlDialog.prototype, "panel", 2);
+__decorateClass([
+  i2$2(".dialog__overlay")
+], SlDialog.prototype, "overlay", 2);
+__decorateClass([
+  e2$1({ type: Boolean, reflect: true })
+], SlDialog.prototype, "open", 2);
+__decorateClass([
+  e2$1({ reflect: true })
+], SlDialog.prototype, "label", 2);
+__decorateClass([
+  e2$1({ attribute: "no-header", type: Boolean, reflect: true })
+], SlDialog.prototype, "noHeader", 2);
+__decorateClass([
+  watch("open", { waitUntilFirstUpdate: true })
+], SlDialog.prototype, "handleOpenChange", 1);
+SlDialog = __decorateClass([
+  e$7("sl-dialog")
+], SlDialog);
+setDefaultAnimation("dialog.show", {
+  keyframes: [
+    { opacity: 0, scale: 0.8 },
+    { opacity: 1, scale: 1 }
+  ],
+  options: { duration: 250, easing: "ease" }
+});
+setDefaultAnimation("dialog.hide", {
+  keyframes: [
+    { opacity: 1, scale: 1 },
+    { opacity: 0, scale: 0.8 }
+  ],
+  options: { duration: 250, easing: "ease" }
+});
+setDefaultAnimation("dialog.denyClose", {
+  keyframes: [{ scale: 1 }, { scale: 1.02 }, { scale: 1 }],
+  options: { duration: 250 }
+});
+setDefaultAnimation("dialog.overlay.show", {
+  keyframes: [{ opacity: 0 }, { opacity: 1 }],
+  options: { duration: 250 }
+});
+setDefaultAnimation("dialog.overlay.hide", {
+  keyframes: [{ opacity: 1 }, { opacity: 0 }],
+  options: { duration: 250 }
+});
 
 /**
  * @license
@@ -25211,35 +25624,6 @@ const avatarSizes = Object.freeze({
     small: 44,
 });
 
-function transRights(key) {
-    if (key === 'addTeamMember') {
-        return msg('Add Team Member');
-    }
-    if (key === 'removeTeamMember') {
-        return msg('Remove Team Member');
-    }
-    if (key === 'changeTeamMemberRole') {
-        return msg('Change Team Member Role');
-    }
-    if (key === 'changeTeamMemberRights') {
-        return msg('Change Team Member Rights');
-    }
-}
-function transRightsInfo(key) {
-    if (key === 'addTeamMember') {
-        return msg('Team member can add other team members');
-    }
-    if (key === 'removeTeamMember') {
-        return msg('Team member can remove other team members');
-    }
-    if (key === 'changeTeamMemberRole') {
-        return msg('Team member can change the role of other team members');
-    }
-    if (key === 'changeTeamMemberRights') {
-        return msg('Team membeer can change the rights of other team members');
-    }
-}
-
 var __decorate$2 = (undefined && undefined.__decorate) || function (decorators, target, key, desc) {
     var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
     if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
@@ -25254,19 +25638,23 @@ const fallbackUser = {
     _id: '',
     username: '',
     role: '',
-    rights: {
-        _id: '',
-        addTeamMember: false,
-        changeTeamMemberRights: false,
-        changeTeamMemberRole: false,
-        removeTeamMember: false,
-    },
+    roleName: '',
     email: '',
     about: '',
     avatar: '',
     member: undefined,
+    isSuperAdmin: false,
 };
 let ProfileView = class ProfileView extends ViewLayout$1 {
+    rights = {
+        _id: '',
+        name: '',
+        addTeamMember: false,
+        removeTeamMember: false,
+        changeTeamMemberRole: false,
+        changeTeamMemberRights: false,
+        createRole: false,
+    };
     me = structuredClone(fallbackUser);
     user = structuredClone(fallbackUser);
     team = {
@@ -25287,6 +25675,15 @@ let ProfileView = class ProfileView extends ViewLayout$1 {
     }
     createRenderRoot() {
         return this; // prevents creating a shadow root
+    }
+    async #getRole() {
+        const request = await fetch('/role/getRole', {
+            method: 'GET',
+            ...header,
+        });
+        const role = await request.json();
+        this.rights = role;
+        return role;
     }
     async #getUserData() {
         const request = await fetch('/me', {
@@ -25492,18 +25889,14 @@ let ProfileView = class ProfileView extends ViewLayout$1 {
                             maxlength="20"
                             label="${capitalize(msg('username'))}"
                             size="small"
-                            value="${c(content.then(function (data) {
-            return data.username;
-        }), 'Loading...')}"
+                            value="${c(content.then(data => data.username), 'Loading...')}"
                         ></sl-input>
                         <sl-input
                             id="mail"
                             label="${capitalize(msg('Email address'))}"
                             type="email"
                             size="small"
-                            value="${c(content.then(function (data) {
-            return data.email;
-        }), 'Loading...')}"
+                            value="${c(content.then(data => data.email), 'Loading...')}"
                         >
                             <sl-icon name="envelope-at" slot="prefix"></sl-icon>
                         </sl-input>
@@ -25517,9 +25910,7 @@ let ProfileView = class ProfileView extends ViewLayout$1 {
                         rows="7"
                         help-text="${msg('write something about you')}"
                         label="${capitalize(msg('about'))}"
-                        value="${c(content.then(function (data) {
-            return data.about;
-        }), '')}"
+                        value="${c(content.then(data => data.about), '')}"
                     ></sl-textarea>
                 </div>
                 <div>
@@ -25610,12 +26001,13 @@ let ProfileView = class ProfileView extends ViewLayout$1 {
                 ...header,
                 body: JSON.stringify({
                     data: {
-                        ids: team.members.map((member) => member.member),
+                        ids: team.members,
                     },
                     client,
                 }),
             });
-            const members = await membersRequest.json();
+            const unsortMembers = await membersRequest.json();
+            const members = unsortMembers.sort((a, b) => a.username.localeCompare(b.username));
             this.team = team;
             this.team.members = this.team.members.map((member, i) => {
                 return {
@@ -25629,29 +26021,6 @@ let ProfileView = class ProfileView extends ViewLayout$1 {
             });
         }
     }
-    async #changedTeamMemberRightsEvent(member, key, value) {
-        const request = await fetch('/team/changeTeamMemberRights', {
-            method: 'POST',
-            ...header,
-            body: JSON.stringify({
-                data: {
-                    member,
-                    rights: {
-                        ...member.rights,
-                        [key]: value,
-                    },
-                },
-                client,
-            }),
-        });
-        await request.json();
-        Object.defineProperty(member.rights, key, { value: value });
-        this.team.members.forEach((tMember) => {
-            if (member._id === tMember.member) {
-                Object.defineProperty(tMember.rights, key, { value: value });
-            }
-        });
-    }
     #clickOnteamMember(member) {
         const hasActive = this.querySelector(`.team-member.${activeMemberClass}`);
         const active_id = hasActive?.getAttribute('data-id');
@@ -25663,26 +26032,59 @@ let ProfileView = class ProfileView extends ViewLayout$1 {
             return this.requestUpdate();
         }
     }
+    #closeRemoveTeamMemberDialog() {
+        const dialog = this.querySelector('#remove-team-member-dialog');
+        dialog?.hide();
+    }
+    #openRemoveTeamMemberDialog() {
+        const dialog = this.querySelector('#remove-team-member-dialog');
+        dialog?.show();
+    }
+    async #removeTeamMember() {
+        const request = await fetch('/team/removeMember', {
+            method: 'POST',
+            ...header,
+            body: JSON.stringify({
+                data: {
+                    member: this.user,
+                },
+                client,
+            }),
+        });
+        await request.json();
+        await this.#tabSwitchEvent({ detail: { name: 'team' } });
+        this.#closeRemoveTeamMemberDialog();
+    }
     #renderTeamSection() {
-        const { _id, ...rights } = this.user.rights;
-        const myRights = this.team.members.find((member) => member.member === this.me._id)?.rights;
-        const activeButton = y `<sl-button variant="danger" size="small" class="float-right">
+        const activeButton = y `<sl-button
+            variant="danger"
+            size="small"
+            class="float-right"
+            @click="${this.#openRemoveTeamMemberDialog}"
+        >
             <sl-icon slot="prefix" name="x-lg"></sl-icon>Remove</sl-button
         >`;
         const disabledButton = y `<sl-button variant="danger" size="small" class="float-right" disabled>
             <sl-icon slot="prefix" name="x-lg"></sl-icon>Remove</sl-button
         >`;
+        const isSuperAdmin = y `<div>
+            <p class="text-gray-600">${capitalize(msg('Super Admin'))}</p>
+            <sl-icon name="check2-all"></sl-icon>
+        </div>`;
+        const dialogText = msg('Are you sure you want to remove {{1}} from {{2}}?')
+            .replace('{{1}}', this.user.username)
+            .replace('{{2}}', this.team.name);
         return y `<div class="team-section">
-            <div>
-                <div>
+                <div class="overflow-hidden md:h-[calc(100vh - 175px)]">
                     <sl-input size="small" label="${capitalize(msg('search'))}">
                         <sl-icon name="search" type="text" slot="prefix"></sl-icon>
                     </sl-input>
-                    <div class="mt-4">
+                    <div class="team-section-members">
                         ${c$2(this.team.members, member => member._id, member => {
             return y `<div
                                     class="team-member"
                                     @click="${() => this.#clickOnteamMember(member)}"
+                                    @keyup="${() => this.#clickOnteamMember(member)}"
                                     data-id="${member._id}"
                                     tabindex="0"
                                 >
@@ -25691,72 +26093,73 @@ let ProfileView = class ProfileView extends ViewLayout$1 {
                                     ></sl-avatar>
                                     <div>
                                         <p>${member.username}</p>
-                                        <p>${msg('role')}: ${member.role}</p>
+                                        <p>${msg('role')}: ${member.roleName}</p>
                                     </div>
                                 </div>`;
         })}
                     </div>
                 </div>
-            </div>
-            <div class="selected-team-section">
-                <sl-avatar
-                    style="--size: 8rem;"
-                    image="${this.user.avatar ? `${this.user.avatar}avatar_medium.webp` : imgs.avatar}"
-                ></sl-avatar>
+                <div class="selected-team-section">
+                    <sl-avatar
+                        style="--size: 8rem;"
+                        image="${this.user.avatar ? `${this.user.avatar}avatar_medium.webp` : imgs.avatar}"
+                    ></sl-avatar>
 
-                <h2 class="text-2xl font-bold">
-                    ${msg('{{1}} member of {{2}}')
+                    <h2 class="text-2xl font-bold">
+                        ${msg('{{1}} member of {{2}}')
             .replace('{{1}}', this.user.username)
             .replace('{{2}}', this.team.name)}
-                    ${this.me._id === this.user._id || !myRights?.removeTeamMember ? disabledButton : activeButton}
-                </h2>
-                <sl-divider style="--width: 2px;"></sl-divider>
-                <div>
-                    <p class="text-xl mb-4">${capitalize(msg('rights'))}</p>
-                    <div class="selected-team-section-rights">
-                        ${c$2(Object.entries(rights), kvPair => kvPair[0], ([key, value]) => {
-            const itsMe = this.me._id === this.user._id;
-            const slSwitch = value
-                ? y `<sl-switch
-                                          @sl-change="${() => this.#changedTeamMemberRightsEvent(this.user, key, !value)}"
-                                          ?disabled="${itsMe || !myRights?.changeTeamMemberRights}"
-                                          checked
-                                      ></sl-switch>`
-                : y `<sl-switch
-                                          @sl-change="${() => this.#changedTeamMemberRightsEvent(this.user, key, !value)}"
-                                          ?disabled="${itsMe || !myRights?.changeTeamMemberRights}"
-                                      ></sl-switch>`;
-            return y `<div class="selected-team-section-right">
-                                    <span>${transRights(key)}</span> ${slSwitch}
-                                    <p class="text-xs text-gray-600">${transRightsInfo(key)}</p>
-                                    <i></i>
-                                </div>`;
-        })}
+                        ${this.me._id === this.user._id || !this.rights.removeTeamMember
+            ? disabledButton
+            : activeButton}
+                    </h2>
+                    <sl-divider style="--width: 2px;"></sl-divider>
+                    <div class="selected-team-section-stats">
+                        <div>
+                            <p class="text-gray-600">${msg('name')}</p>
+                            <p>${this.user.username}</p>
+                        </div>
+                        <div>
+                            <p class="text-gray-600">${msg('Email address')}</p>
+                            <a href="mailto:${this.user.email}">${this.user.email}</a>
+                        </div>
+                        <div>
+                            <p class="text-gray-600">${capitalize(msg('role'))}</p>
+                            <p>${this.user.roleName}</p>
+                        </div>
+                        ${this.user.isSuperAdmin ? isSuperAdmin : ''}
                     </div>
-                </div>
-                <sl-divider style="--width: 2px;"></sl-divider>
-                <div class="selected-team-section-stats">
-                    <div>
-                        <p class="text-gray-600">${msg('name')}</p>
-                        <p>${this.user.username}</p>
-                    </div>
-                    <div>
-                        <p class="text-gray-600">${msg('Email address')}</p>
-                        <a href="mailto:${this.user.email}">${this.user.email}</a>
-                    </div>
-                    <div>
-                        <p class="text-gray-600">${capitalize(msg('role'))}</p>
-                        <p>${this.user.role}</p>
-                    </div>
-                </div>
 
-                <div>
-                    <p class="text-gray-600">${capitalize(msg('about'))}</p>
-                    <p>${this.user.about}</p>
+                    <div>
+                        <p class="text-gray-600">${capitalize(msg('about'))}</p>
+                        <p>${this.user.about}</p>
+                    </div>
+                    <br />
                 </div>
-                <br />
+                <div>
+                    ${this.rights.addTeamMember
+            ? y `<sl-button variant="success" size="small">
+                              <sl-icon slot="prefix" name="plus-lg"></sl-icon>
+                              ${capitalize(msg('Add Member'))}
+                          </sl-button>`
+            : y `<sl-button variant="success" size="small" disabled>
+                              <sl-icon slot="prefix" name="plus-lg"></sl-icon>
+                              ${capitalize(msg('Add Member'))}
+                          </sl-button>`}
+                </div>
             </div>
-        </div>`;
+            <sl-dialog label="${msg('attention')}" class="dialog-overview" id="remove-team-member-dialog">
+                ${dialogText}
+                <sl-button @click="${this.#removeTeamMember}" class="float-left" slot="footer" variant="danger"
+                    >${msg('yes')}</sl-button
+                >
+                <sl-button @click="${this.#closeRemoveTeamMemberDialog}" slot="footer" variant="neutral"
+                    >${msg('no')}</sl-button
+                >
+            </sl-dialog>`;
+    }
+    #renderRoleSection() {
+        return '';
     }
     #renderRows() {
         const content = fetch('/me', {
@@ -25766,22 +26169,28 @@ let ProfileView = class ProfileView extends ViewLayout$1 {
             <sl-tab slot="nav" panel="account">${capitalize(msg('account'))}</sl-tab>
             <sl-tab slot="nav" panel="password">${capitalize(msg('password'))}</sl-tab>
             <sl-tab slot="nav" panel="team">${capitalize(msg('team'))}</sl-tab>
+            <sl-tab slot="nav" panel="role">${capitalize(msg('role'))}</sl-tab>
 
             <sl-tab-panel class="mt-8" name="account">${this.#renderAccountSection(content)}</sl-tab-panel>
             <sl-tab-panel class="mt-8" name="password">${this.#renderPasswordSection()}</sl-tab-panel>
             <sl-tab-panel class="mt-8" name="team">${this.#renderTeamSection()}</sl-tab-panel>
+            <sl-tab-panel class="mt-8" name="role">${this.#renderRoleSection()}</sl-tab-panel>
         </sl-tab-group> `;
         return [row1];
     }
     connectedCallback() {
         super.connectedCallback();
         this.#getUserData();
+        this.#getRole();
     }
     render() {
         const rows = this.#renderRows();
         return super.render(rows);
     }
 };
+__decorate$2([
+    e$2()
+], ProfileView.prototype, "rights", void 0);
 __decorate$2([
     e$2()
 ], ProfileView.prototype, "me", void 0);
@@ -25909,7 +26318,7 @@ AppLayout = __decorate([
 document.addEventListener('DOMContentLoaded', function () {
     const app = document.querySelector('app-layout');
     app.bootstrapActiveMenu();
-    console.log('v:0.0.1 at: "2023-01-18T14:51:54.683Z" ');
+    console.log('v:0.0.1 at: "2023-01-19T17:44:23.253Z" ');
 });
 
 /* CSS */

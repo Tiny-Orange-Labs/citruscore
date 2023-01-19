@@ -4,12 +4,22 @@ import sendEmail from '../utilities/sendEmail';
 import { logout } from './auth';
 import avatarSizes from '../data/shared/avatarSizes';
 import sharp from 'sharp';
+import { getRoles } from './role';
 export async function getMe(request) {
     const username = request.state['log-cookie'].username;
     return await userModel.findOne({ username }, { password: 0 }).lean();
 }
 export async function getUsers(request) {
-    return await userModel.find().where('_id').in(request.payload.data.ids).exec();
+    const rawUsers = await userModel.find().where('_id').in(request.payload.data.ids).exec();
+    const roles = await getRoles(request);
+    const users = JSON.parse(JSON.stringify(rawUsers)).map(function (user) {
+        const role = roles.find(role => role._id.toString() === user.role.toString());
+        return {
+            ...user,
+            roleName: role?.name,
+        };
+    });
+    return users;
 }
 export async function getUser(_id) {
     return await userModel.findOne({ _id }).lean();

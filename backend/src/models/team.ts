@@ -1,31 +1,14 @@
 import mongoose from 'mongoose';
 
-// ToDo: add more rights later
-import Rights from '../data/shared/rights';
-
-type member = {
-    _id: mongoose.ObjectId;
-    member: mongoose.ObjectId;
-    role: string;
-    rights: {
-        changeTeamMemberRights: boolean;
-        addTeamMember: boolean;
-        removeTeamMember: boolean;
-        changeTeamMemberRole: boolean;
-        type: Rights;
-        required: true;
-    };
-};
-
-export interface teamType {
+export interface Team {
     name: string;
     about: string;
     maxMembers: number;
-    members: member[];
+    members: mongoose.ObjectId[];
     _id: mongoose.ObjectId;
 }
 
-const teamSchema = new mongoose.Schema<teamType>({
+const teamSchema = new mongoose.Schema<Team>({
     name: {
         required: true,
         type: String,
@@ -45,30 +28,7 @@ const teamSchema = new mongoose.Schema<teamType>({
         minLength: 1,
         maxLength: 560,
     },
-    members: [
-        {
-            member: mongoose.Schema.Types.ObjectId,
-            role: {
-                type: String,
-                default: 'member',
-                required: true,
-            },
-            rights: {
-                type: {
-                    addTeamMember: Boolean,
-                    removeTeamMember: Boolean,
-                    changeTeamMemberRole: Boolean,
-                    changeTeamMemberRights: Boolean,
-                },
-                required: true,
-                default: {
-                    addTeamMember: false,
-                    removeTeamMember: false,
-                    changeTeamMemberRole: false,
-                    changeTeamMemberRights: false,
-                },
-            },
-        },
-    ],
+    members: [mongoose.Schema.Types.ObjectId],
 });
+
 export const teamModel = mongoose.model('team', teamSchema);

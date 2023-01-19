@@ -7,6 +7,7 @@ import host from './staticfiles/app';
 import auth from './routes/auth';
 import user from './routes/user';
 import team from './routes/team';
+import role from './routes/role';
 const hostAdress = process.env.RUNTIME === 'production' ? '0.0.0.0' : 'localhost';
 const server = Hapi.server({
     port: 3000,
@@ -16,6 +17,7 @@ initRateLimit(server);
 await auth(server);
 await user(server);
 await team(server);
+await role(server);
 await host(server);
 await server.start();
 console.log('server running on %s %s %s', server.info.uri, hostAdress, process.env.ENV);

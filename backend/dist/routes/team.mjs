@@ -1,27 +1,24 @@
-import { getTeam, changeTeamMemberRights } from '../controller/team';
+import { getTeam, changeRole, removeTeamMember } from '../controller/team';
+import { strictRouteOptions } from '../data/routeOptions';
 export default async function user(server) {
     server.route([
         {
             method: 'GET',
             path: '/team',
             handler: getTeam,
-            options: {
-                auth: {
-                    mode: 'required',
-                    strategy: 'session',
-                },
-            },
+            options: strictRouteOptions,
         },
         {
             method: 'POST',
-            path: '/team/changeTeamMemberRights',
-            handler: changeTeamMemberRights,
-            options: {
-                auth: {
-                    mode: 'required',
-                    strategy: 'session',
-                },
-            },
+            path: '/team/changeRole',
+            handler: changeRole,
+            options: strictRouteOptions,
+        },
+        {
+            method: 'POST',
+            path: '/team/removeMember',
+            handler: removeTeamMember,
+            options: strictRouteOptions,
         },
     ]);
 }
