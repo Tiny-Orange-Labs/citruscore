@@ -166,10 +166,6 @@
   <source>role</source>
   <target>role</target>
 </trans-unit>
-<trans-unit id="s4dca3977126abcc9">
-  <source>{{1}} member of {{2}}</source>
-  <target>{{1}} mitglied von {{2}}</target>
-</trans-unit>
 <trans-unit id="sc4bcadba8e631b86">
   <source>name</source>
   <target>name</target>
@@ -214,9 +210,6 @@
 </trans-unit>
 <trans-unit id="s9fcaa62b7dc4223c">
   <source>Team membeer can change the rights of other team members</source>
-</trans-unit>
-<trans-unit id="s5e155029a998ab6e">
-  <source>Add Member</source>
 </trans-unit>
 <trans-unit id="sc592307ea80f16b9">
   <source>Unknown</source>

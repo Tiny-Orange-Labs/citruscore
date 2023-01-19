@@ -53,8 +53,8 @@ export async function setUser(request) {
 }
 export async function uploadAvatar(request) {
     const user = await getMe(request);
-    const dir = `./backend/uploads/user/img/user/${user._id}/avatar/`;
-    const avatar = `./user/img/user/${user._id}/avatar/`;
+    const dir = `./backend/uploads/user/img/${user._id}/avatar/`;
+    const avatar = `./user/img/${user._id}/avatar/`;
     const uri = request.payload.data.file.split(';base64,').pop();
     const buffer = Buffer.from(uri, 'base64');
     await userModel.updateOne({ username: user?.username }, { avatar });
