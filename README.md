@@ -75,6 +75,8 @@ if you want to send emails to the user. You can omit this step if you don't want
 -   COOKIE_PASSWORD
 -   SENDGRID stores the api key for sendgrid
 -   SENDER_EMAIL
+-   NAME the name of your app
+-   URL the url of your app
 
 and that's it!
 
@@ -274,3 +276,5 @@ npm run coverage
 1. improve code quality
 1. improve documentation
 1. add localization for backend
+1. trans ui
+1. shore more data

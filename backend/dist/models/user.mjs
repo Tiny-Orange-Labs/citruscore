@@ -25,6 +25,11 @@ const userSchema = new mongoose.Schema({
         minLength: 1,
         maxLength: 560,
     },
+    createdAt: {
+        type: Date,
+        default: Date.now,
+        required: true,
+    },
     role: {
         type: mongoose.Schema.Types.ObjectId,
     },

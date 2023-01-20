@@ -232,6 +232,24 @@
 <trans-unit id="s45999333981899f3">
   <source>Super Admin</source>
 </trans-unit>
+<trans-unit id="s136d117ab412d38a">
+  <source>role changed successfully</source>
+</trans-unit>
+<trans-unit id="s5f2389220b328d54">
+  <source>member removed successfully</source>
+</trans-unit>
+<trans-unit id="saf7d1233a708a00a">
+  <source>member added successfully</source>
+</trans-unit>
+<trans-unit id="s9fc9b34a877e3561">
+  <source>New member</source>
+</trans-unit>
+<trans-unit id="s63e457bc703a3030">
+  <source>E-Mail</source>
+</trans-unit>
+<trans-unit id="s8ea615d438d3b957">
+  <source>New member role</source>
+</trans-unit>
 </body>
 </file>
 </xliff>

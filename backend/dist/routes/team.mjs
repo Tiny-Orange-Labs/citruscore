@@ -1,4 +1,4 @@
-import { getTeam, changeRole, removeTeamMember } from '../controller/team';
+import { getTeam, changeRole, removeTeamMember, addTeamMember } from '../controller/team';
 import { strictRouteOptions } from '../data/routeOptions';
 export default async function user(server) {
     server.route([
@@ -18,6 +18,12 @@ export default async function user(server) {
             method: 'POST',
             path: '/team/removeMember',
             handler: removeTeamMember,
+            options: strictRouteOptions,
+        },
+        {
+            method: 'POST',
+            path: '/team/addMember',
+            handler: addTeamMember,
             options: strictRouteOptions,
         },
     ]);

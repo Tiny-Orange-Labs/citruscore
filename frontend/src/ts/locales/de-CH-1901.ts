@@ -66,10 +66,16 @@
 'sdfe2526362bc3224': `avatar`,
 's38431e2477552a47': `Avatar changed successfully, refresh to see changes`,
 's9af4247d2770e0c1': `Image is too small, min 224x224`,
-'s45999333981899f3': `Super Admin`,
+'s5f2389220b328d54': `member removed successfully`,
+'s136d117ab412d38a': `role changed successfully`,
+'saf7d1233a708a00a': `member added successfully`,
 'sbadaf48f968fa2a1': `Are you sure you want to remove {{1}} from {{2}}?`,
 'sbe5506cb0bb8f779': `attention`,
 'sb53f7a197981b790': `yes`,
 's08b35907b5589afa': `no`,
+'s9fc9b34a877e3561': `New member`,
+'s8ea615d438d3b957': `New member role`,
+'s63e457bc703a3030': `E-Mail`,
+'s45999333981899f3': `Super Admin`,
     };
   

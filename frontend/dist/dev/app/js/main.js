@@ -26051,6 +26051,10 @@ let ProfileView = class ProfileView extends ViewLayout$1 {
         const dialog = this.querySelector('#remove-team-member-dialog');
         dialog?.hide();
     }
+    #closeAddMemberDialog() {
+        const dialog = this.querySelector('#add-member-dialog');
+        dialog?.hide();
+    }
     #openRemoveTeamMemberDialog() {
         const dialog = this.querySelector('#remove-team-member-dialog');
         dialog?.show();
@@ -26069,6 +26073,93 @@ let ProfileView = class ProfileView extends ViewLayout$1 {
         await request.json();
         await this.#tabSwitchEvent({ detail: { name: 'team' } });
         this.#closeRemoveTeamMemberDialog();
+        return toast('success', msg('team'), msg('member removed successfully'));
+    }
+    async #changeRoleEvent({ target }) {
+        const role = target.value;
+        const member = this.team.members.find((member) => member._id === this.user._id);
+        if (!role || !member || role === this.user.roleName) {
+            return;
+        }
+        const request = await fetch('/team/changeRole', {
+            method: 'POST',
+            ...header,
+            body: JSON.stringify({
+                data: {
+                    member: this.user,
+                    role,
+                },
+                client,
+            }),
+        });
+        await request.json();
+        member.roleName = role;
+        this.user.roleName = role;
+        this.requestUpdate();
+        return toast('success', msg('role'), msg('role changed successfully'));
+    }
+    async #addNewTeamMember() {
+        const emailInput = this.querySelector('#add-member-email');
+        const dialog = this.querySelector('#add-member-dialog');
+        const roleInput = this.querySelector('#add-member-role');
+        console.log(emailInput.checkValidity());
+        if (!emailInput.checkValidity()) {
+            return;
+        }
+        const request = await fetch('/team/addMember', {
+            method: 'POST',
+            ...header,
+            body: JSON.stringify({
+                data: {
+                    member: this.user,
+                    email: emailInput.value,
+                    role: roleInput.value,
+                },
+                client,
+            }),
+        });
+        await request.json();
+        dialog?.hide();
+        return toast('success', msg('team'), msg('member added successfully'));
+    }
+    #openAddNewTeamMember() {
+        const dialog = this.querySelector('#add-member-dialog');
+        dialog?.show();
+    }
+    #renderRemoveMemberDialog() {
+        const dialogText = msg('Are you sure you want to remove {{1}} from {{2}}?')
+            .replace('{{1}}', this.user.username)
+            .replace('{{2}}', this.team.name);
+        return y ` <sl-dialog label="${msg('attention')}" class="dialog-overview" id="remove-team-member-dialog">
+            ${dialogText}
+            <sl-button @click="${this.#removeTeamMember}" class="float-left" slot="footer" variant="danger"
+                >${msg('yes')}</sl-button
+            >
+            <sl-button @click="${this.#closeRemoveTeamMemberDialog}" slot="footer" variant="neutral"
+                >${msg('no')}</sl-button
+            >
+        </sl-dialog>`;
+    }
+    #renderAddMemberDialog(roleOptions) {
+        return y ` <sl-dialog label="${msg('New member')}" class="dialog-overview" id="add-member-dialog">
+            <p class="text-gray-600 select-none">${msg('New member role')}</p>
+            <sl-select class="w-1/2" size="small" value="${this.roles[0].name}" id="add-member-role"
+                >${roleOptions}</sl-select
+            >
+            <sl-input
+                class="w-full"
+                size="small"
+                type="email"
+                label="${capitalize(msg('E-Mail'))}"
+                id="add-member-email"
+            >
+                <sl-icon name="envelope-at" type="text" slot="prefix"></sl-icon>
+            </sl-input>
+            <sl-button @click="${this.#addNewTeamMember}" class="float-left" slot="footer" variant="danger"
+                >${msg('yes')}</sl-button
+            >
+            <sl-button @click="${this.#closeAddMemberDialog}" slot="footer" variant="neutral">${msg('no')}</sl-button>
+        </sl-dialog>`;
     }
     #renderTeamSection() {
         const activeButton = y `<sl-button
@@ -26086,9 +26177,9 @@ let ProfileView = class ProfileView extends ViewLayout$1 {
             <p class="text-gray-600 select-none">${capitalize(msg('Super Admin'))}</p>
             <sl-icon name="check2-all"></sl-icon>
         </div>`;
-        const dialogText = msg('Are you sure you want to remove {{1}} from {{2}}?')
-            .replace('{{1}}', this.user.username)
-            .replace('{{2}}', this.team.name);
+        const roleOptions = c$2(this.roles, role => role._id, role => {
+            return y `<sl-option value="${role.name}">${role.name}</sl-option>`;
+        });
         return y `<div class="team-section">
                 <div class="overflow-hidden md:h-[calc(100vh - 175px)]">
                     <div class="flex items-end gap-2">
@@ -26096,7 +26187,7 @@ let ProfileView = class ProfileView extends ViewLayout$1 {
                             <sl-icon name="search" type="text" slot="prefix"></sl-icon>
                         </sl-input>
                         ${this.rights.addTeamMember
-            ? y `<sl-button variant="success" size="small">
+            ? y `<sl-button variant="success" size="small" @click="${this.#openAddNewTeamMember}">
                                   <sl-icon slot="prefix" name="plus-lg"></sl-icon>
                               </sl-button>`
             : y `<sl-button variant="success" size="small" disabled>
@@ -26136,12 +26227,20 @@ let ProfileView = class ProfileView extends ViewLayout$1 {
                     <sl-divider style="--width: 2px;"></sl-divider>
                     <div class="selected-team-section-stats">
                         <div>
-                            <p class="text-gray-600">${capitalize(msg('role'))}</p>
-                            <sl-select class="w-1/2" size="small" value="${this.user.roleName}">
-                                ${c$2(this.roles, role => role._id, role => {
-            return y `<sl-option value="${role.name}">${role.name}</sl-option>`;
-        })}
-                            </sl-select>
+                            <p class="text-gray-600 select-none">${capitalize(msg('role'))}</p>
+
+                            ${this.rights.changeTeamMemberRole && this.me._id !== this.user._id
+            ? y `<sl-select
+                                      class="w-1/2"
+                                      size="small"
+                                      value="${this.user.roleName}"
+                                      @click="${this.#changeRoleEvent}"
+                                  >
+                                      ${roleOptions}
+                                  </sl-select>`
+            : y `<sl-select class="w-1/2" size="small" value="${this.user.roleName}" disabled>
+                                      ${roleOptions}
+                                  </sl-select>`}
                         </div>
                         <div>
                             <p class="text-gray-600 select-none">${msg('name')}</p>
@@ -26166,15 +26265,7 @@ let ProfileView = class ProfileView extends ViewLayout$1 {
                     <br />
                 </div>
             </div>
-            <sl-dialog label="${msg('attention')}" class="dialog-overview" id="remove-team-member-dialog">
-                ${dialogText}
-                <sl-button @click="${this.#removeTeamMember}" class="float-left" slot="footer" variant="danger"
-                    >${msg('yes')}</sl-button
-                >
-                <sl-button @click="${this.#closeRemoveTeamMemberDialog}" slot="footer" variant="neutral"
-                    >${msg('no')}</sl-button
-                >
-            </sl-dialog>`;
+            ${this.#renderRemoveMemberDialog()} ${this.#renderAddMemberDialog(roleOptions)}`;
     }
     #renderRoleSection() {
         return '';
@@ -26339,7 +26430,7 @@ AppLayout = __decorate([
 document.addEventListener('DOMContentLoaded', function () {
     const app = document.querySelector('app-layout');
     app.bootstrapActiveMenu();
-    console.log('v:0.0.1 at: "2023-01-19T20:08:06.804Z" ');
+    console.log('v:0.0.1 at: "2023-01-20T18:22:50.490Z" ');
 });
 
 /* CSS */

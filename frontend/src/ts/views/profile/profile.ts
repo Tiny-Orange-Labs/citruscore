@@ -1,4 +1,4 @@
-import { html } from 'lit';
+import { html, TemplateResult } from 'lit';
 import { msg, localized } from '@lit/localize';
 import { customElement, property, state } from 'lit/decorators.js';
 import ViewLayout from '../view';
@@ -16,6 +16,7 @@ import avatarSize from '../../data/shared/avatarSizes';
 import Rights from '../../data/shared/rights';
 import { transRights, transRightsInfo } from '../../utilities/trans/trans';
 import SlDialog from '@shoelace-style/shoelace/dist/components/dialog/dialog';
+import SlSelect from '@shoelace-style/shoelace/dist/components/select/select';
 
 const passwordMinLength = 8;
 const passwordMaxLength = 35;
@@ -533,6 +534,11 @@ export default class ProfileView extends ViewLayout {
         dialog?.hide();
     }
 
+    #closeAddMemberDialog() {
+        const dialog: SlDialog | null = this.querySelector('#add-member-dialog');
+        dialog?.hide();
+    }
+
     #openRemoveTeamMemberDialog() {
         const dialog: SlDialog | null = this.querySelector('#remove-team-member-dialog');
         dialog?.show();
@@ -553,6 +559,106 @@ export default class ProfileView extends ViewLayout {
 
         await this.#tabSwitchEvent({ detail: { name: 'team' } });
         this.#closeRemoveTeamMemberDialog();
+        return toast('success', msg('team'), msg('member removed successfully'));
+    }
+
+    async #changeRoleEvent({ target }: { target: HTMLInputElement }) {
+        const role = target.value;
+        const member = this.team.members.find((member: Member) => member._id === this.user._id);
+
+        if (!role || !member || role === this.user.roleName) {
+            return;
+        }
+
+        const request = await fetch('/team/changeRole', {
+            method: 'POST',
+            ...header,
+            body: JSON.stringify({
+                data: {
+                    member: this.user,
+                    role,
+                },
+                client,
+            }),
+        });
+        await request.json();
+
+        member.roleName = role;
+        this.user.roleName = role;
+        this.requestUpdate();
+
+        return toast('success', msg('role'), msg('role changed successfully'));
+    }
+
+    async #addNewTeamMember() {
+        const emailInput: SlInput = this.querySelector('#add-member-email') as SlInput;
+        const dialog: SlDialog | null = this.querySelector('#add-member-dialog');
+        const roleInput: SlSelect = this.querySelector('#add-member-role') as SlSelect;
+
+        console.log(emailInput.checkValidity());
+        if (!emailInput.checkValidity()) {
+            return;
+        }
+
+        const request = await fetch('/team/addMember', {
+            method: 'POST',
+            ...header,
+            body: JSON.stringify({
+                data: {
+                    member: this.user,
+                    email: emailInput.value,
+                    role: roleInput.value,
+                },
+                client,
+            }),
+        });
+        await request.json();
+
+        dialog?.hide();
+        return toast('success', msg('team'), msg('member added successfully'));
+    }
+
+    #openAddNewTeamMember() {
+        const dialog: SlDialog | null = this.querySelector('#add-member-dialog');
+        dialog?.show();
+    }
+
+    #renderRemoveMemberDialog() {
+        const dialogText = msg('Are you sure you want to remove {{1}} from {{2}}?')
+            .replace('{{1}}', this.user.username)
+            .replace('{{2}}', this.team.name);
+
+        return html` <sl-dialog label="${msg('attention')}" class="dialog-overview" id="remove-team-member-dialog">
+            ${dialogText}
+            <sl-button @click="${this.#removeTeamMember}" class="float-left" slot="footer" variant="danger"
+                >${msg('yes')}</sl-button
+            >
+            <sl-button @click="${this.#closeRemoveTeamMemberDialog}" slot="footer" variant="neutral"
+                >${msg('no')}</sl-button
+            >
+        </sl-dialog>`;
+    }
+
+    #renderAddMemberDialog(roleOptions: TemplateResult) {
+        return html` <sl-dialog label="${msg('New member')}" class="dialog-overview" id="add-member-dialog">
+            <p class="text-gray-600 select-none">${msg('New member role')}</p>
+            <sl-select class="w-1/2" size="small" value="${this.roles[0].name}" id="add-member-role"
+                >${roleOptions}</sl-select
+            >
+            <sl-input
+                class="w-full"
+                size="small"
+                type="email"
+                label="${capitalize(msg('E-Mail'))}"
+                id="add-member-email"
+            >
+                <sl-icon name="envelope-at" type="text" slot="prefix"></sl-icon>
+            </sl-input>
+            <sl-button @click="${this.#addNewTeamMember}" class="float-left" slot="footer" variant="danger"
+                >${msg('yes')}</sl-button
+            >
+            <sl-button @click="${this.#closeAddMemberDialog}" slot="footer" variant="neutral">${msg('no')}</sl-button>
+        </sl-dialog>`;
     }
 
     #renderTeamSection() {
@@ -571,9 +677,13 @@ export default class ProfileView extends ViewLayout {
             <p class="text-gray-600 select-none">${capitalize(msg('Super Admin'))}</p>
             <sl-icon name="check2-all"></sl-icon>
         </div>`;
-        const dialogText = msg('Are you sure you want to remove {{1}} from {{2}}?')
-            .replace('{{1}}', this.user.username)
-            .replace('{{2}}', this.team.name);
+        const roleOptions = repeat(
+            this.roles,
+            role => role._id,
+            role => {
+                return html`<sl-option value="${role.name}">${role.name}</sl-option>`;
+            },
+        ) as TemplateResult;
 
         return html`<div class="team-section">
                 <div class="overflow-hidden md:h-[calc(100vh - 175px)]">
@@ -582,7 +692,7 @@ export default class ProfileView extends ViewLayout {
                             <sl-icon name="search" type="text" slot="prefix"></sl-icon>
                         </sl-input>
                         ${this.rights.addTeamMember
-                            ? html`<sl-button variant="success" size="small">
+                            ? html`<sl-button variant="success" size="small" @click="${this.#openAddNewTeamMember}">
                                   <sl-icon slot="prefix" name="plus-lg"></sl-icon>
                               </sl-button>`
                             : html`<sl-button variant="success" size="small" disabled>
@@ -627,15 +737,19 @@ export default class ProfileView extends ViewLayout {
                     <div class="selected-team-section-stats">
                         <div>
                             <p class="text-gray-600 select-none">${capitalize(msg('role'))}</p>
-                            <sl-select class="w-1/2" size="small" value="${this.user.roleName}">
-                                ${repeat(
-                                    this.roles,
-                                    role => role._id,
-                                    role => {
-                                        return html`<sl-option value="${role.name}">${role.name}</sl-option>`;
-                                    },
-                                )}
-                            </sl-select>
+
+                            ${this.rights.changeTeamMemberRole && this.me._id !== this.user._id
+                                ? html`<sl-select
+                                      class="w-1/2"
+                                      size="small"
+                                      value="${this.user.roleName}"
+                                      @click="${this.#changeRoleEvent}"
+                                  >
+                                      ${roleOptions}
+                                  </sl-select>`
+                                : html`<sl-select class="w-1/2" size="small" value="${this.user.roleName}" disabled>
+                                      ${roleOptions}
+                                  </sl-select>`}
                         </div>
                         <div>
                             <p class="text-gray-600 select-none">${msg('name')}</p>
@@ -660,15 +774,7 @@ export default class ProfileView extends ViewLayout {
                     <br />
                 </div>
             </div>
-            <sl-dialog label="${msg('attention')}" class="dialog-overview" id="remove-team-member-dialog">
-                ${dialogText}
-                <sl-button @click="${this.#removeTeamMember}" class="float-left" slot="footer" variant="danger"
-                    >${msg('yes')}</sl-button
-                >
-                <sl-button @click="${this.#closeRemoveTeamMemberDialog}" slot="footer" variant="neutral"
-                    >${msg('no')}</sl-button
-                >
-            </sl-dialog>`;
+            ${this.#renderRemoveMemberDialog()} ${this.#renderAddMemberDialog(roleOptions)}`;
     }
 
     #renderRoleSection() {

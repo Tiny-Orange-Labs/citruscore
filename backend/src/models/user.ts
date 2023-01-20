@@ -10,6 +10,7 @@ export interface UserType {
     role: mongoose.ObjectId;
     roleName: string | undefined;
     isSuperAdmin: boolean;
+    createdAt: Date;
     _id: mongoose.ObjectId;
 }
 
@@ -38,6 +39,11 @@ const userSchema = new mongoose.Schema<UserType>({
         type: String,
         minLength: 1,
         maxLength: 560,
+    },
+    createdAt: {
+        type: Date,
+        default: Date.now,
+        required: true,
     },
     role: {
         type: mongoose.Schema.Types.ObjectId,
