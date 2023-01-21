@@ -78,5 +78,6 @@
 's8ea615d438d3b957': `New member role`,
 's63e457bc703a3030': `E-Mail`,
 's45999333981899f3': `Super Admin`,
+'s49cb825cccfefc7f': `team members`,
     };
   

@@ -79,6 +79,7 @@ export default class ProfileView extends ViewLayout {
             name: '',
         },
     ];
+    @property() activeSearchResults: String = '0';
 
     constructor() {
         super();
@@ -343,7 +344,7 @@ export default class ProfileView extends ViewLayout {
         input.click();
     }
 
-    #renderAccountSection(content: Promise<any>) {
+    #renderAccountSection() {
         return html` <div class="account-section">
                 <div>
                     <div class="grid grid-rows-1 md:grid-cols-2 md:gap-4">
@@ -353,20 +354,14 @@ export default class ProfileView extends ViewLayout {
                             maxlength="20"
                             label="${capitalize(msg('username'))}"
                             size="small"
-                            value="${until(
-                                content.then(data => data.username),
-                                'Loading...',
-                            )}"
+                            value="${this.me.username}"
                         ></sl-input>
                         <sl-input
                             id="mail"
                             label="${capitalize(msg('Email address'))}"
                             type="email"
                             size="small"
-                            value="${until(
-                                content.then(data => data.email),
-                                'Loading...',
-                            )}"
+                            value="${this.me.email}"
                         >
                             <sl-icon name="envelope-at" slot="prefix"></sl-icon>
                         </sl-input>
@@ -380,10 +375,7 @@ export default class ProfileView extends ViewLayout {
                         rows="7"
                         help-text="${msg('write something about you')}"
                         label="${capitalize(msg('about'))}"
-                        value="${until(
-                            content.then(data => data.about),
-                            '',
-                        )}"
+                        value="${this.me.about}"
                     ></sl-textarea>
                 </div>
                 <div>
@@ -392,15 +384,7 @@ export default class ProfileView extends ViewLayout {
                         <sl-avatar
                             @click="${this.#clickUploadAvatar}"
                             style="--size: 14rem;"
-                            image="${until(
-                                content.then(function (data) {
-                                    if (data.avatar) {
-                                        return `${data.avatar}avatar_large.webp`;
-                                    }
-
-                                    return imgs.avatar;
-                                }),
-                                imgs.avatar,
+                            image="${this.me.avatar ? `${this.me.avatar}avatar_large.webp` : imgs.avatar}"
                             )}"
                         ></sl-avatar>
                         <input
@@ -503,6 +487,10 @@ export default class ProfileView extends ViewLayout {
                 ...members[i],
             };
         });
+
+        if (this.activeSearchResults === '0') {
+            this.activeSearchResults = this.team.members.length + '';
+        }
 
         this.requestUpdate();
         requestAnimationFrame(() => {
@@ -686,16 +674,21 @@ export default class ProfileView extends ViewLayout {
         const usersList = [...this.querySelectorAll('.team-member')] as HTMLElement[];
 
         if (search === '') {
-            return usersList.forEach((user: HTMLElement) => user.classList.remove('hidden'));
+            this.activeSearchResults = this.team.members.length + '';
+            usersList.forEach((user: HTMLElement) => user.classList.remove('!hidden'));
+            return this.requestUpdate();
         }
 
         usersList.forEach((user: HTMLElement) => {
             if (ids.includes(user.getAttribute('data-id') as string)) {
-                return user.classList.remove('hidden');
+                return user.classList.remove('!hidden');
             }
 
-            return user.classList.add('hidden');
+            return user.classList.add('!hidden');
         });
+
+        this.activeSearchResults = ids.length + '';
+        return this.requestUpdate();
     }
 
     #renderTeamSection() {
@@ -729,7 +722,8 @@ export default class ProfileView extends ViewLayout {
                             @keyup="${this.#searchForUser}"
                             class="w-full"
                             size="small"
-                            label="${capitalize(msg('search'))}"
+                            label="${capitalize(msg('search'))} ${msg('team members')}  ${this
+                                .activeSearchResults} / ${this.team.members.length}"
                         >
                             <sl-icon name="search" type="text" slot="prefix"></sl-icon>
                         </sl-input>
@@ -824,17 +818,13 @@ export default class ProfileView extends ViewLayout {
     }
 
     #renderRows() {
-        const content = fetch('/me', {
-            method: 'GET',
-        }).then(r => r.json());
-
         const row1 = html`<sl-tab-group @sl-tab-show="${this.#tabSwitchEvent}">
             <sl-tab slot="nav" panel="account">${capitalize(msg('account'))}</sl-tab>
             <sl-tab slot="nav" panel="password">${capitalize(msg('password'))}</sl-tab>
             <sl-tab slot="nav" panel="team">${capitalize(msg('team'))}</sl-tab>
             <sl-tab slot="nav" panel="role">${capitalize(msg('role'))}</sl-tab>
 
-            <sl-tab-panel class="mt-8" name="account">${this.#renderAccountSection(content)}</sl-tab-panel>
+            <sl-tab-panel class="mt-8" name="account">${this.#renderAccountSection()}</sl-tab-panel>
             <sl-tab-panel class="mt-8" name="password">${this.#renderPasswordSection()}</sl-tab-panel>
             <sl-tab-panel class="mt-8" name="team">${this.#renderTeamSection()}</sl-tab-panel>
             <sl-tab-panel class="mt-8" name="role">${this.#renderRoleSection()}</sl-tab-panel>
@@ -842,10 +832,15 @@ export default class ProfileView extends ViewLayout {
         return [row1];
     }
 
-    connectedCallback(): void {
+    async connectedCallback(): Promise<void> {
+        const request = await fetch('/me');
+        const json = await request.json();
+
         super.connectedCallback();
         this.#getUserData();
         this.#getRole();
+
+        this.me = json;
     }
 
     render() {

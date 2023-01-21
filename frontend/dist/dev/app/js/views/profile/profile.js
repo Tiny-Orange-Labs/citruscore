@@ -12,7 +12,6 @@ import header from '../../data/header';
 import { setLocale } from '../../utilities/language/language';
 import { capitalize } from '../../utilities/text/text';
 import { languages } from '../../data/langs';
-import { until } from 'lit/directives/until.js';
 import { client } from '../../data/misc';
 import toast from '../../utilities/toast/toast';
 import { repeat } from 'lit/directives/repeat.js';
@@ -57,6 +56,7 @@ let ProfileView = class ProfileView extends ViewLayout {
             name: '',
         },
     ];
+    activeSearchResults = '0';
     constructor() {
         super();
     }
@@ -276,7 +276,7 @@ let ProfileView = class ProfileView extends ViewLayout {
         const input = this.querySelector('input[type="file"]');
         input.click();
     }
-    #renderAccountSection(content) {
+    #renderAccountSection() {
         return html ` <div class="account-section">
                 <div>
                     <div class="grid grid-rows-1 md:grid-cols-2 md:gap-4">
@@ -286,14 +286,14 @@ let ProfileView = class ProfileView extends ViewLayout {
                             maxlength="20"
                             label="${capitalize(msg('username'))}"
                             size="small"
-                            value="${until(content.then(data => data.username), 'Loading...')}"
+                            value="${this.me.username}"
                         ></sl-input>
                         <sl-input
                             id="mail"
                             label="${capitalize(msg('Email address'))}"
                             type="email"
                             size="small"
-                            value="${until(content.then(data => data.email), 'Loading...')}"
+                            value="${this.me.email}"
                         >
                             <sl-icon name="envelope-at" slot="prefix"></sl-icon>
                         </sl-input>
@@ -307,7 +307,7 @@ let ProfileView = class ProfileView extends ViewLayout {
                         rows="7"
                         help-text="${msg('write something about you')}"
                         label="${capitalize(msg('about'))}"
-                        value="${until(content.then(data => data.about), '')}"
+                        value="${this.me.about}"
                     ></sl-textarea>
                 </div>
                 <div>
@@ -316,12 +316,8 @@ let ProfileView = class ProfileView extends ViewLayout {
                         <sl-avatar
                             @click="${this.#clickUploadAvatar}"
                             style="--size: 14rem;"
-                            image="${until(content.then(function (data) {
-            if (data.avatar) {
-                return `${data.avatar}avatar_large.webp`;
-            }
-            return imgs.avatar;
-        }), imgs.avatar)}"
+                            image="${this.me.avatar ? `${this.me.avatar}avatar_large.webp` : imgs.avatar}"
+                            )}"
                         ></sl-avatar>
                         <input
                             @change="${this.#changeAvatarEvent}"
@@ -417,6 +413,9 @@ let ProfileView = class ProfileView extends ViewLayout {
                 ...members[i],
             };
         });
+        if (this.activeSearchResults === '0') {
+            this.activeSearchResults = this.team.members.length + '';
+        }
         this.requestUpdate();
         requestAnimationFrame(() => {
             this.#bootstrapFirstClickOnTeamTab();
@@ -571,14 +570,18 @@ let ProfileView = class ProfileView extends ViewLayout {
         const ids = users.map((user) => user._id);
         const usersList = [...this.querySelectorAll('.team-member')];
         if (search === '') {
-            return usersList.forEach((user) => user.classList.remove('hidden'));
+            this.activeSearchResults = this.team.members.length + '';
+            usersList.forEach((user) => user.classList.remove('!hidden'));
+            return this.requestUpdate();
         }
         usersList.forEach((user) => {
             if (ids.includes(user.getAttribute('data-id'))) {
-                return user.classList.remove('hidden');
+                return user.classList.remove('!hidden');
             }
-            return user.classList.add('hidden');
+            return user.classList.add('!hidden');
         });
+        this.activeSearchResults = ids.length + '';
+        return this.requestUpdate();
     }
     #renderTeamSection() {
         const activeButton = html `<sl-button
@@ -606,7 +609,8 @@ let ProfileView = class ProfileView extends ViewLayout {
                             @keyup="${this.#searchForUser}"
                             class="w-full"
                             size="small"
-                            label="${capitalize(msg('search'))}"
+                            label="${capitalize(msg('search'))} ${msg('team members')}  ${this
+            .activeSearchResults} / ${this.team.members.length}"
                         >
                             <sl-icon name="search" type="text" slot="prefix"></sl-icon>
                         </sl-input>
@@ -695,26 +699,26 @@ let ProfileView = class ProfileView extends ViewLayout {
         return '';
     }
     #renderRows() {
-        const content = fetch('/me', {
-            method: 'GET',
-        }).then(r => r.json());
         const row1 = html `<sl-tab-group @sl-tab-show="${this.#tabSwitchEvent}">
             <sl-tab slot="nav" panel="account">${capitalize(msg('account'))}</sl-tab>
             <sl-tab slot="nav" panel="password">${capitalize(msg('password'))}</sl-tab>
             <sl-tab slot="nav" panel="team">${capitalize(msg('team'))}</sl-tab>
             <sl-tab slot="nav" panel="role">${capitalize(msg('role'))}</sl-tab>
 
-            <sl-tab-panel class="mt-8" name="account">${this.#renderAccountSection(content)}</sl-tab-panel>
+            <sl-tab-panel class="mt-8" name="account">${this.#renderAccountSection()}</sl-tab-panel>
             <sl-tab-panel class="mt-8" name="password">${this.#renderPasswordSection()}</sl-tab-panel>
             <sl-tab-panel class="mt-8" name="team">${this.#renderTeamSection()}</sl-tab-panel>
             <sl-tab-panel class="mt-8" name="role">${this.#renderRoleSection()}</sl-tab-panel>
         </sl-tab-group> `;
         return [row1];
     }
-    connectedCallback() {
+    async connectedCallback() {
+        const request = await fetch('/me');
+        const json = await request.json();
         super.connectedCallback();
         this.#getUserData();
         this.#getRole();
+        this.me = json;
     }
     render() {
         const rows = this.#renderRows();
@@ -736,6 +740,9 @@ __decorate([
 __decorate([
     property()
 ], ProfileView.prototype, "roles", void 0);
+__decorate([
+    property()
+], ProfileView.prototype, "activeSearchResults", void 0);
 ProfileView = __decorate([
     localized(),
     customElement('profile-layout')

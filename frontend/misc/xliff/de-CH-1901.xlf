@@ -253,6 +253,9 @@
 <trans-unit id="sc9f3c6d0c83b7972">
   <source>Add a new member to the team</source>
 </trans-unit>
+<trans-unit id="s49cb825cccfefc7f">
+  <source>team members</source>
+</trans-unit>
 </body>
 </file>
 </xliff>
