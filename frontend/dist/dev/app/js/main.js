@@ -25619,9 +25619,14 @@ function toast (variant, title, text) {
 }
 
 const avatarSizes = Object.freeze({
-    large: 224,
-    medium: 128,
-    small: 44,
+    resolution: {
+        large: 224,
+        medium: 128,
+        small: 44,
+    },
+    file: {
+        maxSize: 1024 * 1024 * 4, // 4MBs
+    },
 });
 
 var __decorate$2 = (undefined && undefined.__decorate) || function (decorators, target, key, desc) {
@@ -25872,7 +25877,10 @@ let ProfileView = class ProfileView extends ViewLayout$1 {
         reader.onload = (event) => {
             imgTag.src = url;
             imgTag.onload = () => {
-                if (imgTag.width < avatarSizes.large || imgTag.height < avatarSizes.large) {
+                if (file.size > avatarSizes.file.maxSize) {
+                    return toast('warning', msg('avatar'), msg('Image is too big, max 4mb'));
+                }
+                if (imgTag.width < avatarSizes.resolution.large || imgTag.height < avatarSizes.resolution.large) {
                     return toast('warning', msg('avatar'), msg('Image is too small, min 224x224'));
                 }
                 this.#sendAvatar(file, imgTag, event);
@@ -26022,7 +26030,7 @@ let ProfileView = class ProfileView extends ViewLayout$1 {
         this.team = team;
         this.team.members = this.team.members.map((member, i) => {
             return {
-                ...member,
+                member,
                 ...members[i],
             };
         });
@@ -26102,7 +26110,6 @@ let ProfileView = class ProfileView extends ViewLayout$1 {
         const emailInput = this.querySelector('#add-member-email');
         const dialog = this.querySelector('#add-member-dialog');
         const roleInput = this.querySelector('#add-member-role');
-        console.log(emailInput.checkValidity());
         if (!emailInput.checkValidity()) {
             return;
         }
@@ -26113,24 +26120,34 @@ let ProfileView = class ProfileView extends ViewLayout$1 {
                 data: {
                     member: this.user,
                     email: emailInput.value,
-                    role: roleInput.value,
+                    roleName: roleInput.value,
                 },
                 client,
             }),
         });
-        await request.json();
+        const json = await request.json();
+        if (json.error) {
+            return toast('warning', msg('team'), json.error);
+        }
         dialog?.hide();
+        this.#switchToTeamTab();
         return toast('success', msg('team'), msg('member added successfully'));
     }
     #openAddNewTeamMember() {
         const dialog = this.querySelector('#add-member-dialog');
+        const emailInput = this.querySelector('#add-member-email');
         dialog?.show();
+        return setTimeout(() => emailInput.focus(), 400);
     }
     #renderRemoveMemberDialog() {
         const dialogText = msg('Are you sure you want to remove {{1}} from {{2}}?')
             .replace('{{1}}', this.user.username)
             .replace('{{2}}', this.team.name);
-        return y ` <sl-dialog label="${msg('attention')}" class="dialog-overview" id="remove-team-member-dialog">
+        return y ` <sl-dialog
+            label="${capitalize(msg('attention'))}"
+            class="dialog-overview"
+            id="remove-team-member-dialog"
+        >
             ${dialogText}
             <sl-button @click="${this.#removeTeamMember}" class="float-left" slot="footer" variant="danger"
                 >${msg('yes')}</sl-button
@@ -26141,9 +26158,13 @@ let ProfileView = class ProfileView extends ViewLayout$1 {
         </sl-dialog>`;
     }
     #renderAddMemberDialog(roleOptions) {
-        return y ` <sl-dialog label="${msg('New member')}" class="dialog-overview" id="add-member-dialog">
+        return y ` <sl-dialog
+            label="${msg('Add a new member to the team')}"
+            class="dialog-overview"
+            id="add-member-dialog"
+        >
             <p class="text-gray-600 select-none">${msg('New member role')}</p>
-            <sl-select class="w-1/2" size="small" value="${this.roles[0].name}" id="add-member-role"
+            <sl-select class="w-1/2" size="small" value="${this.roles[0].name}" id="add-member-role" hoist
                 >${roleOptions}</sl-select
             >
             <sl-input
@@ -26160,6 +26181,21 @@ let ProfileView = class ProfileView extends ViewLayout$1 {
             >
             <sl-button @click="${this.#closeAddMemberDialog}" slot="footer" variant="neutral">${msg('no')}</sl-button>
         </sl-dialog>`;
+    }
+    #searchForUser({ target }) {
+        const search = target.value.toLowerCase();
+        const users = this.team.members.filter((user) => user.username.toLowerCase().includes(search));
+        const ids = users.map((user) => user._id);
+        const usersList = [...this.querySelectorAll('.team-member')];
+        if (search === '') {
+            return usersList.forEach((user) => user.classList.remove('hidden'));
+        }
+        usersList.forEach((user) => {
+            if (ids.includes(user.getAttribute('data-id'))) {
+                return user.classList.remove('hidden');
+            }
+            return user.classList.add('hidden');
+        });
     }
     #renderTeamSection() {
         const activeButton = y `<sl-button
@@ -26183,7 +26219,12 @@ let ProfileView = class ProfileView extends ViewLayout$1 {
         return y `<div class="team-section">
                 <div class="overflow-hidden md:h-[calc(100vh - 175px)]">
                     <div class="flex items-end gap-2">
-                        <sl-input class="w-full" size="small" label="${capitalize(msg('search'))}">
+                        <sl-input
+                            @keyup="${this.#searchForUser}"
+                            class="w-full"
+                            size="small"
+                            label="${capitalize(msg('search'))}"
+                        >
                             <sl-icon name="search" type="text" slot="prefix"></sl-icon>
                         </sl-input>
                         ${this.rights.addTeamMember
@@ -26430,7 +26471,7 @@ AppLayout = __decorate([
 document.addEventListener('DOMContentLoaded', function () {
     const app = document.querySelector('app-layout');
     app.bootstrapActiveMenu();
-    console.log('v:0.0.1 at: "2023-01-20T18:22:50.490Z" ');
+    console.log('v:0.0.1 at: "2023-01-21T17:06:56.564Z" ');
 });
 
 /* CSS */

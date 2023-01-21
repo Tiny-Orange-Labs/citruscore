@@ -8,7 +8,6 @@ import { getRoles } from './role';
 
 export async function getMe(request: any): Promise<UserType> {
     const username: string = request.state['log-cookie'].username;
-
     return await userModel.findOne({ username }, { password: 0 }).lean();
 }
 
@@ -68,21 +67,22 @@ export async function uploadAvatar(request: any) {
     const avatar = `./user/img/${user._id}/avatar/`;
     const uri = request.payload.data.file.split(';base64,').pop();
     const buffer = Buffer.from(uri, 'base64');
-    await userModel.updateOne({ username: user?.username }, { avatar });
-    await fs.mkdir(dir, { recursive: true });
 
     try {
+        await userModel.updateOne({ username: user?.username }, { avatar });
+        await fs.mkdir(dir, { recursive: true });
+
         await sharp(buffer)
             .webp({ lossless: true })
-            .resize({ width: avatarSizes.large })
+            .resize({ width: avatarSizes.resolution.large })
             .toFile(`${dir}avatar_large.webp`);
         await sharp(buffer)
             .webp({ lossless: true })
-            .resize({ width: avatarSizes.medium })
+            .resize({ width: avatarSizes.resolution.medium })
             .toFile(`${dir}avatar_medium.webp`);
         await sharp(buffer)
             .webp({ lossless: true })
-            .resize({ width: avatarSizes.small })
+            .resize({ width: avatarSizes.resolution.small })
             .toFile(`${dir}avatar_small.webp`);
     } catch (error) {
         console.log(error);

@@ -1,6 +1,11 @@
 const avatarSizes = Object.freeze({
-    large: 224,
-    medium: 128,
-    small: 44,
+    resolution: {
+        large: 224,
+        medium: 128,
+        small: 44,
+    },
+    file: {
+        maxSize: 1024 * 1024 * 4, // 4MBs
+    },
 });
 export default avatarSizes;

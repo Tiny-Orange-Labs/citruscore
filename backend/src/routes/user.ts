@@ -26,7 +26,12 @@ export default async function user(server: Server) {
             method: 'POST',
             path: '/changeAvatar',
             handler: uploadAvatar,
-            options: strictRouteOptions,
+            options: {
+                ...strictRouteOptions,
+                payload: {
+                    maxBytes: 1024 * 1024 * 4.5, // 4.5MBs
+                },
+            },
         },
     ]);
 }

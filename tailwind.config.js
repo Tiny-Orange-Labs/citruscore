@@ -1,4 +1,5 @@
 module.exports = {
+    important: true,
     content: ['./frontend/dist/**/*.{html,js}'],
     presets: [],
     darkMode: 'media', // or 'class'

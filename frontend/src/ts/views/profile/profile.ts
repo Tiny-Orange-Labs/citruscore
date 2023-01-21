@@ -323,7 +323,10 @@ export default class ProfileView extends ViewLayout {
             imgTag.src = url;
 
             imgTag.onload = () => {
-                if (imgTag.width < avatarSize.large || imgTag.height < avatarSize.large) {
+                if (file.size > avatarSize.file.maxSize) {
+                    return toast('warning', msg('avatar'), msg('Image is too big, max 4mb'));
+                }
+                if (imgTag.width < avatarSize.resolution.large || imgTag.height < avatarSize.resolution.large) {
                     return toast('warning', msg('avatar'), msg('Image is too small, min 224x224'));
                 }
 
@@ -496,7 +499,7 @@ export default class ProfileView extends ViewLayout {
         this.team = team as Team;
         this.team.members = this.team.members.map((member: Member, i: number) => {
             return {
-                ...member,
+                member,
                 ...members[i],
             };
         });
@@ -592,10 +595,9 @@ export default class ProfileView extends ViewLayout {
 
     async #addNewTeamMember() {
         const emailInput: SlInput = this.querySelector('#add-member-email') as SlInput;
-        const dialog: SlDialog | null = this.querySelector('#add-member-dialog');
+        const dialog: SlDialog = this.querySelector('#add-member-dialog') as SlDialog;
         const roleInput: SlSelect = this.querySelector('#add-member-role') as SlSelect;
 
-        console.log(emailInput.checkValidity());
         if (!emailInput.checkValidity()) {
             return;
         }
@@ -607,20 +609,28 @@ export default class ProfileView extends ViewLayout {
                 data: {
                     member: this.user,
                     email: emailInput.value,
-                    role: roleInput.value,
+                    roleName: roleInput.value,
                 },
                 client,
             }),
         });
-        await request.json();
+        const json = await request.json();
+
+        if (json.error) {
+            return toast('warning', msg('team'), json.error);
+        }
 
         dialog?.hide();
+        this.#switchToTeamTab();
         return toast('success', msg('team'), msg('member added successfully'));
     }
 
     #openAddNewTeamMember() {
         const dialog: SlDialog | null = this.querySelector('#add-member-dialog');
+        const emailInput: SlInput = this.querySelector('#add-member-email') as SlInput;
+
         dialog?.show();
+        return setTimeout(() => emailInput.focus(), 400);
     }
 
     #renderRemoveMemberDialog() {
@@ -628,7 +638,11 @@ export default class ProfileView extends ViewLayout {
             .replace('{{1}}', this.user.username)
             .replace('{{2}}', this.team.name);
 
-        return html` <sl-dialog label="${msg('attention')}" class="dialog-overview" id="remove-team-member-dialog">
+        return html` <sl-dialog
+            label="${capitalize(msg('attention'))}"
+            class="dialog-overview"
+            id="remove-team-member-dialog"
+        >
             ${dialogText}
             <sl-button @click="${this.#removeTeamMember}" class="float-left" slot="footer" variant="danger"
                 >${msg('yes')}</sl-button
@@ -640,9 +654,13 @@ export default class ProfileView extends ViewLayout {
     }
 
     #renderAddMemberDialog(roleOptions: TemplateResult) {
-        return html` <sl-dialog label="${msg('New member')}" class="dialog-overview" id="add-member-dialog">
+        return html` <sl-dialog
+            label="${msg('Add a new member to the team')}"
+            class="dialog-overview"
+            id="add-member-dialog"
+        >
             <p class="text-gray-600 select-none">${msg('New member role')}</p>
-            <sl-select class="w-1/2" size="small" value="${this.roles[0].name}" id="add-member-role"
+            <sl-select class="w-1/2" size="small" value="${this.roles[0].name}" id="add-member-role" hoist
                 >${roleOptions}</sl-select
             >
             <sl-input
@@ -659,6 +677,25 @@ export default class ProfileView extends ViewLayout {
             >
             <sl-button @click="${this.#closeAddMemberDialog}" slot="footer" variant="neutral">${msg('no')}</sl-button>
         </sl-dialog>`;
+    }
+
+    #searchForUser({ target }: { target: HTMLInputElement }) {
+        const search = target.value.toLowerCase();
+        const users = this.team.members.filter((user: Member) => user.username.toLowerCase().includes(search));
+        const ids = users.map((user: Member) => user._id);
+        const usersList = [...this.querySelectorAll('.team-member')] as HTMLElement[];
+
+        if (search === '') {
+            return usersList.forEach((user: HTMLElement) => user.classList.remove('hidden'));
+        }
+
+        usersList.forEach((user: HTMLElement) => {
+            if (ids.includes(user.getAttribute('data-id') as string)) {
+                return user.classList.remove('hidden');
+            }
+
+            return user.classList.add('hidden');
+        });
     }
 
     #renderTeamSection() {
@@ -688,7 +725,12 @@ export default class ProfileView extends ViewLayout {
         return html`<div class="team-section">
                 <div class="overflow-hidden md:h-[calc(100vh - 175px)]">
                     <div class="flex items-end gap-2">
-                        <sl-input class="w-full" size="small" label="${capitalize(msg('search'))}">
+                        <sl-input
+                            @keyup="${this.#searchForUser}"
+                            class="w-full"
+                            size="small"
+                            label="${capitalize(msg('search'))}"
+                        >
                             <sl-icon name="search" type="text" slot="prefix"></sl-icon>
                         </sl-input>
                         ${this.rights.addTeamMember

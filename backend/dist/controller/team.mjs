@@ -33,28 +33,39 @@ export async function removeTeamMember(request) {
 }
 export async function addTeamMember(request) {
     const { member, email, roleName } = request.payload.data;
+    const user = await getMe(request);
     const team = await getTeam(request);
     const roles = await getRoles(request);
-    const myRole = roles.find((r) => r._id === member.role);
+    const myRole = roles.find((r) => r._id + '' === user.role + '');
     const password = createPassword();
-    const text = `You have been added to ${team.name} from ${member.username}. Login at ${process.env.URL}. Your password is ${password}`;
+    const role = roles.find((r) => r.name === roleName)?._id;
+    const username = `user${Date.now()}`;
+    const text = `You have been added to ${team.name} from ${member.username}. Login at ${process.env.URL}. Your username ${username} password is ${password}`;
     if (!myRole?.addTeamMember) {
         throw new Error(`${member.username} do not have permission to add team members`);
     }
-    const newMember = await userModel.create({
-        username: `user${Date.now()}}`,
-        email,
-        password: await Bcrypt.hash(password, 10),
-        role: roles.find((r) => r.name === roleName)?._id,
-        roleName,
-        team: team._id,
-    });
-    await teamModel.updateOne({ _id: team._id }, { $push: { members: newMember._id } });
-    await sendEmail({
-        to: email,
-        subject: `You have been added to ${team.name}`,
-        text,
-        html: text,
-    });
-    return team;
+    try {
+        const newMember = await userModel.create({
+            username,
+            email,
+            password: await Bcrypt.hash(password, 10),
+            role,
+            about: `invited by ${member.username}`,
+            roleName,
+            team: team._id,
+        });
+        newMember.save();
+        await teamModel.updateOne({ _id: team._id }, { $push: { members: newMember._id } });
+        await sendEmail({
+            to: email,
+            subject: `You have been added to ${team.name}`,
+            text,
+            html: text,
+        });
+        return team;
+    }
+    catch (error) {
+        console.log(error);
+        return error;
+    }
 }
