@@ -38,7 +38,7 @@ export async function getRole(request: any) {
 
 export async function getRoles(request: any) {
     const team: Team = await getTeam(request);
-    return roleModel.find({ teamId: team._id });
+    return roleModel.find({ teamId: team._id }).lean();
 }
 
 export async function removeRole(request: any) {

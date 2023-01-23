@@ -180,81 +180,114 @@
 </trans-unit>
 <trans-unit id="sdfe2526362bc3224">
   <source>avatar</source>
+  <target>avatar</target>
 </trans-unit>
 <trans-unit id="s9af4247d2770e0c1">
   <source>Image is too small, min 224x224</source>
+  <target>Bild ist zu klein, min 224x224</target>
 </trans-unit>
 <trans-unit id="s38431e2477552a47">
   <source>Avatar changed successfully, refresh to see changes</source>
+  <target>Avatar wurde erfolgreich geändert, lade neu um Änderungen zu sehen</target>
 </trans-unit>
 <trans-unit id="sa6ae25f85d073955">
   <source>Add Team Member</source>
+  <target>Füge neues Team Mitglied hinzu</target>
 </trans-unit>
 <trans-unit id="sfd4eae222487d9fc">
   <source>Remove Team Member</source>
+  <target>Entferne Team Mitglied</target>
 </trans-unit>
 <trans-unit id="s34a24a22e9a81f5c">
   <source>Change Team Member Role</source>
+  <target>Ändere eine Mitglieder Role</target>
 </trans-unit>
 <trans-unit id="sce0b11b46ba22d47">
   <source>Change Team Member Rights</source>
+  <target>Ändere Rechte für Mitglieder</target>
 </trans-unit>
 <trans-unit id="sb96de5ab76cc11a1">
   <source>Team member can add other team members</source>
+  <target>Teammitglieder können andere Teammitglieder hinzufügen</target>
 </trans-unit>
 <trans-unit id="sfef5b72c519df9a8">
   <source>Team member can remove other team members</source>
+  <target>Teammitglieder können andere Teammitglieder löschen</target>
 </trans-unit>
 <trans-unit id="sa01b0c19355e616a">
   <source>Team member can change the role of other team members</source>
-</trans-unit>
-<trans-unit id="s9fcaa62b7dc4223c">
-  <source>Team membeer can change the rights of other team members</source>
+  <target>Teammitglieder können die Role anderer Mitglieder ändern</target>
 </trans-unit>
 <trans-unit id="sc592307ea80f16b9">
   <source>Unknown</source>
+  <target>Unbekannt</target>
 </trans-unit>
 <trans-unit id="sc7c9db3a033e8402">
   <source>Unknown Rights, please add them to frontent/src/ts/utililties/trans/</source>
+  <target>Unbekannte Rechte, bitte zu frontent/src/ts/utililties/trans/ hinzufügen</target>
 </trans-unit>
 <trans-unit id="sbadaf48f968fa2a1">
   <source>Are you sure you want to remove {{1}} from {{2}}?</source>
+  <target>Bist du sicher das du {{1}} von {{2}} entfernen möchtest?</target>
 </trans-unit>
 <trans-unit id="sbe5506cb0bb8f779">
   <source>attention</source>
+  <target>achtung</target>
 </trans-unit>
 <trans-unit id="sb53f7a197981b790">
   <source>yes</source>
+  <target>ja</target>
 </trans-unit>
 <trans-unit id="s08b35907b5589afa">
   <source>no</source>
+  <target>nein</target>
 </trans-unit>
 <trans-unit id="s45999333981899f3">
   <source>Super Admin</source>
+  <target>Super Admin</target>
 </trans-unit>
 <trans-unit id="s136d117ab412d38a">
   <source>role changed successfully</source>
+  <target>Rolle erfolgreich geändert</target>
 </trans-unit>
 <trans-unit id="s5f2389220b328d54">
   <source>member removed successfully</source>
+  <target>Mitglied erfolgreich gelöscht</target>
 </trans-unit>
 <trans-unit id="saf7d1233a708a00a">
   <source>member added successfully</source>
+  <target>Mitglied erfolgreich hinzugefügt</target>
 </trans-unit>
 <trans-unit id="s63e457bc703a3030">
   <source>E-Mail</source>
+  <target>E-Mail</target>
 </trans-unit>
 <trans-unit id="s8ea615d438d3b957">
   <source>New member role</source>
+  <target>Neue Mitgliederrole</target>
 </trans-unit>
 <trans-unit id="saece69a1336016d3">
   <source>Image is too big, max 4mb</source>
+  <target>Bild ist zu groß, max 4mb</target>
 </trans-unit>
 <trans-unit id="sc9f3c6d0c83b7972">
   <source>Add a new member to the team</source>
+    <target>Neues Mitglied hinzugefügt</target>
+
 </trans-unit>
 <trans-unit id="s49cb825cccfefc7f">
   <source>team members</source>
+  <target>teammitglieder</target>
+</trans-unit>
+<trans-unit id="sae2c11fc9d920b11">
+  <source>Team member can change the rights of other team members</source>
+  <target>Teammitglieder könnenn Rechte anderer Teammitglieder ändern</target>
+</trans-unit>
+<trans-unit id="s9aaa98d99174aa9d">
+  <source>Team member can create roles</source>
+</trans-unit>
+<trans-unit id="s43cb076c851e120b">
+  <source>Team member can create new roles for other team member</source>
 </trans-unit>
 </body>
 </file>

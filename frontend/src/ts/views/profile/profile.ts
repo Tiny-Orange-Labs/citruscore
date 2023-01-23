@@ -76,7 +76,9 @@ export default class ProfileView extends ViewLayout {
     @property() roles = [
         {
             _id: '',
-            name: '',
+            name: 'member',
+            teamId: '',
+            __v: 0,
         },
     ];
     @property() activeSearchResults: String = '0';
@@ -92,6 +94,17 @@ export default class ProfileView extends ViewLayout {
         if (lang && lang !== 'en') {
             setLocale(lang);
         }
+    }
+
+    async connectedCallback(): Promise<void> {
+        const request = await fetch('/me');
+        const json = await request.json();
+
+        super.connectedCallback();
+        this.#getUserData();
+        await this.#getRole();
+
+        this.me = json;
     }
 
     createRenderRoot() {
@@ -188,7 +201,7 @@ export default class ProfileView extends ViewLayout {
     #renderLanguageSelect() {
         const lang: string = localStorage.getItem('lang') || languages[0].code;
 
-        return html` <sl-select
+        return html`<sl-select
             size="small"
             @click="${this.#changeLangEvent}"
             label="${capitalize(msg('language'))}"
@@ -196,7 +209,7 @@ export default class ProfileView extends ViewLayout {
             class="md:w-1/4"
         >
             ${repeat(languages, function ({ name, code }) {
-                return html` <sl-option size="small" value="${code}">${name}</sl-option>`;
+                return html`<sl-option size="small" value="${code}">${name}</sl-option>`;
             })}
         </sl-select>`;
     }
@@ -345,7 +358,7 @@ export default class ProfileView extends ViewLayout {
     }
 
     #renderAccountSection() {
-        return html` <div class="account-section">
+        return html`<div class="account-section">
                 <div>
                     <div class="grid grid-rows-1 md:grid-cols-2 md:gap-4">
                         <sl-input
@@ -455,6 +468,14 @@ export default class ProfileView extends ViewLayout {
         }
     }
 
+    async #getRoles() {
+        const rolesRequest = await fetch('/role/getRoles', {
+            method: 'GET',
+            ...header,
+        });
+        return await rolesRequest.json();
+    }
+
     async #switchToTeamTab() {
         const teamRequest = await fetch('/team', {
             method: 'GET',
@@ -473,11 +494,7 @@ export default class ProfileView extends ViewLayout {
         });
         const unsortMembers = await membersRequest.json();
         const members = unsortMembers.sort((a: Member, b: Member) => a.username.localeCompare(b.username));
-        const rolesRequest = await fetch('/role/getRoles', {
-            method: 'GET',
-            ...header,
-        });
-        const roles = await rolesRequest.json();
+        const roles = await this.#getRoles();
 
         this.roles = roles;
         this.team = team as Team;
@@ -498,9 +515,20 @@ export default class ProfileView extends ViewLayout {
         });
     }
 
+    async #switchToRoleTab() {
+        const roles = await this.#getRoles();
+
+        this.roles = roles;
+
+        this.requestUpdate();
+    }
+
     async #tabSwitchEvent({ detail: { name } }: { detail: { name: string } }) {
         if (name === 'team') {
             return await this.#switchToTeamTab();
+        }
+        if (name === 'role') {
+            return await this.#switchToRoleTab();
         }
     }
 
@@ -626,7 +654,7 @@ export default class ProfileView extends ViewLayout {
             .replace('{{1}}', this.user.username)
             .replace('{{2}}', this.team.name);
 
-        return html` <sl-dialog
+        return html`<sl-dialog
             label="${capitalize(msg('attention'))}"
             class="dialog-overview"
             id="remove-team-member-dialog"
@@ -642,7 +670,7 @@ export default class ProfileView extends ViewLayout {
     }
 
     #renderAddMemberDialog(roleOptions: TemplateResult) {
-        return html` <sl-dialog
+        return html`<sl-dialog
             label="${msg('Add a new member to the team')}"
             class="dialog-overview"
             id="add-member-dialog"
@@ -788,7 +816,7 @@ export default class ProfileView extends ViewLayout {
                                   </sl-select>`}
                         </div>
                         <div>
-                            <p class="text-gray-600 select-none">${msg('name')}</p>
+                            <p class="text-gray-600 select-none">${capitalize(msg('name'))}</p>
                             <p>${this.user.username}</p>
                         </div>
                         <div>
@@ -796,7 +824,7 @@ export default class ProfileView extends ViewLayout {
                             <a href="mailto:${this.user.email}">${this.user.email}</a>
                         </div>
                         <div>
-                            <p class="text-gray-600 select-none">${msg('team')}</p>
+                            <p class="text-gray-600 select-none">${capitalize(msg('team'))}</p>
                             <p>${this.team.name}</p>
                         </div>
 
@@ -814,7 +842,39 @@ export default class ProfileView extends ViewLayout {
     }
 
     #renderRoleSection() {
-        return '';
+        const defaultRole = this.roles.find(role => role.name === 'member') || this.roles[0];
+        const { __v, _id, name, teamId, ...rights } = defaultRole;
+        const rightsArray: [string, boolean][] = Object.entries(rights);
+
+        return html`<div class="roles-settings">
+            <div>
+                <sl-select label="${capitalize(msg('role'))}" size="small" value="${defaultRole?.name}" hoist>
+                    ${repeat(
+                        this.roles,
+                        role => role._id,
+                        function (role: { name: string }) {
+                            return html`<sl-option value="${role.name}">${role.name}</sl-option>`;
+                        },
+                    )}</sl-select
+                >
+            </div>
+            <div class="rights-settings">
+                ${repeat(
+                    rightsArray,
+                    role => role[0],
+                    ([key, value]: [string, boolean]) => {
+                        const switchSL = value
+                            ? html`<sl-switch label="${key}" checked></sl-switch>`
+                            : html`<sl-switch label="${key}"></sl-switch>`;
+
+                        return html` <p>${transRights(key)}</p>
+                            ${switchSL}
+                            <p class="text-gray-600 select-none mb-4">${transRightsInfo(key)}</p>
+                            <i></i>`;
+                    },
+                )}
+            </div>
+        </div>`;
     }
 
     #renderRows() {
@@ -830,17 +890,6 @@ export default class ProfileView extends ViewLayout {
             <sl-tab-panel class="mt-8" name="role">${this.#renderRoleSection()}</sl-tab-panel>
         </sl-tab-group> `;
         return [row1];
-    }
-
-    async connectedCallback(): Promise<void> {
-        const request = await fetch('/me');
-        const json = await request.json();
-
-        super.connectedCallback();
-        this.#getUserData();
-        this.#getRole();
-
-        this.me = json;
     }
 
     render() {

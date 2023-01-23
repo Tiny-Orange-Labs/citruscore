@@ -12,6 +12,9 @@ export function transRights(key) {
     if (key === 'changeTeamMemberRights') {
         return msg('Change Team Member Rights');
     }
+    if (key === 'createRole') {
+        return msg('Team member can create roles');
+    }
     return msg('Unknown');
 }
 export function transRightsInfo(key) {
@@ -25,7 +28,10 @@ export function transRightsInfo(key) {
         return msg('Team member can change the role of other team members');
     }
     if (key === 'changeTeamMemberRights') {
-        return msg('Team membeer can change the rights of other team members');
+        return msg('Team member can change the rights of other team members');
+    }
+    if (key === 'createRole') {
+        return msg('Team member can create new roles for other team member');
     }
     return msg('Unknown Rights, please add them to frontent/src/ts/utililties/trans/');
 }

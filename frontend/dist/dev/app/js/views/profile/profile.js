@@ -17,6 +17,7 @@ import toast from '../../utilities/toast/toast';
 import { repeat } from 'lit/directives/repeat.js';
 import { imgs } from '../../data/fallbacks';
 import avatarSize from '../../data/shared/avatarSizes';
+import { transRights, transRightsInfo } from '../../utilities/trans/trans';
 const passwordMinLength = 8;
 const passwordMaxLength = 35;
 const maxLengthAbout = 560;
@@ -53,7 +54,9 @@ let ProfileView = class ProfileView extends ViewLayout {
     roles = [
         {
             _id: '',
-            name: '',
+            name: 'member',
+            teamId: '',
+            __v: 0,
         },
     ];
     activeSearchResults = '0';
@@ -66,6 +69,14 @@ let ProfileView = class ProfileView extends ViewLayout {
         if (lang && lang !== 'en') {
             setLocale(lang);
         }
+    }
+    async connectedCallback() {
+        const request = await fetch('/me');
+        const json = await request.json();
+        super.connectedCallback();
+        this.#getUserData();
+        await this.#getRole();
+        this.me = json;
     }
     createRenderRoot() {
         return this; // prevents creating a shadow root
@@ -144,7 +155,7 @@ let ProfileView = class ProfileView extends ViewLayout {
     }
     #renderLanguageSelect() {
         const lang = localStorage.getItem('lang') || languages[0].code;
-        return html ` <sl-select
+        return html `<sl-select
             size="small"
             @click="${this.#changeLangEvent}"
             label="${capitalize(msg('language'))}"
@@ -152,7 +163,7 @@ let ProfileView = class ProfileView extends ViewLayout {
             class="md:w-1/4"
         >
             ${repeat(languages, function ({ name, code }) {
-            return html ` <sl-option size="small" value="${code}">${name}</sl-option>`;
+            return html `<sl-option size="small" value="${code}">${name}</sl-option>`;
         })}
         </sl-select>`;
     }
@@ -277,7 +288,7 @@ let ProfileView = class ProfileView extends ViewLayout {
         input.click();
     }
     #renderAccountSection() {
-        return html ` <div class="account-section">
+        return html `<div class="account-section">
                 <div>
                     <div class="grid grid-rows-1 md:grid-cols-2 md:gap-4">
                         <sl-input
@@ -382,6 +393,13 @@ let ProfileView = class ProfileView extends ViewLayout {
             }
         }
     }
+    async #getRoles() {
+        const rolesRequest = await fetch('/role/getRoles', {
+            method: 'GET',
+            ...header,
+        });
+        return await rolesRequest.json();
+    }
     async #switchToTeamTab() {
         const teamRequest = await fetch('/team', {
             method: 'GET',
@@ -400,11 +418,7 @@ let ProfileView = class ProfileView extends ViewLayout {
         });
         const unsortMembers = await membersRequest.json();
         const members = unsortMembers.sort((a, b) => a.username.localeCompare(b.username));
-        const rolesRequest = await fetch('/role/getRoles', {
-            method: 'GET',
-            ...header,
-        });
-        const roles = await rolesRequest.json();
+        const roles = await this.#getRoles();
         this.roles = roles;
         this.team = team;
         this.team.members = this.team.members.map((member, i) => {
@@ -421,9 +435,17 @@ let ProfileView = class ProfileView extends ViewLayout {
             this.#bootstrapFirstClickOnTeamTab();
         });
     }
+    async #switchToRoleTab() {
+        const roles = await this.#getRoles();
+        this.roles = roles;
+        this.requestUpdate();
+    }
     async #tabSwitchEvent({ detail: { name } }) {
         if (name === 'team') {
             return await this.#switchToTeamTab();
+        }
+        if (name === 'role') {
+            return await this.#switchToRoleTab();
         }
     }
     #clickOnteamMember(member) {
@@ -525,7 +547,7 @@ let ProfileView = class ProfileView extends ViewLayout {
         const dialogText = msg('Are you sure you want to remove {{1}} from {{2}}?')
             .replace('{{1}}', this.user.username)
             .replace('{{2}}', this.team.name);
-        return html ` <sl-dialog
+        return html `<sl-dialog
             label="${capitalize(msg('attention'))}"
             class="dialog-overview"
             id="remove-team-member-dialog"
@@ -540,7 +562,7 @@ let ProfileView = class ProfileView extends ViewLayout {
         </sl-dialog>`;
     }
     #renderAddMemberDialog(roleOptions) {
-        return html ` <sl-dialog
+        return html `<sl-dialog
             label="${msg('Add a new member to the team')}"
             class="dialog-overview"
             id="add-member-dialog"
@@ -671,7 +693,7 @@ let ProfileView = class ProfileView extends ViewLayout {
                                   </sl-select>`}
                         </div>
                         <div>
-                            <p class="text-gray-600 select-none">${msg('name')}</p>
+                            <p class="text-gray-600 select-none">${capitalize(msg('name'))}</p>
                             <p>${this.user.username}</p>
                         </div>
                         <div>
@@ -679,7 +701,7 @@ let ProfileView = class ProfileView extends ViewLayout {
                             <a href="mailto:${this.user.email}">${this.user.email}</a>
                         </div>
                         <div>
-                            <p class="text-gray-600 select-none">${msg('team')}</p>
+                            <p class="text-gray-600 select-none">${capitalize(msg('team'))}</p>
                             <p>${this.team.name}</p>
                         </div>
 
@@ -696,7 +718,30 @@ let ProfileView = class ProfileView extends ViewLayout {
             ${this.#renderRemoveMemberDialog()} ${this.#renderAddMemberDialog(roleOptions)}`;
     }
     #renderRoleSection() {
-        return '';
+        const defaultRole = this.roles.find(role => role.name === 'member') || this.roles[0];
+        const { __v, _id, name, teamId, ...rights } = defaultRole;
+        const rightsArray = Object.entries(rights);
+        console.log(rightsArray);
+        return html `<div class="roles-settings">
+            <div>
+                <sl-select label="${capitalize(msg('role'))}" size="small" value="${defaultRole?.name}" hoist>
+                    ${repeat(this.roles, role => role._id, function (role) {
+            return html `<sl-option value="${role.name}">${role.name}</sl-option>`;
+        })}</sl-select
+                >
+            </div>
+            <div class="rights-settings">
+                ${repeat(rightsArray, role => role[0], ([key, value]) => {
+            const switchSL = value
+                ? html `<sl-switch label="${key}" checked></sl-switch>`
+                : html `<sl-switch label="${key}"></sl-switch>`;
+            return html ` <p>${transRights(key)}</p>
+                            ${switchSL}
+                            <p class="text-gray-600 select-none mb-4">${transRightsInfo(key)}</p>
+                            <i></i>`;
+        })}
+            </div>
+        </div>`;
     }
     #renderRows() {
         const row1 = html `<sl-tab-group @sl-tab-show="${this.#tabSwitchEvent}">
@@ -711,14 +756,6 @@ let ProfileView = class ProfileView extends ViewLayout {
             <sl-tab-panel class="mt-8" name="role">${this.#renderRoleSection()}</sl-tab-panel>
         </sl-tab-group> `;
         return [row1];
-    }
-    async connectedCallback() {
-        const request = await fetch('/me');
-        const json = await request.json();
-        super.connectedCallback();
-        this.#getUserData();
-        this.#getRole();
-        this.me = json;
     }
     render() {
         const rows = this.#renderRows();
