@@ -26375,7 +26375,6 @@ let ProfileView = class ProfileView extends ViewLayout$1 {
         const defaultRole = this.roles.find(role => role.name === 'member') || this.roles[0];
         const { __v, _id, name, teamId, ...rights } = defaultRole;
         const rightsArray = Object.entries(rights);
-        console.log(rightsArray);
         return y `<div class="roles-settings">
             <div>
                 <sl-select label="${capitalize(msg('role'))}" size="small" value="${defaultRole?.name}" hoist>
@@ -26552,7 +26551,7 @@ AppLayout = __decorate([
 document.addEventListener('DOMContentLoaded', function () {
     const app = document.querySelector('app-layout');
     app.bootstrapActiveMenu();
-    console.log('v:0.0.1 at: "2023-01-23T19:15:06.184Z" ');
+    console.log('v:0.0.1 at: "2023-01-23T19:24:56.589Z" ');
 });
 
 /* CSS */

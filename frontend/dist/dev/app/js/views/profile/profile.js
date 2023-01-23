@@ -721,7 +721,6 @@ let ProfileView = class ProfileView extends ViewLayout {
         const defaultRole = this.roles.find(role => role.name === 'member') || this.roles[0];
         const { __v, _id, name, teamId, ...rights } = defaultRole;
         const rightsArray = Object.entries(rights);
-        console.log(rightsArray);
         return html `<div class="roles-settings">
             <div>
                 <sl-select label="${capitalize(msg('role'))}" size="small" value="${defaultRole?.name}" hoist>
