@@ -81,5 +81,13 @@
 'sfef5b72c519df9a8': `Teammitglieder können andere Teammitglieder löschen`,
 's9aaa98d99174aa9d': `Team member can create roles`,
 's43cb076c851e120b': `Team member can create new roles for other team member`,
+'s6b911fc3da7afcbb': `You have successfully removed the role {{1}}`,
+'s8d7c93c81f3e5f43': `You cannot remove member or admin role`,
+'sbfcb6322af980d44': `add role`,
+'s71f19eef1c496833': `remove role`,
+'se3f066d97ba679e6': `New role name`,
+'s7e5f7abe09509b09': `accept`,
+'s47e83eaa4b387e3b': `cancel`,
+'s5aa7d748ca540906': `Are you sure you want to remove this role?`,
     };
   

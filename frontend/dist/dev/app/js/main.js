@@ -26371,30 +26371,73 @@ let ProfileView = class ProfileView extends ViewLayout$1 {
             </div>
             ${this.#renderRemoveMemberDialog()} ${this.#renderAddMemberDialog(roleOptions)}`;
     }
+    async #removeRole() {
+        const selectedRoleElem = this.querySelector('#remove-role-select');
+        const selectedRole = selectedRoleElem.value;
+        if (selectedRole !== 'member' && selectedRole !== 'admin') {
+            const request = await fetch('/role/removeRole', {
+                method: 'POST',
+                ...header,
+                body: JSON.stringify({ roleName: selectedRole }),
+            });
+            await request.json();
+            return toast('neutral', msg('role'), msg('You have successfully removed the role {{1}}').replace('{{1}}', selectedRole));
+        }
+        else {
+            return toast('warning', msg('role'), msg('You cannot remove member or admin role'));
+        }
+    }
+    #removeRoleEvent() {
+        const removeRoleDialog = this.querySelector('#remove-role-dialog');
+        removeRoleDialog.show();
+    }
+    #addRoleEvent() {
+        const addRoleDialog = this.querySelector('#add-new-role-dialog');
+        addRoleDialog.show();
+    }
     #renderRoleSection() {
         const defaultRole = this.roles.find(role => role.name === 'member') || this.roles[0];
         const { __v, _id, name, teamId, ...rights } = defaultRole;
         const rightsArray = Object.entries(rights);
         return y `<div class="roles-settings">
-            <div>
-                <sl-select label="${capitalize(msg('role'))}" size="small" value="${defaultRole?.name}" hoist>
-                    ${c$2(this.roles, role => role._id, function (role) {
+                <div class="flex flex-col gap-2">
+                    <sl-select label="${capitalize(msg('role'))}" size="small" value="${defaultRole?.name}" hoist>
+                        ${c$2(this.roles, role => role._id, function (role) {
             return y `<sl-option value="${role.name}">${role.name}</sl-option>`;
         })}</sl-select
-                >
-            </div>
-            <div class="rights-settings">
-                ${c$2(rightsArray, role => role[0], ([key, value]) => {
+                    >
+
+                    <sl-button @click="${this.#addRoleEvent}" variant="success" size="small">
+                        <sl-icon slot="prefix" name="plus-lg"></sl-icon>
+                        ${capitalize(msg('add role'))}</sl-button
+                    >
+                    <sl-button @click="${this.#removeRoleEvent}" variant="danger" size="small"
+                        ><sl-icon slot="prefix" name="trash"></sl-icon>${capitalize(msg('remove role'))}</sl-button
+                    >
+                </div>
+                <div class="rights-settings">
+                    ${c$2(rightsArray, role => role[0], ([key, value]) => {
             const switchSL = value
                 ? y `<sl-switch label="${key}" checked></sl-switch>`
                 : y `<sl-switch label="${key}"></sl-switch>`;
             return y ` <p>${transRights(key)}</p>
-                            ${switchSL}
-                            <p class="text-gray-600 select-none mb-4">${transRightsInfo(key)}</p>
-                            <i></i>`;
+                                ${switchSL}
+                                <p class="text-gray-600 select-none mb-4">${transRightsInfo(key)}</p>
+                                <i></i>`;
         })}
+                </div>
             </div>
-        </div>`;
+            <sl-dialog id="add-new-role-dialog" label="${capitalize(msg('role'))}">
+                >
+                <sl-input label="${msg('New role name')}" size="small"></sl-input>
+                <sl-button class="float-left" slot="footer" variant="success">${msg('accept')}</sl-button>
+                <sl-button slot="footer" variant="neutral">${msg('cancel')}</sl-button>
+            </sl-dialog>
+            <sl-dialog id="remove-role-dialog" label="${capitalize(msg('role'))}">
+                <p>${msg('Are you sure you want to remove this role?')}</p>
+                <sl-button class="float-left" slot="footer" variant="danger">${msg('yes')}</sl-button>
+                <sl-button slot="footer" variant="neutral">${msg('no')}</sl-button>
+            </sl-dialog>`;
     }
     #renderRows() {
         const row1 = y `<sl-tab-group @sl-tab-show="${this.#tabSwitchEvent}">
@@ -26551,7 +26594,7 @@ AppLayout = __decorate([
 document.addEventListener('DOMContentLoaded', function () {
     const app = document.querySelector('app-layout');
     app.bootstrapActiveMenu();
-    console.log('v:0.0.1 at: "2023-01-23T19:24:56.589Z" ');
+    console.log('v:0.0.1 at: "2023-01-24T12:24:10.113Z" ');
 });
 
 /* CSS */

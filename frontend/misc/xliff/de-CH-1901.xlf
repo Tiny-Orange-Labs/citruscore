@@ -289,6 +289,30 @@
 <trans-unit id="s43cb076c851e120b">
   <source>Team member can create new roles for other team member</source>
 </trans-unit>
+<trans-unit id="sbfcb6322af980d44">
+  <source>add role</source>
+</trans-unit>
+<trans-unit id="s71f19eef1c496833">
+  <source>remove role</source>
+</trans-unit>
+<trans-unit id="s6b911fc3da7afcbb">
+  <source>You have successfully removed the role {{1}}</source>
+</trans-unit>
+<trans-unit id="s8d7c93c81f3e5f43">
+  <source>You cannot remove member or admin role</source>
+</trans-unit>
+<trans-unit id="se3f066d97ba679e6">
+  <source>New role name</source>
+</trans-unit>
+<trans-unit id="s5aa7d748ca540906">
+  <source>Are you sure you want to remove this role?</source>
+</trans-unit>
+<trans-unit id="s7e5f7abe09509b09">
+  <source>accept</source>
+</trans-unit>
+<trans-unit id="s47e83eaa4b387e3b">
+  <source>cancel</source>
+</trans-unit>
 </body>
 </file>
 </xliff>

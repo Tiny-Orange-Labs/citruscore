@@ -841,40 +841,106 @@ export default class ProfileView extends ViewLayout {
             ${this.#renderRemoveMemberDialog()} ${this.#renderAddMemberDialog(roleOptions)}`;
     }
 
+    async #removeRole() {
+        const selectedRoleElem = this.querySelector('#remove-role-select') as HTMLSelectElement;
+        const selectedRole = selectedRoleElem.value;
+
+        if (selectedRole !== 'member' && selectedRole !== 'admin') {
+            const request = await fetch('/role/removeRole', {
+                method: 'POST',
+                ...header,
+                body: JSON.stringify({ roleName: selectedRole }),
+            });
+            await request.json();
+
+            return toast(
+                'neutral',
+                msg('role'),
+                msg('You have successfully removed the role {{1}}').replace('{{1}}', selectedRole),
+            );
+        } else {
+            return toast('warning', msg('role'), msg('You cannot remove member or admin role'));
+        }
+    }
+
+    #openRoleDialog() {
+        const removeRoleDialog = this.querySelector('#remove-role-dialog') as HTMLDialogElement;
+        removeRoleDialog.show();
+    }
+
+    #closeRemoveRoleDialog() {
+        const removeRoleDialog = this.querySelector('#remove-role-dialog') as HTMLDialogElement;
+        removeRoleDialog.close();
+    }
+
+    #closeAddRoleDialog() {
+        const addRoleDialog = this.querySelector('#add-new-role-dialog') as HTMLDialogElement;
+        addRoleDialog.close();
+    }
+
+    #openAddRoleEvent() {
+        const addRoleDialog = this.querySelector('#add-new-role-dialog') as HTMLDialogElement;
+        addRoleDialog.show();
+    }
+
     #renderRoleSection() {
         const defaultRole = this.roles.find(role => role.name === 'member') || this.roles[0];
         const { __v, _id, name, teamId, ...rights } = defaultRole;
         const rightsArray: [string, boolean][] = Object.entries(rights);
 
         return html`<div class="roles-settings">
-            <div>
-                <sl-select label="${capitalize(msg('role'))}" size="small" value="${defaultRole?.name}" hoist>
-                    ${repeat(
-                        this.roles,
-                        role => role._id,
-                        function (role: { name: string }) {
-                            return html`<sl-option value="${role.name}">${role.name}</sl-option>`;
-                        },
-                    )}</sl-select
-                >
-            </div>
-            <div class="rights-settings">
-                ${repeat(
-                    rightsArray,
-                    role => role[0],
-                    ([key, value]: [string, boolean]) => {
-                        const switchSL = value
-                            ? html`<sl-switch label="${key}" checked></sl-switch>`
-                            : html`<sl-switch label="${key}"></sl-switch>`;
+                <div class="flex flex-col gap-2">
+                    <sl-select label="${capitalize(msg('role'))}" size="small" value="${defaultRole?.name}" hoist>
+                        ${repeat(
+                            this.roles,
+                            role => role._id,
+                            function (role: { name: string }) {
+                                return html`<sl-option value="${role.name}">${role.name}</sl-option>`;
+                            },
+                        )}</sl-select
+                    >
 
-                        return html` <p>${transRights(key)}</p>
-                            ${switchSL}
-                            <p class="text-gray-600 select-none mb-4">${transRightsInfo(key)}</p>
-                            <i></i>`;
-                    },
-                )}
+                    <sl-button @click="${this.#openAddRoleEvent}" variant="success" size="small">
+                        <sl-icon slot="prefix" name="plus-lg"></sl-icon>
+                        ${capitalize(msg('add role'))}</sl-button
+                    >
+                    <sl-button @click="${this.#openRoleDialog}" variant="danger" size="small"
+                        ><sl-icon slot="prefix" name="trash"></sl-icon>${capitalize(msg('remove role'))}</sl-button
+                    >
+                </div>
+                <div class="rights-settings">
+                    ${repeat(
+                        rightsArray,
+                        role => role[0],
+                        ([key, value]: [string, boolean]) => {
+                            const switchSL = value
+                                ? html`<sl-switch label="${key}" checked></sl-switch>`
+                                : html`<sl-switch label="${key}"></sl-switch>`;
+
+                            return html` <p>${transRights(key)}</p>
+                                ${switchSL}
+                                <p class="text-gray-600 select-none mb-4">${transRightsInfo(key)}</p>
+                                <i></i>`;
+                        },
+                    )}
+                </div>
             </div>
-        </div>`;
+            <sl-dialog id="add-new-role-dialog" label="${capitalize(msg('role'))}">
+                <sl-input label="${msg('New role name')}" size="small"></sl-input>
+                <sl-button class="float-left" slot="footer" variant="success">${msg('accept')}</sl-button>
+                <sl-button @click="${this.#closeAddRoleDialog}" slot="footer" variant="neutral"
+                    >${msg('cancel')}</sl-button
+                >
+            </sl-dialog>
+            <sl-dialog id="remove-role-dialog" label="${capitalize(msg('role'))}">
+                <p>${msg('Are you sure you want to remove this role?')}</p>
+                <sl-button @click="${this.#removeRole}" class="float-left" slot="footer" variant="danger"
+                    >${msg('yes')}</sl-button
+                >
+                <sl-button @click="${this.#closeRemoveRoleDialog}" slot="footer" variant="neutral"
+                    >${msg('no')}</sl-button
+                >
+            </sl-dialog>`;
     }
 
     #renderRows() {
