@@ -163,7 +163,7 @@ sl-divider {
 }
 
 .roles-settings {
-    @apply grid grid-cols-auto-1fr gap-4;
+    @apply grid md:grid-cols-auto-1fr gap-4;
 }
 
 .rights-settings {

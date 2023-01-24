@@ -26,7 +26,10 @@ export async function createRole(request: any) {
     }
 
     const rights = new roleModel(newRole);
-    return rights.save();
+
+    await rights.save();
+
+    return { success: true };
 }
 
 export async function getRole(request: any) {

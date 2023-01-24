@@ -17,10 +17,12 @@ import Rights from '../../data/shared/rights';
 import { transRights, transRightsInfo } from '../../utilities/trans/trans';
 import SlDialog from '@shoelace-style/shoelace/dist/components/dialog/dialog';
 import SlSelect from '@shoelace-style/shoelace/dist/components/select/select';
+import SlTab from '@shoelace-style/shoelace/dist/components/tab/tab';
 
 const passwordMinLength = 8;
 const passwordMaxLength = 35;
 const maxLengthAbout = 560;
+const focusTimeout = 400; // ms until focus is set on input
 const activeMemberClass = 'team-member-active';
 
 type Member = {
@@ -99,11 +101,14 @@ export default class ProfileView extends ViewLayout {
     async connectedCallback(): Promise<void> {
         const request = await fetch('/me');
         const json = await request.json();
+        const team = await this.#getTeam();
+        const role = await this.#getRole();
 
         super.connectedCallback();
         this.#getUserData();
-        await this.#getRole();
 
+        this.rights = role;
+        this.team = team;
         this.me = json;
     }
 
@@ -116,11 +121,7 @@ export default class ProfileView extends ViewLayout {
             method: 'GET',
             ...header,
         });
-        const role = await request.json();
-
-        this.rights = role;
-
-        return role;
+        return await request.json();
     }
 
     async #getUserData() {
@@ -476,18 +477,23 @@ export default class ProfileView extends ViewLayout {
         return await rolesRequest.json();
     }
 
-    async #switchToTeamTab() {
+    async #getTeam() {
         const teamRequest = await fetch('/team', {
             method: 'GET',
             ...header,
         });
-        const team = await teamRequest.json();
+        return await teamRequest.json();
+    }
+
+    async #switchToTeamTab() {
+        this.team = (await this.#getTeam()) as Team;
+
         const membersRequest = await fetch('/getUsers', {
             method: 'POST',
             ...header,
             body: JSON.stringify({
                 data: {
-                    ids: team.members,
+                    ids: this.team.members,
                 },
                 client,
             }),
@@ -497,7 +503,6 @@ export default class ProfileView extends ViewLayout {
         const roles = await this.#getRoles();
 
         this.roles = roles;
-        this.team = team as Team;
         this.team.members = this.team.members.map((member: Member, i: number) => {
             return {
                 member,
@@ -517,9 +522,11 @@ export default class ProfileView extends ViewLayout {
 
     async #switchToRoleTab() {
         const roles = await this.#getRoles();
+        const roleSelect = this.querySelector('#selected-role') as SlInput;
 
         this.roles = roles;
-
+        console.log(roles);
+        roleSelect.setAttribute('value', roles[0].name);
         this.requestUpdate();
     }
 
@@ -646,7 +653,7 @@ export default class ProfileView extends ViewLayout {
         const emailInput: SlInput = this.querySelector('#add-member-email') as SlInput;
 
         dialog?.show();
-        return setTimeout(() => emailInput.focus(), 400);
+        return setTimeout(() => emailInput.focus(), focusTimeout);
     }
 
     #renderRemoveMemberDialog() {
@@ -842,45 +849,87 @@ export default class ProfileView extends ViewLayout {
     }
 
     async #removeRole() {
-        const selectedRoleElem = this.querySelector('#remove-role-select') as HTMLSelectElement;
-        const selectedRole = selectedRoleElem.value;
+        const selectedRoleElem = this.querySelector('#selected-role') as SlSelect;
+        const selectedRole: string = selectedRoleElem.value as string;
 
         if (selectedRole !== 'member' && selectedRole !== 'admin') {
             const request = await fetch('/role/removeRole', {
                 method: 'POST',
                 ...header,
-                body: JSON.stringify({ roleName: selectedRole }),
+                body: JSON.stringify({
+                    data: {
+                        name: selectedRole,
+                    },
+                    client,
+                }),
             });
             await request.json();
 
-            return toast(
-                'neutral',
+            this.#closeRemoveRoleDialog();
+            toast(
+                'success',
                 msg('role'),
                 msg('You have successfully removed the role {{1}}').replace('{{1}}', selectedRole),
             );
+            return this.#switchToRoleTab();
         } else {
             return toast('warning', msg('role'), msg('You cannot remove member or admin role'));
         }
     }
 
     #openRoleDialog() {
-        const removeRoleDialog = this.querySelector('#remove-role-dialog') as HTMLDialogElement;
+        const removeRoleDialog = this.querySelector('#remove-role-dialog') as SlDialog;
         removeRoleDialog.show();
     }
 
     #closeRemoveRoleDialog() {
-        const removeRoleDialog = this.querySelector('#remove-role-dialog') as HTMLDialogElement;
-        removeRoleDialog.close();
+        const removeRoleDialog = this.querySelector('#remove-role-dialog') as SlDialog;
+        removeRoleDialog.hide();
     }
 
     #closeAddRoleDialog() {
-        const addRoleDialog = this.querySelector('#add-new-role-dialog') as HTMLDialogElement;
-        addRoleDialog.close();
+        const addRoleDialog = this.querySelector('#add-new-role-dialog') as SlDialog;
+        addRoleDialog.hide();
+    }
+
+    async #createNewRole() {
+        const roleNameInput = this.querySelector('#add-new-role-dialog sl-input') as SlInput;
+        const roleName = roleNameInput.value.trim();
+        const roles = await this.#getRoles();
+
+        if (roleName.length < 3) {
+            return toast('warning', msg('role'), msg('Role name has to be at least 3 characters long'));
+        }
+        if (roles.includes(roleName)) {
+            return toast('warning', msg('role'), msg('Role already exists'));
+        }
+
+        const request = await fetch('/role/createRole', {
+            method: 'POST',
+            ...header,
+            body: JSON.stringify({
+                data: {
+                    name: roleName,
+                    teamId: this.team._id,
+                },
+                client,
+            }),
+        });
+        const data = await request.json();
+
+        if (data.success) {
+            this.#closeAddRoleDialog();
+            toast('success', msg('role'), msg('You have successfully created a new role'));
+            return this.#switchToRoleTab();
+        }
     }
 
     #openAddRoleEvent() {
-        const addRoleDialog = this.querySelector('#add-new-role-dialog') as HTMLDialogElement;
+        const addRoleDialog = this.querySelector('#add-new-role-dialog') as SlDialog;
+        const roleNameInput = this.querySelector('#add-new-role-dialog sl-input') as HTMLInputElement;
+
         addRoleDialog.show();
+        setTimeout(() => roleNameInput.focus(), focusTimeout);
     }
 
     #renderRoleSection() {
@@ -890,7 +939,13 @@ export default class ProfileView extends ViewLayout {
 
         return html`<div class="roles-settings">
                 <div class="flex flex-col gap-2">
-                    <sl-select label="${capitalize(msg('role'))}" size="small" value="${defaultRole?.name}" hoist>
+                    <sl-select
+                        id="selected-role"
+                        label="${capitalize(msg('role'))}"
+                        size="small"
+                        value="${defaultRole?.name}"
+                        hoist
+                    >
                         ${repeat(
                             this.roles,
                             role => role._id,
@@ -927,7 +982,9 @@ export default class ProfileView extends ViewLayout {
             </div>
             <sl-dialog id="add-new-role-dialog" label="${capitalize(msg('role'))}">
                 <sl-input label="${msg('New role name')}" size="small"></sl-input>
-                <sl-button class="float-left" slot="footer" variant="success">${msg('accept')}</sl-button>
+                <sl-button @click="${this.#createNewRole}" class="float-left" slot="footer" variant="success"
+                    >${msg('accept')}</sl-button
+                >
                 <sl-button @click="${this.#closeAddRoleDialog}" slot="footer" variant="neutral"
                     >${msg('cancel')}</sl-button
                 >
@@ -944,12 +1001,14 @@ export default class ProfileView extends ViewLayout {
     }
 
     #renderRows() {
+        const tab = this.rights.createRole
+            ? html`<sl-tab slot="nav" panel="role">${capitalize(msg('role'))}</sl-tab>`
+            : html`<sl-tab slot="nav" panel="role" disabled>${capitalize(msg('role'))}</sl-tab>`;
         const row1 = html`<sl-tab-group @sl-tab-show="${this.#tabSwitchEvent}">
             <sl-tab slot="nav" panel="account">${capitalize(msg('account'))}</sl-tab>
             <sl-tab slot="nav" panel="password">${capitalize(msg('password'))}</sl-tab>
             <sl-tab slot="nav" panel="team">${capitalize(msg('team'))}</sl-tab>
-            <sl-tab slot="nav" panel="role">${capitalize(msg('role'))}</sl-tab>
-
+            ${tab}
             <sl-tab-panel class="mt-8" name="account">${this.#renderAccountSection()}</sl-tab-panel>
             <sl-tab-panel class="mt-8" name="password">${this.#renderPasswordSection()}</sl-tab-panel>
             <sl-tab-panel class="mt-8" name="team">${this.#renderTeamSection()}</sl-tab-panel>

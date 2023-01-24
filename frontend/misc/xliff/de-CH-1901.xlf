@@ -313,6 +313,15 @@
 <trans-unit id="s47e83eaa4b387e3b">
   <source>cancel</source>
 </trans-unit>
+<trans-unit id="s856462f7be27a525">
+  <source>Role name has to be at least 3 characters long</source>
+</trans-unit>
+<trans-unit id="s9b303acb1c3d62bf">
+  <source>Role already exists</source>
+</trans-unit>
+<trans-unit id="se4265cb30ec40f06">
+  <source>You have successfully created a new role</source>
+</trans-unit>
 </body>
 </file>
 </xliff>

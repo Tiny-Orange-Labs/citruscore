@@ -14,7 +14,8 @@ export async function createRole(request) {
         throw new Error(`${me.username} has no rights to create roles`);
     }
     const rights = new roleModel(newRole);
-    return rights.save();
+    await rights.save();
+    return { success: true };
 }
 export async function getRole(request) {
     const me = await getMe(request);
