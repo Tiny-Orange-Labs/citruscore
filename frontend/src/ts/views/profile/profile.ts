@@ -525,7 +525,7 @@ export default class ProfileView extends ViewLayout {
         const roleSelect = this.querySelector('#selected-role') as SlInput;
 
         this.roles = roles;
-        console.log(roles);
+
         roleSelect.setAttribute('value', roles[0].name);
         this.requestUpdate();
     }
