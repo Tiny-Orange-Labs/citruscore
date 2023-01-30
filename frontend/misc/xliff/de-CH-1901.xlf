@@ -322,6 +322,9 @@
 <trans-unit id="se4265cb30ec40f06">
   <source>You have successfully created a new role</source>
 </trans-unit>
+<trans-unit id="s7e559ae40e6af519">
+  <source>You have successfully updated the role</source>
+</trans-unit>
 </body>
 </file>
 </xliff>

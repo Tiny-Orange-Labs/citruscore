@@ -6,25 +6,25 @@ export default async function user(server: Server) {
     server.route([
         {
             method: 'GET',
-            path: '/me',
+            path: '/user/me',
             handler: getMe,
             options: strictRouteOptions,
         },
         {
             method: 'POST',
-            path: '/user',
+            path: '/user/getUser',
             handler: setUser,
             options: strictRouteOptions,
         },
         {
             method: 'POST',
-            path: '/getUsers',
+            path: '/user/getUsers',
             handler: getUsers,
             options: strictRouteOptions,
         },
         {
             method: 'POST',
-            path: '/changeAvatar',
+            path: '/user/changeAvatar',
             handler: uploadAvatar,
             options: {
                 ...strictRouteOptions,

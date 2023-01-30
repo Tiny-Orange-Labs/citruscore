@@ -86,6 +86,7 @@
 's856462f7be27a525': `Role name has to be at least 3 characters long`,
 's9b303acb1c3d62bf': `Role already exists`,
 'se4265cb30ec40f06': `You have successfully created a new role`,
+'s7e559ae40e6af519': `You have successfully updated the role`,
 'sbfcb6322af980d44': `add role`,
 's71f19eef1c496833': `remove role`,
 'se3f066d97ba679e6': `New role name`,

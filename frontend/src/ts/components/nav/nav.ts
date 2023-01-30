@@ -81,7 +81,7 @@ export default class MainNav extends LitElement {
 
     #renderNavFooter() {
         const hasFooter: boolean = !!navElements.items.find(elem => elem.isNavFooter);
-        const content = fetch('/me', {
+        const content = fetch('/user/me', {
             method: 'GET',
             ...header,
         }).then(r => r.json());

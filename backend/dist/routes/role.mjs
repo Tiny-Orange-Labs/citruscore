@@ -1,4 +1,4 @@
-import { getRole, getRoles, removeRole, createRole } from '../controller/role';
+import { getRole, getRoles, removeRole, createRole, updateRole } from '../controller/role';
 import { strictRouteOptions } from '../data/routeOptions';
 export default async function user(server) {
     server.route([
@@ -24,6 +24,12 @@ export default async function user(server) {
             method: 'POST',
             path: '/role/createRole',
             handler: createRole,
+            options: strictRouteOptions,
+        },
+        {
+            method: 'POST',
+            path: '/role/updateRole',
+            handler: updateRole,
             options: strictRouteOptions,
         },
     ]);

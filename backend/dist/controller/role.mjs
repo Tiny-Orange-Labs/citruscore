@@ -26,6 +26,16 @@ export async function getRoles(request) {
     const team = await getTeam(request);
     return roleModel.find({ teamId: team._id }).lean();
 }
+export async function updateRole(request) {
+    const me = await getMe(request);
+    const team = await getTeam(request);
+    const changeAllowed = await doIHaveRights(me.role, team._id, 'createRole');
+    const { name, update } = request.payload.data;
+    if (!changeAllowed) {
+        throw new Error(`${me.username} has no rights to update roles`);
+    }
+    return roleModel.updateOne({ name }, { $set: update });
+}
 export async function removeRole(request) {
     const me = await getMe(request);
     const team = await getTeam(request);

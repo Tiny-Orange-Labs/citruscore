@@ -72,7 +72,7 @@ let ProfileView = class ProfileView extends ViewLayout {
         }
     }
     async connectedCallback() {
-        const request = await fetch('/me');
+        const request = await fetch('/user/me');
         const json = await request.json();
         const team = await this.#getTeam();
         const role = await this.#getRole();
@@ -93,7 +93,7 @@ let ProfileView = class ProfileView extends ViewLayout {
         return await request.json();
     }
     async #getUserData() {
-        const request = await fetch('/me', {
+        const request = await fetch('/user/me', {
             method: 'GET',
             ...header,
         });
@@ -124,7 +124,7 @@ let ProfileView = class ProfileView extends ViewLayout {
         if (!hasDataChanged) {
             return toast('neutral', msg('User Update'), msg('Change user details to trigger an update'));
         }
-        const request = await fetch('/user', {
+        const request = await fetch('/user/getUser', {
             method: 'POST',
             ...header,
             body: JSON.stringify({
@@ -159,7 +159,7 @@ let ProfileView = class ProfileView extends ViewLayout {
         const lang = localStorage.getItem('lang') || languages[0].code;
         return html `<sl-select
             size="small"
-            @click="${this.#changeLangEvent}"
+            @sl-change="${this.#changeLangEvent}"
             label="${capitalize(msg('language'))}"
             value="${lang}"
             class="md:w-1/4"
@@ -246,7 +246,7 @@ let ProfileView = class ProfileView extends ViewLayout {
         return toast('danger', msg('New Password'), msg('Something went wrong'));
     }
     async #sendAvatar(file, imgTag, e) {
-        const request = await fetch('/changeAvatar', {
+        const request = await fetch('/user/changeAvatar', {
             method: 'POST',
             ...header,
             body: JSON.stringify({
@@ -411,7 +411,7 @@ let ProfileView = class ProfileView extends ViewLayout {
     }
     async #switchToTeamTab() {
         this.team = (await this.#getTeam());
-        const membersRequest = await fetch('/getUsers', {
+        const membersRequest = await fetch('/user/getUsers', {
             method: 'POST',
             ...header,
             body: JSON.stringify({
@@ -440,11 +440,7 @@ let ProfileView = class ProfileView extends ViewLayout {
         });
     }
     async #switchToRoleTab() {
-        const roles = await this.#getRoles();
-        const roleSelect = this.querySelector('#selected-role');
-        this.roles = roles;
-        console.log(roles);
-        roleSelect.setAttribute('value', roles[0].name);
+        this.roles = await this.#getRoles();
         this.requestUpdate();
     }
     async #tabSwitchEvent({ detail: { name } }) {
@@ -691,7 +687,7 @@ let ProfileView = class ProfileView extends ViewLayout {
                                       class="w-1/2"
                                       size="small"
                                       value="${this.user.roleName}"
-                                      @click="${this.#changeRoleEvent}"
+                                      @sl-change="${this.#changeRoleEvent}"
                                   >
                                       ${roleOptions}
                                   </sl-select>`
@@ -793,6 +789,48 @@ let ProfileView = class ProfileView extends ViewLayout {
         addRoleDialog.show();
         setTimeout(() => roleNameInput.focus(), focusTimeout);
     }
+    #changeRoleSetting() {
+        const selectedRoleElem = this.querySelector('#selected-role');
+        const selectedRole = selectedRoleElem.value;
+        const role = this.roles.find(role => role.name === selectedRole);
+        if (role) {
+            const { __v, _id, name, teamId, ...rights } = role;
+            const rightsArray = Object.entries(rights);
+            rightsArray.forEach(([key, value]) => {
+                const elem = this.querySelector(`#role-${key.toLocaleLowerCase()}`);
+                elem.checked = value;
+            });
+            this.requestUpdate();
+        }
+    }
+    async #changeRight({ target }) {
+        const value = target.checked;
+        const key = target.dataset.key;
+        const selectedRoleElem = this.querySelector('#selected-role');
+        const selectedRole = selectedRoleElem.value;
+        const request = await fetch('/role/updateRole', {
+            method: 'POST',
+            ...header,
+            body: JSON.stringify({
+                data: {
+                    name: selectedRole,
+                    update: {
+                        [key]: value,
+                    },
+                },
+                client,
+            }),
+        });
+        const data = await request.json();
+        const roles = await this.#getRoles();
+        if (data.modifiedCount === 1) {
+            this.roles = roles;
+            toast('success', msg('role'), msg('You have successfully updated the role'));
+        }
+        else {
+            toast('warning', msg('role'), msg('Something went wrong'));
+        }
+    }
     #renderRoleSection() {
         const defaultRole = this.roles.find(role => role.name === 'member') || this.roles[0];
         const { __v, _id, name, teamId, ...rights } = defaultRole;
@@ -800,10 +838,11 @@ let ProfileView = class ProfileView extends ViewLayout {
         return html `<div class="roles-settings">
                 <div class="flex flex-col gap-2">
                     <sl-select
+                        @sl-change="${this.#changeRoleSetting}"
                         id="selected-role"
                         label="${capitalize(msg('role'))}"
                         size="small"
-                        value="${defaultRole?.name}"
+                        value="member"
                         hoist
                     >
                         ${repeat(this.roles, role => role._id, function (role) {
@@ -821,9 +860,21 @@ let ProfileView = class ProfileView extends ViewLayout {
                 </div>
                 <div class="rights-settings">
                     ${repeat(rightsArray, role => role[0], ([key, value]) => {
+            const id = key.toLocaleLowerCase();
             const switchSL = value
-                ? html `<sl-switch label="${key}" checked></sl-switch>`
-                : html `<sl-switch label="${key}"></sl-switch>`;
+                ? html `<sl-switch
+                                      @sl-change="${this.#changeRight}"
+                                      data-key="${key}"
+                                      id="role-${id}"
+                                      label="${key}"
+                                      checked
+                                  ></sl-switch>`
+                : html `<sl-switch
+                                      @sl-change="${this.#changeRight}"
+                                      data-key="${key}"
+                                      id="role-${id}"
+                                      label="${key}"
+                                  ></sl-switch>`;
             return html ` <p>${transRights(key)}</p>
                                 ${switchSL}
                                 <p class="text-gray-600 select-none mb-4">${transRightsInfo(key)}</p>

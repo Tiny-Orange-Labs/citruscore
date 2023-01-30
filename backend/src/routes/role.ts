@@ -1,5 +1,5 @@
 import { Server } from '@hapi/hapi';
-import { getRole, getRoles, removeRole, createRole } from '../controller/role';
+import { getRole, getRoles, removeRole, createRole, updateRole } from '../controller/role';
 import { strictRouteOptions } from '../data/routeOptions';
 
 export default async function user(server: Server) {
@@ -26,6 +26,12 @@ export default async function user(server: Server) {
             method: 'POST',
             path: '/role/createRole',
             handler: createRole,
+            options: strictRouteOptions,
+        },
+        {
+            method: 'POST',
+            path: '/role/updateRole',
+            handler: updateRole,
             options: strictRouteOptions,
         },
     ]);
