@@ -1,5 +1,5 @@
 import { roleModel } from '../models/role';
-import { getMe } from './user';
+import { getMe, getUsers } from './user';
 import { UserType } from '../models/user';
 import { Team } from '../models/team';
 import { getTeam } from './team';
@@ -62,10 +62,28 @@ export async function removeRole(request: any) {
     const team: Team = await getTeam(request);
     const changeAllowed = await doIHaveRights(me.role, team._id, 'createRole');
     const name = request.payload.data.name;
+    const ids = team.members.map((member: any) => member._id);
+
+    request.payload.data.ids = ids;
+
+    const users = await getUsers(request);
+    const userThatHasRole = users
+        .filter((user: UserType) => user.roleName === name)
+        .map((user: UserType) => user.username);
 
     if (!changeAllowed) {
         throw new Error(`${me.username} has no rights to remove roles`);
     }
+    if (userThatHasRole.length !== 0) {
+        return {
+            success: false,
+            problem: 'ROLE_IN_USE',
+            userThatHasRole,
+        };
+    }
 
-    return roleModel.deleteOne({ name, teamId: team._id });
+    return {
+        success: true,
+        ...(await roleModel.deleteOne({ name, teamId: team._id })),
+    };
 }

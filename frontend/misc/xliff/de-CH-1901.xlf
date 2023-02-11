@@ -285,33 +285,43 @@
 </trans-unit>
 <trans-unit id="s9aaa98d99174aa9d">
   <source>Team member can create roles</source>
+  <target>Teammitglied kannn Rollen erstellen</target>
 </trans-unit>
 <trans-unit id="s43cb076c851e120b">
   <source>Team member can create new roles for other team member</source>
+  <target>Teammitglieder können neue Rollen für andere Teammitglieder erstellen</target>
 </trans-unit>
 <trans-unit id="sbfcb6322af980d44">
   <source>add role</source>
+  <target>Rolle hinzufügen</target>
 </trans-unit>
 <trans-unit id="s71f19eef1c496833">
   <source>remove role</source>
+  <target>Rollen Löschen</target>
 </trans-unit>
 <trans-unit id="s6b911fc3da7afcbb">
   <source>You have successfully removed the role {{1}}</source>
+  <target>Du hast die Rolle {{1}} erfolgreich gelöscht</target>
 </trans-unit>
 <trans-unit id="s8d7c93c81f3e5f43">
   <source>You cannot remove member or admin role</source>
+  <target>Du kannst die Member und Admin Rolle nicht löschen</target>
 </trans-unit>
 <trans-unit id="se3f066d97ba679e6">
   <source>New role name</source>
+  <target>Neuen Rollennamen</target>
 </trans-unit>
 <trans-unit id="s5aa7d748ca540906">
   <source>Are you sure you want to remove this role?</source>
+  <target>Bist du sicher das du diese Rolle löschen möchtest?</target>
 </trans-unit>
 <trans-unit id="s7e5f7abe09509b09">
   <source>accept</source>
+  <target>aktzeptieren</target>
 </trans-unit>
 <trans-unit id="s47e83eaa4b387e3b">
   <source>cancel</source>
+  
 </trans-unit>
 <trans-unit id="s856462f7be27a525">
   <source>Role name has to be at least 3 characters long</source>
@@ -324,6 +334,9 @@
 </trans-unit>
 <trans-unit id="s7e559ae40e6af519">
   <source>You have successfully updated the role</source>
+</trans-unit>
+<trans-unit id="s18aaa2cb00168a76">
+  <source>This role is still in use. Edit all the role of the following user(s): {{1}}.</source>
 </trans-unit>
 </body>
 </file>

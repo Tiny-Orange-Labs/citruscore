@@ -628,7 +628,7 @@ let ProfileView = class ProfileView extends ViewLayout {
             return html `<sl-option value="${role.name}">${role.name}</sl-option>`;
         });
         return html `<div class="team-section">
-                <div class="overflow-hidden md:h-[calc(100vh - 175px)]">
+                <div class="overflow-hidden h-82 md:h-[calc(100vh - 175px)]">
                     <div class="flex items-end gap-2">
                         <sl-input
                             @keyup="${this.#searchForUser}"
@@ -678,7 +678,7 @@ let ProfileView = class ProfileView extends ViewLayout {
             : activeButton}
                     </div>
                     <sl-divider style="--width: 2px;"></sl-divider>
-                    <div class="selected-team-section-stats">
+                    <div class="selected-team-section-stats grid-cols-2">
                         <div>
                             <p class="text-gray-600 select-none">${capitalize(msg('role'))}</p>
 
@@ -723,24 +723,31 @@ let ProfileView = class ProfileView extends ViewLayout {
     async #removeRole() {
         const selectedRoleElem = this.querySelector('#selected-role');
         const selectedRole = selectedRoleElem.value;
-        if (selectedRole !== 'member' && selectedRole !== 'admin') {
-            const request = await fetch('/role/removeRole', {
-                method: 'POST',
-                ...header,
-                body: JSON.stringify({
-                    data: {
-                        name: selectedRole,
-                    },
-                    client,
-                }),
-            });
-            await request.json();
+        const select = this.querySelector('#selected-role');
+        if (selectedRole === 'member' || selectedRole === 'admin') {
+            return toast('warning', msg('role'), msg('You cannot remove member or admin role'));
+        }
+        const request = await fetch('/role/removeRole', {
+            method: 'POST',
+            ...header,
+            body: JSON.stringify({
+                data: {
+                    name: selectedRole,
+                },
+                client,
+            }),
+        });
+        const json = await request.json();
+        if (json.success) {
             this.#closeRemoveRoleDialog();
             toast('success', msg('role'), msg('You have successfully removed the role {{1}}').replace('{{1}}', selectedRole));
+            select?.setAttribute('value', 'member');
             return this.#switchToRoleTab();
         }
-        else {
-            return toast('warning', msg('role'), msg('You cannot remove member or admin role'));
+        if (json.problem === 'ROLE_IN_USE') {
+            console.log(json.userThatHasRole);
+            console.log(json.userThatHasRole.join(','));
+            return toast('warning', msg('role'), msg('This role is still in use. Edit all the role of the following user(s): {{1}}.').replace('{{1}}', json.userThatHasRole.join(',')));
         }
     }
     #openRoleDialog() {

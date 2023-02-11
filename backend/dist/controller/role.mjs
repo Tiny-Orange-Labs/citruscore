@@ -1,5 +1,5 @@
 import { roleModel } from '../models/role';
-import { getMe } from './user';
+import { getMe, getUsers } from './user';
 import { getTeam } from './team';
 export async function doIHaveRights(role, teamId, right) {
     const rights = await roleModel.findOne({ _id: role, teamId });
@@ -41,8 +41,24 @@ export async function removeRole(request) {
     const team = await getTeam(request);
     const changeAllowed = await doIHaveRights(me.role, team._id, 'createRole');
     const name = request.payload.data.name;
+    const ids = team.members.map((member) => member._id);
+    request.payload.data.ids = ids;
+    const users = await getUsers(request);
+    const userThatHasRole = users
+        .filter((user) => user.roleName === name)
+        .map((user) => user.username);
     if (!changeAllowed) {
         throw new Error(`${me.username} has no rights to remove roles`);
     }
-    return roleModel.deleteOne({ name, teamId: team._id });
+    if (userThatHasRole.length !== 0) {
+        return {
+            success: false,
+            problem: 'ROLE_IN_USE',
+            userThatHasRole,
+        };
+    }
+    return {
+        success: true,
+        ...(await roleModel.deleteOne({ name, teamId: team._id })),
+    };
 }

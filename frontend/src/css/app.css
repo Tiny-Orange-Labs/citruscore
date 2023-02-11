@@ -128,8 +128,7 @@ sl-divider {
 }
 
 .team-section {
-    grid-template-columns: 300px 1fr auto;
-    @apply grid gap-8 md:h-[calc(100vh_-_176px)] overflow-hidden;
+    @apply flex gap-8 md:h-[calc(100vh_-_176px)] overflow-hidden flex-col md:flex-row;
 }
 
 .team-member {
@@ -137,15 +136,14 @@ sl-divider {
 }
 
 .team-member-active {
-    @apply bg-primarylight text-white dark:bg-primary-dark;
+    @apply bg-primarylight text-white dark:bg-primary-dark w-full md:w-72;
 }
 
 .selected-team-section {
-    @apply flex flex-col gap-8 h-full overflow-y-scroll;
+    @apply flex flex-col gap-8 h-full md:min-w-[20rem] md:w-[48rem] overflow-y-scroll;
 }
 
 .selected-team-section-stats {
-    grid-template-columns: 1fr 1fr;
     @apply grid gap-8;
 }
 
@@ -159,7 +157,7 @@ sl-divider {
 }
 
 .team-section-members {
-    @apply flex flex-col gap-1 mt-4 h-full overflow-y-scroll;
+    @apply flex flex-col gap-1 mt-4 h-52 md:h-full overflow-y-scroll;
 }
 
 .roles-settings {
