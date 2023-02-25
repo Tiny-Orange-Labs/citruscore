@@ -26719,7 +26719,7 @@ AppLayout = __decorate([
 document.addEventListener('DOMContentLoaded', function () {
     const app = document.querySelector('app-layout');
     app.bootstrapActiveMenu();
-    console.log('v:0.0.1 at: "2023-02-11T21:11:00.467Z" ');
+    console.log('v:0.0.1 at: "2023-02-15T11:03:03.130Z" ');
 });
 
 /* CSS */

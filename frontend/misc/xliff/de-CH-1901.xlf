@@ -321,22 +321,27 @@
 </trans-unit>
 <trans-unit id="s47e83eaa4b387e3b">
   <source>cancel</source>
-  
+  <target>abbrechen</target>
 </trans-unit>
 <trans-unit id="s856462f7be27a525">
   <source>Role name has to be at least 3 characters long</source>
+  <target>Rolenname sollte zumindest 3 Zeichen lang sein</target>
 </trans-unit>
 <trans-unit id="s9b303acb1c3d62bf">
   <source>Role already exists</source>
+  <target>Role existiert bereits</target>
 </trans-unit>
 <trans-unit id="se4265cb30ec40f06">
   <source>You have successfully created a new role</source>
+  <target>Du hast erfolgreich eine neue Role erstellt</target>
 </trans-unit>
 <trans-unit id="s7e559ae40e6af519">
   <source>You have successfully updated the role</source>
+  <target>Du hast erfolgreich deine Role upgedated</target>
 </trans-unit>
 <trans-unit id="s18aaa2cb00168a76">
   <source>This role is still in use. Edit all the role of the following user(s): {{1}}.</source>
+  <target>Diese Role ist noch in Verwendung. Editiere die Role der/des folgenden Nutzer: {{1}}.</target>
 </trans-unit>
 </body>
 </file>
