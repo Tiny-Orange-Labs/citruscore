@@ -3,6 +3,7 @@ import { validate, login, logout, checkPassword, changePassword } from '../contr
 import { strictRouteOptions } from '../data/routeOptions';
 /*
 Why can I prefix the path with /v1/?
+What kind of magic is this?
 */
 export default async function auth(server) {
     await server.register(cokie);

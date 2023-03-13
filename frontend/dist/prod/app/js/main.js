@@ -4373,7 +4373,7 @@ function Qn(t){return t+.5|0}Zn=function(t,e,i,s){var o,n=arguments.length,r=n<3
             <p class="text-gray-600 select-none">${Xn(Kn("Super Admin"))}</p>
             <sl-icon name="check2-all"></sl-icon>
         </div>`,s=rn(this.roles,(t=>t._id),(t=>ko`<sl-option value="${t.name}">${t.name}</sl-option>`));return ko`<div class="team-section">
-                <div class="overflow-hidden h-82 md:h-[calc(100vh - 175px)]">
+                <div class="overflow-hidden h-82 md:h-[calc(100vh - 175px)] w-72">
                     <div class="flex items-end gap-2">
                         <sl-input
                             @keyup="${this.#F}"

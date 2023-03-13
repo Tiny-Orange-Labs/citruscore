@@ -26845,7 +26845,7 @@ let ProfileView = class ProfileView extends ViewLayout$1 {
             return y `<sl-option value="${role.name}">${role.name}</sl-option>`;
         });
         return y `<div class="team-section">
-                <div class="overflow-hidden h-82 md:h-[calc(100vh - 175px)]">
+                <div class="overflow-hidden h-82 md:h-[calc(100vh - 175px)] w-72">
                     <div class="flex items-end gap-2">
                         <sl-input
                             @keyup="${this.#searchForUser}"
@@ -27282,7 +27282,7 @@ AppLayout = __decorate([
 document.addEventListener('DOMContentLoaded', function () {
     const app = document.querySelector('app-layout');
     app.bootstrapActiveMenu();
-    console.log('v:0.0.1 at: "2023-03-13T20:23:04.168Z" ');
+    console.log('v:0.0.1 at: "2023-03-13T20:34:07.479Z" ');
 });
 
 /* CSS */

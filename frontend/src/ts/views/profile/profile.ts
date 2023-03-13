@@ -745,9 +745,9 @@ export default class ProfileView extends ViewLayout {
                 return html`<sl-option value="${role.name}">${role.name}</sl-option>`;
             },
         ) as TemplateResult;
-
+        // todo: class for overflow-hidden h-82 md:h-[calc(100vh - 175px)] w-7
         return html`<div class="team-section">
-                <div class="overflow-hidden h-82 md:h-[calc(100vh - 175px)]">
+                <div class="overflow-hidden h-82 md:h-[calc(100vh - 175px)] w-72">
                     <div class="flex items-end gap-2">
                         <sl-input
                             @keyup="${this.#searchForUser}"
