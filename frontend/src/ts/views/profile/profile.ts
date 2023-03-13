@@ -100,7 +100,7 @@ export default class ProfileView extends ViewLayout {
     }
 
     async connectedCallback(): Promise<void> {
-        const request = await fetch('/user/me');
+        const request = await fetch('/v1/user/me');
         const json = await request.json();
         const team = await this.#getTeam();
         const role = await this.#getRole();
@@ -118,7 +118,7 @@ export default class ProfileView extends ViewLayout {
     }
 
     async #getRole() {
-        const request = await fetch('/role/getRole', {
+        const request = await fetch('/v1/role/getRole', {
             method: 'GET',
             ...header,
         });
@@ -126,7 +126,7 @@ export default class ProfileView extends ViewLayout {
     }
 
     async #getUserData() {
-        const request = await fetch('/user/me', {
+        const request = await fetch('/v1/user/me', {
             method: 'GET',
             ...header,
         });
@@ -165,7 +165,7 @@ export default class ProfileView extends ViewLayout {
             return toast('neutral', msg('User Update'), msg('Change user details to trigger an update'));
         }
 
-        const request = await fetch('/user/getUser', {
+        const request = await fetch('/v1/user/getUser', {
             method: 'POST',
             ...header,
             body: JSON.stringify({
@@ -187,7 +187,7 @@ export default class ProfileView extends ViewLayout {
     }
 
     async #logout() {
-        await fetch('/logout', {
+        await fetch('/v1/logout', {
             method: 'GET',
             ...header,
         });
@@ -217,7 +217,7 @@ export default class ProfileView extends ViewLayout {
     }
 
     async #sendCheckPassword(oldPassword: string): Promise<boolean> {
-        const request = await fetch('/checkPassword', {
+        const request = await fetch('/v1/checkPassword', {
             method: 'POST',
             ...header,
             body: JSON.stringify({
@@ -233,7 +233,7 @@ export default class ProfileView extends ViewLayout {
     }
 
     async #sendChangePassword(newPassword: string) {
-        const request = await fetch('/changePassword', {
+        const request = await fetch('/v1/changePassword', {
             method: 'POST',
             ...header,
             body: JSON.stringify({
@@ -308,7 +308,7 @@ export default class ProfileView extends ViewLayout {
     }
 
     async #sendAvatar(file: File, imgTag: HTMLImageElement, e: ProgressEvent<FileReader>) {
-        const request = await fetch('/user/changeAvatar', {
+        const request = await fetch('/v1/user/changeAvatar', {
             method: 'POST',
             ...header,
             body: JSON.stringify({
@@ -471,7 +471,7 @@ export default class ProfileView extends ViewLayout {
     }
 
     async #getRoles() {
-        const rolesRequest = await fetch('/role/getRoles', {
+        const rolesRequest = await fetch('/v1/role/getRoles', {
             method: 'GET',
             ...header,
         });
@@ -479,7 +479,7 @@ export default class ProfileView extends ViewLayout {
     }
 
     async #getTeam() {
-        const teamRequest = await fetch('/team', {
+        const teamRequest = await fetch('/v1/team', {
             method: 'GET',
             ...header,
         });
@@ -489,7 +489,7 @@ export default class ProfileView extends ViewLayout {
     async #switchToTeamTab() {
         this.team = (await this.#getTeam()) as Team;
 
-        const membersRequest = await fetch('/user/getUsers', {
+        const membersRequest = await fetch('/v1/user/getUsers', {
             method: 'POST',
             ...header,
             body: JSON.stringify({
@@ -567,7 +567,7 @@ export default class ProfileView extends ViewLayout {
     }
 
     async #removeTeamMember() {
-        const request = await fetch('/team/removeMember', {
+        const request = await fetch('/v1/team/removeMember', {
             method: 'POST',
             ...header,
             body: JSON.stringify({
@@ -592,7 +592,7 @@ export default class ProfileView extends ViewLayout {
             return;
         }
 
-        const request = await fetch('/team/changeRole', {
+        const request = await fetch('/v1/team/changeRole', {
             method: 'POST',
             ...header,
             body: JSON.stringify({
@@ -621,7 +621,7 @@ export default class ProfileView extends ViewLayout {
             return;
         }
 
-        const request = await fetch('/team/addMember', {
+        const request = await fetch('/v1/team/addMember', {
             method: 'POST',
             ...header,
             body: JSON.stringify({
@@ -853,7 +853,7 @@ export default class ProfileView extends ViewLayout {
             return toast('warning', msg('role'), msg('You cannot remove member or admin role'));
         }
 
-        const request = await fetch('/role/removeRole', {
+        const request = await fetch('/v1/role/removeRole', {
             method: 'POST',
             ...header,
             body: JSON.stringify({
@@ -917,7 +917,7 @@ export default class ProfileView extends ViewLayout {
             return toast('warning', msg('role'), msg('Role already exists'));
         }
 
-        const request = await fetch('/role/createRole', {
+        const request = await fetch('/v1/role/createRole', {
             method: 'POST',
             ...header,
             body: JSON.stringify({
@@ -968,7 +968,7 @@ export default class ProfileView extends ViewLayout {
         const key = target.dataset.key as string;
         const selectedRoleElem = this.querySelector('#selected-role') as SlSelect;
         const selectedRole: string = selectedRoleElem.value as string;
-        const request = await fetch('/role/updateRole', {
+        const request = await fetch('/v1/role/updateRole', {
             method: 'POST',
             ...header,
             body: JSON.stringify({

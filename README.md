@@ -266,6 +266,11 @@ To check your coverage with an UI run:
 npm run coverage
 ```
 
+## api versioning
+
+-   copy paste vOld to vNew and fix the `npm run copy-data` paht!
+-   all routes in `backend/src/versions/vNew/routes/` need the path updated
+
 # BootStrap Dev Data
 
 # ToDo

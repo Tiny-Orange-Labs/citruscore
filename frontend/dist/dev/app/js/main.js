@@ -1,211 +1,3 @@
-var __defProp = Object.defineProperty;
-var __defProps = Object.defineProperties;
-var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
-var __getOwnPropDescs = Object.getOwnPropertyDescriptors;
-var __getOwnPropSymbols = Object.getOwnPropertySymbols;
-var __hasOwnProp = Object.prototype.hasOwnProperty;
-var __propIsEnum = Object.prototype.propertyIsEnumerable;
-var __defNormalProp = (obj, key, value) => key in obj ? __defProp(obj, key, { enumerable: true, configurable: true, writable: true, value }) : obj[key] = value;
-var __spreadValues = (a, b) => {
-  for (var prop in b || (b = {}))
-    if (__hasOwnProp.call(b, prop))
-      __defNormalProp(a, prop, b[prop]);
-  if (__getOwnPropSymbols)
-    for (var prop of __getOwnPropSymbols(b)) {
-      if (__propIsEnum.call(b, prop))
-        __defNormalProp(a, prop, b[prop]);
-    }
-  return a;
-};
-var __spreadProps = (a, b) => __defProps(a, __getOwnPropDescs(b));
-var __objRest = (source, exclude) => {
-  var target = {};
-  for (var prop in source)
-    if (__hasOwnProp.call(source, prop) && exclude.indexOf(prop) < 0)
-      target[prop] = source[prop];
-  if (source != null && __getOwnPropSymbols)
-    for (var prop of __getOwnPropSymbols(source)) {
-      if (exclude.indexOf(prop) < 0 && __propIsEnum.call(source, prop))
-        target[prop] = source[prop];
-    }
-  return target;
-};
-var __decorateClass = (decorators, target, key, kind) => {
-  var result = kind > 1 ? void 0 : kind ? __getOwnPropDesc(target, key) : target;
-  for (var i = decorators.length - 1, decorator; i >= 0; i--)
-    if (decorator = decorators[i])
-      result = (kind ? decorator(target, key, result) : decorator(result)) || result;
-  if (kind && result)
-    __defProp(target, key, result);
-  return result;
-};
-
-// src/internal/form.ts
-var formCollections = /* @__PURE__ */ new WeakMap();
-var userInteractedControls = /* @__PURE__ */ new WeakMap();
-var reportValidityOverloads = /* @__PURE__ */ new WeakMap();
-var FormSubmitController = class {
-  constructor(host, options) {
-    (this.host = host).addController(this);
-    this.options = __spreadValues({
-      form: (input) => input.closest("form"),
-      name: (input) => input.name,
-      value: (input) => input.value,
-      defaultValue: (input) => input.defaultValue,
-      disabled: (input) => {
-        var _a;
-        return (_a = input.disabled) != null ? _a : false;
-      },
-      reportValidity: (input) => typeof input.reportValidity === "function" ? input.reportValidity() : true,
-      setValue: (input, value) => input.value = value
-    }, options);
-    this.handleFormData = this.handleFormData.bind(this);
-    this.handleFormSubmit = this.handleFormSubmit.bind(this);
-    this.handleFormReset = this.handleFormReset.bind(this);
-    this.reportFormValidity = this.reportFormValidity.bind(this);
-    this.handleUserInput = this.handleUserInput.bind(this);
-  }
-  hostConnected() {
-    this.form = this.options.form(this.host);
-    if (this.form) {
-      if (formCollections.has(this.form)) {
-        formCollections.get(this.form).add(this.host);
-      } else {
-        formCollections.set(this.form, /* @__PURE__ */ new Set([this.host]));
-      }
-      this.form.addEventListener("formdata", this.handleFormData);
-      this.form.addEventListener("submit", this.handleFormSubmit);
-      this.form.addEventListener("reset", this.handleFormReset);
-      if (!reportValidityOverloads.has(this.form)) {
-        reportValidityOverloads.set(this.form, this.form.reportValidity);
-        this.form.reportValidity = () => this.reportFormValidity();
-      }
-    }
-    this.host.addEventListener("sl-input", this.handleUserInput);
-  }
-  hostDisconnected() {
-    var _a;
-    if (this.form) {
-      (_a = formCollections.get(this.form)) == null ? void 0 : _a.delete(this.host);
-      this.form.removeEventListener("formdata", this.handleFormData);
-      this.form.removeEventListener("submit", this.handleFormSubmit);
-      this.form.removeEventListener("reset", this.handleFormReset);
-      if (reportValidityOverloads.has(this.form)) {
-        this.form.reportValidity = reportValidityOverloads.get(this.form);
-        reportValidityOverloads.delete(this.form);
-      }
-      this.form = void 0;
-    }
-    this.host.removeEventListener("sl-input", this.handleUserInput);
-  }
-  hostUpdated() {
-    var _a;
-    const host = this.host;
-    const hasInteracted = Boolean(userInteractedControls.get(host));
-    const invalid = Boolean(host.invalid);
-    const required = Boolean(host.required);
-    if ((_a = this.form) == null ? void 0 : _a.noValidate) {
-      host.removeAttribute("data-required");
-      host.removeAttribute("data-optional");
-      host.removeAttribute("data-invalid");
-      host.removeAttribute("data-valid");
-      host.removeAttribute("data-user-invalid");
-      host.removeAttribute("data-user-valid");
-    } else {
-      host.toggleAttribute("data-required", required);
-      host.toggleAttribute("data-optional", !required);
-      host.toggleAttribute("data-invalid", invalid);
-      host.toggleAttribute("data-valid", !invalid);
-      host.toggleAttribute("data-user-invalid", invalid && hasInteracted);
-      host.toggleAttribute("data-user-valid", !invalid && hasInteracted);
-    }
-  }
-  handleFormData(event) {
-    const disabled = this.options.disabled(this.host);
-    const name = this.options.name(this.host);
-    const value = this.options.value(this.host);
-    const isButton = this.host.tagName.toLowerCase() === "sl-button";
-    if (!disabled && !isButton && typeof name === "string" && name.length > 0 && typeof value !== "undefined") {
-      if (Array.isArray(value)) {
-        value.forEach((val) => {
-          event.formData.append(name, val.toString());
-        });
-      } else {
-        event.formData.append(name, value.toString());
-      }
-    }
-  }
-  handleFormSubmit(event) {
-    var _a;
-    const disabled = this.options.disabled(this.host);
-    const reportValidity = this.options.reportValidity;
-    if (this.form && !this.form.noValidate) {
-      (_a = formCollections.get(this.form)) == null ? void 0 : _a.forEach((control) => {
-        this.setUserInteracted(control, true);
-      });
-    }
-    if (this.form && !this.form.noValidate && !disabled && !reportValidity(this.host)) {
-      event.preventDefault();
-      event.stopImmediatePropagation();
-    }
-  }
-  handleFormReset() {
-    this.options.setValue(this.host, this.options.defaultValue(this.host));
-    this.setUserInteracted(this.host, false);
-  }
-  async handleUserInput() {
-    await this.host.updateComplete;
-    this.setUserInteracted(this.host, true);
-  }
-  reportFormValidity() {
-    if (this.form && !this.form.noValidate) {
-      const elements = this.form.querySelectorAll("*");
-      for (const element of elements) {
-        if (typeof element.reportValidity === "function") {
-          if (!element.reportValidity()) {
-            return false;
-          }
-        }
-      }
-    }
-    return true;
-  }
-  setUserInteracted(el, hasInteracted) {
-    userInteractedControls.set(el, hasInteracted);
-    el.requestUpdate();
-  }
-  doAction(type, invoker) {
-    if (this.form) {
-      const button = document.createElement("button");
-      button.type = type;
-      button.style.position = "absolute";
-      button.style.width = "0";
-      button.style.height = "0";
-      button.style.clipPath = "inset(50%)";
-      button.style.overflow = "hidden";
-      button.style.whiteSpace = "nowrap";
-      if (invoker) {
-        button.name = invoker.name;
-        button.value = invoker.value;
-        ["formaction", "formenctype", "formmethod", "formnovalidate", "formtarget"].forEach((attr) => {
-          if (invoker.hasAttribute(attr)) {
-            button.setAttribute(attr, invoker.getAttribute(attr));
-          }
-        });
-      }
-      this.form.append(button);
-      button.click();
-      button.remove();
-    }
-  }
-  reset(invoker) {
-    this.doAction("reset", invoker);
-  }
-  submit(invoker) {
-    this.doAction("submit", invoker);
-  }
-};
-
 // node_modules/@lit/reactive-element/css-tag.js
 var t$7 = window;
 var e$a = t$7.ShadowRoot && (void 0 === t$7.ShadyCSS || t$7.ShadyCSS.nativeShadow) && "adoptedStyleSheets" in Document.prototype && "replace" in CSSStyleSheet.prototype;
@@ -241,7 +33,7 @@ var i$7 = (t3, ...e4) => {
   })(s5) + t3[n6 + 1], t3[0]);
   return new o$8(n5, t3, s$a);
 };
-var S$2 = (s5, n5) => {
+var S$3 = (s5, n5) => {
   e$a ? s5.adoptedStyleSheets = n5.map((t3) => t3 instanceof CSSStyleSheet ? t3 : t3.styleSheet) : n5.forEach((e4) => {
     const n6 = document.createElement("style"), o5 = t$7.litNonce;
     void 0 !== o5 && n6.setAttribute("nonce", o5), n6.textContent = e4.cssText, s5.appendChild(n6);
@@ -291,7 +83,7 @@ var n2$1 = { toAttribute(t3, i3) {
 } };
 var a$4 = (t3, i3) => i3 !== t3 && (i3 == i3 || t3 == t3);
 var l$8 = { attribute: true, type: String, converter: n2$1, reflect: false, hasChanged: a$4 };
-var d$3 = class d extends HTMLElement {
+var d$2 = class d extends HTMLElement {
   constructor() {
     super(), this._$Ei = /* @__PURE__ */ new Map(), this.isUpdatePending = false, this.hasUpdated = false, this._$El = null, this.u();
   }
@@ -370,7 +162,7 @@ var d$3 = class d extends HTMLElement {
   createRenderRoot() {
     var t3;
     const s5 = null !== (t3 = this.shadowRoot) && void 0 !== t3 ? t3 : this.attachShadow(this.constructor.shadowRootOptions);
-    return S$2(s5, this.constructor.elementStyles), s5;
+    return S$3(s5, this.constructor.elementStyles), s5;
   }
   connectedCallback() {
     var t3;
@@ -470,7 +262,7 @@ var d$3 = class d extends HTMLElement {
   firstUpdated(t3) {
   }
 };
-d$3.finalized = true, d$3.elementProperties = /* @__PURE__ */ new Map(), d$3.elementStyles = [], d$3.shadowRootOptions = { mode: "open" }, null == o2$2 || o2$2({ ReactiveElement: d$3 }), (null !== (s2$1 = e2$2.reactiveElementVersions) && void 0 !== s2$1 ? s2$1 : e2$2.reactiveElementVersions = []).push("1.4.2");
+d$2.finalized = true, d$2.elementProperties = /* @__PURE__ */ new Map(), d$2.elementStyles = [], d$2.shadowRootOptions = { mode: "open" }, null == o2$2 || o2$2({ ReactiveElement: d$2 }), (null !== (s2$1 = e2$2.reactiveElementVersions) && void 0 !== s2$1 ? s2$1 : e2$2.reactiveElementVersions = []).push("1.6.1");
 
 // node_modules/lit-html/lit-html.js
 var t2;
@@ -500,9 +292,9 @@ var g$2 = (t3) => (i3, ...s5) => ({ _$litType$: t3, strings: i3, values: s5 });
 var y$1 = g$2(1);
 var x$2 = Symbol.for("lit-noChange");
 var b$2 = Symbol.for("lit-nothing");
-var T$2 = /* @__PURE__ */ new WeakMap();
+var T$1 = /* @__PURE__ */ new WeakMap();
 var A$2 = h2$2.createTreeWalker(h2$2, 129, null, false);
-var E$1 = (t3, i3) => {
+var E$2 = (t3, i3) => {
   const s5 = t3.length - 1, n5 = [];
   let h3, r4 = 2 === i3 ? "<svg>" : "", d3 = v$1;
   for (let i4 = 0; i4 < s5; i4++) {
@@ -523,7 +315,7 @@ var C$2 = class C {
     let l4;
     this.parts = [];
     let h3 = 0, d3 = 0;
-    const u2 = t3.length - 1, c3 = this.parts, [v2, a3] = E$1(t3, i3);
+    const u2 = t3.length - 1, c3 = this.parts, [v2, a3] = E$2(t3, i3);
     if (this.el = C$2.createElement(v2, e4), A$2.currentNode = this.el.content, 2 === i3) {
       const t4 = this.el.content, i4 = t4.firstChild;
       i4.remove(), t4.append(...i4.childNodes);
@@ -577,7 +369,7 @@ function P$1(t3, i3, s5 = t3, e4) {
   const u2 = d2$1(i3) ? void 0 : i3._$litDirective$;
   return (null == r4 ? void 0 : r4.constructor) !== u2 && (null === (n5 = null == r4 ? void 0 : r4._$AO) || void 0 === n5 || n5.call(r4, false), void 0 === u2 ? r4 = void 0 : (r4 = new u2(t3), r4._$AT(t3, s5, e4)), void 0 !== e4 ? (null !== (l4 = (h3 = s5)._$Co) && void 0 !== l4 ? l4 : h3._$Co = [])[e4] = r4 : s5._$Cl = r4), void 0 !== r4 && (i3 = P$1(t3, r4._$AS(t3, i3.values), r4, e4)), i3;
 }
-var V$1 = class V {
+var V$2 = class V {
   constructor(t3, i3) {
     this.u = [], this._$AN = void 0, this._$AD = t3, this._$AM = i3;
   }
@@ -645,13 +437,13 @@ var N$1 = class N {
     if ((null === (i3 = this._$AH) || void 0 === i3 ? void 0 : i3._$AD) === o5)
       this._$AH.p(s5);
     else {
-      const t4 = new V$1(o5, this), i4 = t4.v(this.options);
+      const t4 = new V$2(o5, this), i4 = t4.v(this.options);
       t4.p(s5), this.T(i4), this._$AH = t4;
     }
   }
   _$AC(t3) {
-    let i3 = T$2.get(t3.strings);
-    return void 0 === i3 && T$2.set(t3.strings, i3 = new C$2(t3)), i3;
+    let i3 = T$1.get(t3.strings);
+    return void 0 === i3 && T$1.set(t3.strings, i3 = new C$2(t3)), i3;
   }
   k(t3) {
     u$4(this._$AH) || (this._$AH = [], this._$AR());
@@ -744,8 +536,8 @@ var I$1 = class I {
     P$1(this, t3);
   }
 };
-var z$1 = i2$3.litHtmlPolyfillSupport;
-null == z$1 || z$1(C$2, N$1), (null !== (t2 = i2$3.litHtmlVersions) && void 0 !== t2 ? t2 : i2$3.litHtmlVersions = []).push("2.4.0");
+var z$2 = i2$3.litHtmlPolyfillSupport;
+null == z$2 || z$2(C$2, N$1), (null !== (t2 = i2$3.litHtmlVersions) && void 0 !== t2 ? t2 : i2$3.litHtmlVersions = []).push("2.6.1");
 var Z$1 = (t3, i3, s5) => {
   var e4, o5;
   const n5 = null !== (e4 = null == s5 ? void 0 : s5.renderBefore) && void 0 !== e4 ? e4 : i3;
@@ -760,7 +552,7 @@ var Z$1 = (t3, i3, s5) => {
 // node_modules/lit-element/lit-element.js
 var l3;
 var o4;
-var s4 = class extends d$3 {
+var s4 = class extends d$2 {
   constructor() {
     super(...arguments), this.renderOptions = { host: this }, this._$Dt = void 0;
   }
@@ -789,21 +581,43 @@ s4.finalized = true, s4._$litElement$ = true, null === (l3 = globalThis.litEleme
 var n4 = globalThis.litElementPolyfillSupport;
 null == n4 || n4({ LitElement: s4 });
 (null !== (o4 = globalThis.litElementVersions) && void 0 !== o4 ? o4 : globalThis.litElementVersions = []).push("3.2.0");
-/**
- * @license
- * Copyright 2017 Google LLC
- * SPDX-License-Identifier: BSD-3-Clause
- */
-/**
- * @license
- * Copyright 2019 Google LLC
- * SPDX-License-Identifier: BSD-3-Clause
- */
-/**
- * @license
- * Copyright 2022 Google LLC
- * SPDX-License-Identifier: BSD-3-Clause
- */
+/*! Bundled license information:
+
+@lit/reactive-element/css-tag.js:
+  (**
+   * @license
+   * Copyright 2019 Google LLC
+   * SPDX-License-Identifier: BSD-3-Clause
+   *)
+
+@lit/reactive-element/reactive-element.js:
+  (**
+   * @license
+   * Copyright 2017 Google LLC
+   * SPDX-License-Identifier: BSD-3-Clause
+   *)
+
+lit-html/lit-html.js:
+  (**
+   * @license
+   * Copyright 2017 Google LLC
+   * SPDX-License-Identifier: BSD-3-Clause
+   *)
+
+lit-element/lit-element.js:
+  (**
+   * @license
+   * Copyright 2017 Google LLC
+   * SPDX-License-Identifier: BSD-3-Clause
+   *)
+
+lit-html/is-server.js:
+  (**
+   * @license
+   * Copyright 2022 Google LLC
+   * SPDX-License-Identifier: BSD-3-Clause
+   *)
+*/
 
 // src/styles/component.styles.ts
 var component_styles_default = i$7`
@@ -870,7 +684,7 @@ var button_styles_default = i$7`
     cursor: not-allowed;
   }
 
-  /* When disabled, prevent mouse events from bubbling up */
+  /* When disabled, prevent mouse events from bubbling up from children */
   .button--disabled * {
     pointer-events: none;
   }
@@ -1384,7 +1198,13 @@ var button_styles_default = i$7`
   }
 
   /* Add a visual separator between solid buttons */
-  :host(.sl-button-group__button:not(.sl-button-group__button--first, .sl-button-group__button--radio, [variant='default']):not(:hover))
+  :host(
+      .sl-button-group__button:not(
+          .sl-button-group__button--first,
+          .sl-button-group__button--radio,
+          [variant='default']
+        ):not(:hover)
+    )
     .button:after {
     content: '';
     position: absolute;
@@ -1406,6 +1226,314 @@ var button_styles_default = i$7`
     z-index: 2;
   }
 `;
+
+var __defProp = Object.defineProperty;
+var __defProps = Object.defineProperties;
+var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
+var __getOwnPropDescs = Object.getOwnPropertyDescriptors;
+var __getOwnPropSymbols = Object.getOwnPropertySymbols;
+var __hasOwnProp = Object.prototype.hasOwnProperty;
+var __propIsEnum = Object.prototype.propertyIsEnumerable;
+var __defNormalProp = (obj, key, value) => key in obj ? __defProp(obj, key, { enumerable: true, configurable: true, writable: true, value }) : obj[key] = value;
+var __spreadValues = (a, b) => {
+  for (var prop in b || (b = {}))
+    if (__hasOwnProp.call(b, prop))
+      __defNormalProp(a, prop, b[prop]);
+  if (__getOwnPropSymbols)
+    for (var prop of __getOwnPropSymbols(b)) {
+      if (__propIsEnum.call(b, prop))
+        __defNormalProp(a, prop, b[prop]);
+    }
+  return a;
+};
+var __spreadProps = (a, b) => __defProps(a, __getOwnPropDescs(b));
+var __objRest = (source, exclude) => {
+  var target = {};
+  for (var prop in source)
+    if (__hasOwnProp.call(source, prop) && exclude.indexOf(prop) < 0)
+      target[prop] = source[prop];
+  if (source != null && __getOwnPropSymbols)
+    for (var prop of __getOwnPropSymbols(source)) {
+      if (exclude.indexOf(prop) < 0 && __propIsEnum.call(source, prop))
+        target[prop] = source[prop];
+    }
+  return target;
+};
+var __decorateClass = (decorators, target, key, kind) => {
+  var result = kind > 1 ? void 0 : kind ? __getOwnPropDesc(target, key) : target;
+  for (var i = decorators.length - 1, decorator; i >= 0; i--)
+    if (decorator = decorators[i])
+      result = (kind ? decorator(target, key, result) : decorator(result)) || result;
+  if (kind && result)
+    __defProp(target, key, result);
+  return result;
+};
+
+// src/internal/form.ts
+var formCollections = /* @__PURE__ */ new WeakMap();
+var reportValidityOverloads = /* @__PURE__ */ new WeakMap();
+var userInteractedControls = /* @__PURE__ */ new Set();
+var interactions = /* @__PURE__ */ new WeakMap();
+var FormControlController = class {
+  constructor(host, options) {
+    (this.host = host).addController(this);
+    this.options = __spreadValues({
+      form: (input) => {
+        if (input.hasAttribute("form") && input.getAttribute("form") !== "") {
+          const root = input.getRootNode();
+          const formId = input.getAttribute("form");
+          if (formId) {
+            return root.getElementById(formId);
+          }
+        }
+        return input.closest("form");
+      },
+      name: (input) => input.name,
+      value: (input) => input.value,
+      defaultValue: (input) => input.defaultValue,
+      disabled: (input) => {
+        var _a;
+        return (_a = input.disabled) != null ? _a : false;
+      },
+      reportValidity: (input) => typeof input.reportValidity === "function" ? input.reportValidity() : true,
+      setValue: (input, value) => input.value = value,
+      assumeInteractionOn: ["sl-input"]
+    }, options);
+    this.handleFormData = this.handleFormData.bind(this);
+    this.handleFormSubmit = this.handleFormSubmit.bind(this);
+    this.handleFormReset = this.handleFormReset.bind(this);
+    this.reportFormValidity = this.reportFormValidity.bind(this);
+    this.handleInteraction = this.handleInteraction.bind(this);
+  }
+  hostConnected() {
+    const form = this.options.form(this.host);
+    if (form) {
+      this.attachForm(form);
+    }
+    interactions.set(this.host, []);
+    this.options.assumeInteractionOn.forEach((event) => {
+      this.host.addEventListener(event, this.handleInteraction);
+    });
+  }
+  hostDisconnected() {
+    this.detachForm();
+    interactions.delete(this.host);
+    this.options.assumeInteractionOn.forEach((event) => {
+      this.host.removeEventListener(event, this.handleInteraction);
+    });
+  }
+  hostUpdated() {
+    const form = this.options.form(this.host);
+    if (!form) {
+      this.detachForm();
+    }
+    if (form && this.form !== form) {
+      this.detachForm();
+      this.attachForm(form);
+    }
+    if (this.host.hasUpdated) {
+      this.setValidity(this.host.validity.valid);
+    }
+  }
+  attachForm(form) {
+    if (form) {
+      this.form = form;
+      if (formCollections.has(this.form)) {
+        formCollections.get(this.form).add(this.host);
+      } else {
+        formCollections.set(this.form, /* @__PURE__ */ new Set([this.host]));
+      }
+      this.form.addEventListener("formdata", this.handleFormData);
+      this.form.addEventListener("submit", this.handleFormSubmit);
+      this.form.addEventListener("reset", this.handleFormReset);
+      if (!reportValidityOverloads.has(this.form)) {
+        reportValidityOverloads.set(this.form, this.form.reportValidity);
+        this.form.reportValidity = () => this.reportFormValidity();
+      }
+    } else {
+      this.form = void 0;
+    }
+  }
+  detachForm() {
+    var _a;
+    if (this.form) {
+      (_a = formCollections.get(this.form)) == null ? void 0 : _a.delete(this.host);
+      this.form.removeEventListener("formdata", this.handleFormData);
+      this.form.removeEventListener("submit", this.handleFormSubmit);
+      this.form.removeEventListener("reset", this.handleFormReset);
+      if (reportValidityOverloads.has(this.form)) {
+        this.form.reportValidity = reportValidityOverloads.get(this.form);
+        reportValidityOverloads.delete(this.form);
+      }
+    }
+    this.form = void 0;
+  }
+  handleFormData(event) {
+    const disabled = this.options.disabled(this.host);
+    const name = this.options.name(this.host);
+    const value = this.options.value(this.host);
+    const isButton = this.host.tagName.toLowerCase() === "sl-button";
+    if (!disabled && !isButton && typeof name === "string" && name.length > 0 && typeof value !== "undefined") {
+      if (Array.isArray(value)) {
+        value.forEach((val) => {
+          event.formData.append(name, val.toString());
+        });
+      } else {
+        event.formData.append(name, value.toString());
+      }
+    }
+  }
+  handleFormSubmit(event) {
+    var _a;
+    const disabled = this.options.disabled(this.host);
+    const reportValidity = this.options.reportValidity;
+    if (this.form && !this.form.noValidate) {
+      (_a = formCollections.get(this.form)) == null ? void 0 : _a.forEach((control) => {
+        this.setUserInteracted(control, true);
+      });
+    }
+    if (this.form && !this.form.noValidate && !disabled && !reportValidity(this.host)) {
+      event.preventDefault();
+      event.stopImmediatePropagation();
+    }
+  }
+  handleFormReset() {
+    this.options.setValue(this.host, this.options.defaultValue(this.host));
+    this.setUserInteracted(this.host, false);
+    interactions.set(this.host, []);
+  }
+  handleInteraction(event) {
+    const emittedEvents = interactions.get(this.host);
+    if (!emittedEvents.includes(event.type)) {
+      emittedEvents.push(event.type);
+    }
+    if (emittedEvents.length === this.options.assumeInteractionOn.length) {
+      this.setUserInteracted(this.host, true);
+    }
+  }
+  reportFormValidity() {
+    if (this.form && !this.form.noValidate) {
+      const elements = this.form.querySelectorAll("*");
+      for (const element of elements) {
+        if (typeof element.reportValidity === "function") {
+          if (!element.reportValidity()) {
+            return false;
+          }
+        }
+      }
+    }
+    return true;
+  }
+  setUserInteracted(el, hasInteracted) {
+    if (hasInteracted) {
+      userInteractedControls.add(el);
+    } else {
+      userInteractedControls.delete(el);
+    }
+    el.requestUpdate();
+  }
+  doAction(type, invoker) {
+    if (this.form) {
+      const button = document.createElement("button");
+      button.type = type;
+      button.style.position = "absolute";
+      button.style.width = "0";
+      button.style.height = "0";
+      button.style.clipPath = "inset(50%)";
+      button.style.overflow = "hidden";
+      button.style.whiteSpace = "nowrap";
+      if (invoker) {
+        button.name = invoker.name;
+        button.value = invoker.value;
+        ["formaction", "formenctype", "formmethod", "formnovalidate", "formtarget"].forEach((attr) => {
+          if (invoker.hasAttribute(attr)) {
+            button.setAttribute(attr, invoker.getAttribute(attr));
+          }
+        });
+      }
+      this.form.append(button);
+      button.click();
+      button.remove();
+    }
+  }
+  /** Returns the associated `<form>` element, if one exists. */
+  getForm() {
+    var _a;
+    return (_a = this.form) != null ? _a : null;
+  }
+  /** Resets the form, restoring all the control to their default value */
+  reset(invoker) {
+    this.doAction("reset", invoker);
+  }
+  /** Submits the form, triggering validation and form data injection. */
+  submit(invoker) {
+    this.doAction("submit", invoker);
+  }
+  /**
+   * Synchronously sets the form control's validity. Call this when you know the future validity but need to update
+   * the host element immediately, i.e. before Lit updates the component in the next update.
+   */
+  setValidity(isValid) {
+    const host = this.host;
+    const hasInteracted = Boolean(userInteractedControls.has(host));
+    const required = Boolean(host.required);
+    host.toggleAttribute("data-required", required);
+    host.toggleAttribute("data-optional", !required);
+    host.toggleAttribute("data-invalid", !isValid);
+    host.toggleAttribute("data-valid", isValid);
+    host.toggleAttribute("data-user-invalid", !isValid && hasInteracted);
+    host.toggleAttribute("data-user-valid", isValid && hasInteracted);
+  }
+  /**
+   * Updates the form control's validity based on the current value of `host.validity.valid`. Call this when anything
+   * that affects constraint validation changes so the component receives the correct validity states.
+   */
+  updateValidity() {
+    const host = this.host;
+    this.setValidity(host.validity.valid);
+  }
+  /**
+   * Dispatches a non-bubbling, cancelable custom event of type `sl-invalid`.
+   * If the `sl-invalid` event will be cancelled then the original `invalid`
+   * event (which may have been passed as argument) will also be cancelled.
+   * If no original `invalid` event has been passed then the `sl-invalid`
+   * event will be cancelled before being dispatched.
+   */
+  emitInvalidEvent(originalInvalidEvent) {
+    const slInvalidEvent = new CustomEvent("sl-invalid", {
+      bubbles: false,
+      composed: false,
+      cancelable: true
+    });
+    if (!originalInvalidEvent) {
+      slInvalidEvent.preventDefault();
+    }
+    if (!this.host.dispatchEvent(slInvalidEvent)) {
+      originalInvalidEvent == null ? void 0 : originalInvalidEvent.preventDefault();
+    }
+  }
+};
+var validValidityState = Object.freeze({
+  badInput: false,
+  customError: false,
+  patternMismatch: false,
+  rangeOverflow: false,
+  rangeUnderflow: false,
+  stepMismatch: false,
+  tooLong: false,
+  tooShort: false,
+  typeMismatch: false,
+  valid: true,
+  valueMissing: false
+});
+var valueMissingValidityState = Object.freeze(__spreadProps(__spreadValues({}, validValidityState), {
+  valid: false,
+  valueMissing: true
+}));
+var customErrorValidityState = Object.freeze(__spreadProps(__spreadValues({}, validValidityState), {
+  valid: false,
+  customError: true
+}));
 
 // node_modules/lit-html/static.js
 var e$9 = Symbol.for("");
@@ -1437,11 +1565,15 @@ var a$3 = (t) => (r, ...e2) => {
   return t(r, ...e2);
 };
 var n$9 = a$3(y$1);
-/**
- * @license
- * Copyright 2020 Google LLC
- * SPDX-License-Identifier: BSD-3-Clause
- */
+/*! Bundled license information:
+
+lit-html/static.js:
+  (**
+   * @license
+   * Copyright 2020 Google LLC
+   * SPDX-License-Identifier: BSD-3-Clause
+   *)
+*/
 
 // node_modules/@shoelace-style/localize/dist/index.js
 var connectedElements = /* @__PURE__ */ new Set();
@@ -1624,11 +1756,15 @@ function getTextContent(slot) {
 
 // node_modules/lit-html/directives/if-defined.js
 var l$6 = (l2) => null != l2 ? l2 : b$2;
-/**
- * @license
- * Copyright 2018 Google LLC
- * SPDX-License-Identifier: BSD-3-Clause
- */
+/*! Bundled license information:
+
+lit-html/directives/if-defined.js:
+  (**
+   * @license
+   * Copyright 2018 Google LLC
+   * SPDX-License-Identifier: BSD-3-Clause
+   *)
+*/
 
 // node_modules/lit-html/directive.js
 var t$6 = { ATTRIBUTE: 1, CHILD: 2, PROPERTY: 3, BOOLEAN_ATTRIBUTE: 4, EVENT: 5, ELEMENT: 6 };
@@ -1649,11 +1785,15 @@ var i$5 = class i {
     return this.render(...e2);
   }
 };
-/**
- * @license
- * Copyright 2017 Google LLC
- * SPDX-License-Identifier: BSD-3-Clause
- */
+/*! Bundled license information:
+
+lit-html/directive.js:
+  (**
+   * @license
+   * Copyright 2017 Google LLC
+   * SPDX-License-Identifier: BSD-3-Clause
+   *)
+*/
 
 // node_modules/lit-html/directives/class-map.js
 var o$7 = e$8(class extends i$5 {
@@ -1684,34 +1824,39 @@ var o$7 = e$8(class extends i$5 {
     return x$2;
   }
 });
-/**
- * @license
- * Copyright 2018 Google LLC
- * SPDX-License-Identifier: BSD-3-Clause
- */
+/*! Bundled license information:
+
+lit-html/directives/class-map.js:
+  (**
+   * @license
+   * Copyright 2018 Google LLC
+   * SPDX-License-Identifier: BSD-3-Clause
+   *)
+*/
 
 // src/internal/watch.ts
-function watch(propName, options) {
+function watch(propertyName, options) {
   const resolvedOptions = __spreadValues({
     waitUntilFirstUpdate: false
   }, options);
   return (proto, decoratedFnName) => {
     const { update } = proto;
-    if (propName in proto) {
-      const propNameKey = propName;
-      proto.update = function(changedProps) {
-        if (changedProps.has(propNameKey)) {
-          const oldValue = changedProps.get(propNameKey);
-          const newValue = this[propNameKey];
+    const watchedProperties = Array.isArray(propertyName) ? propertyName : [propertyName];
+    proto.update = function(changedProps) {
+      watchedProperties.forEach((property) => {
+        const key = property;
+        if (changedProps.has(key)) {
+          const oldValue = changedProps.get(key);
+          const newValue = this[key];
           if (oldValue !== newValue) {
             if (!resolvedOptions.waitUntilFirstUpdate || this.hasUpdated) {
               this[decoratedFnName](oldValue, newValue);
             }
           }
         }
-        update.call(this, changedProps);
-      };
-    }
+      });
+      update.call(this, changedProps);
+    };
   };
 }
 
@@ -1781,6 +1926,7 @@ null != (null === (n$8 = window.HTMLSlotElement) || void 0 === n$8 ? void 0 : n$
 
 // src/internal/shoelace-element.ts
 var ShoelaceElement = class extends s4 {
+  /** Emits a custom event with more convenient defaults. */
   emit(name, options) {
     const event = new CustomEvent(name, __spreadValues({
       bubbles: true,
@@ -1798,22 +1944,84 @@ __decorateClass([
 __decorateClass([
   e2$1()
 ], ShoelaceElement.prototype, "lang", 2);
-/**
- * @license
- * Copyright 2017 Google LLC
- * SPDX-License-Identifier: BSD-3-Clause
- */
-/**
- * @license
- * Copyright 2021 Google LLC
- * SPDX-License-Identifier: BSD-3-Clause
- */
+/*! Bundled license information:
+
+@lit/reactive-element/decorators/custom-element.js:
+  (**
+   * @license
+   * Copyright 2017 Google LLC
+   * SPDX-License-Identifier: BSD-3-Clause
+   *)
+
+@lit/reactive-element/decorators/property.js:
+  (**
+   * @license
+   * Copyright 2017 Google LLC
+   * SPDX-License-Identifier: BSD-3-Clause
+   *)
+
+@lit/reactive-element/decorators/state.js:
+  (**
+   * @license
+   * Copyright 2017 Google LLC
+   * SPDX-License-Identifier: BSD-3-Clause
+   *)
+
+@lit/reactive-element/decorators/base.js:
+  (**
+   * @license
+   * Copyright 2017 Google LLC
+   * SPDX-License-Identifier: BSD-3-Clause
+   *)
+
+@lit/reactive-element/decorators/query.js:
+  (**
+   * @license
+   * Copyright 2017 Google LLC
+   * SPDX-License-Identifier: BSD-3-Clause
+   *)
+
+@lit/reactive-element/decorators/query-async.js:
+  (**
+   * @license
+   * Copyright 2017 Google LLC
+   * SPDX-License-Identifier: BSD-3-Clause
+   *)
+
+@lit/reactive-element/decorators/event-options.js:
+  (**
+   * @license
+   * Copyright 2017 Google LLC
+   * SPDX-License-Identifier: BSD-3-Clause
+   *)
+
+@lit/reactive-element/decorators/query-all.js:
+  (**
+   * @license
+   * Copyright 2017 Google LLC
+   * SPDX-License-Identifier: BSD-3-Clause
+   *)
+
+@lit/reactive-element/decorators/query-assigned-elements.js:
+  (**
+   * @license
+   * Copyright 2021 Google LLC
+   * SPDX-License-Identifier: BSD-3-Clause
+   *)
+
+@lit/reactive-element/decorators/query-assigned-nodes.js:
+  (**
+   * @license
+   * Copyright 2017 Google LLC
+   * SPDX-License-Identifier: BSD-3-Clause
+   *)
+*/
 
 // src/components/button/button.ts
 var SlButton = class extends ShoelaceElement {
   constructor() {
     super(...arguments);
-    this.formSubmitController = new FormSubmitController(this, {
+    this.formControlController = new FormControlController(this, {
       form: (input) => {
         if (input.hasAttribute("form")) {
           const doc = input.getRootNode();
@@ -1821,7 +2029,8 @@ var SlButton = class extends ShoelaceElement {
           return doc.getElementById(formId);
         }
         return input.closest("form");
-      }
+      },
+      assumeInteractionOn: ["click"]
     });
     this.hasSlotController = new HasSlotController(this, "[default]", "prefix", "suffix");
     this.localize = new LocalizeController2(this);
@@ -1840,10 +2049,34 @@ var SlButton = class extends ShoelaceElement {
     this.name = "";
     this.value = "";
     this.href = "";
+    this.rel = "noreferrer noopener";
+  }
+  /** Gets the validity state object */
+  get validity() {
+    if (this.isButton()) {
+      return this.button.validity;
+    }
+    return validValidityState;
+  }
+  /** Gets the validation message */
+  get validationMessage() {
+    if (this.isButton()) {
+      return this.button.validationMessage;
+    }
+    return "";
+  }
+  connectedCallback() {
+    super.connectedCallback();
+    this.handleHostClick = this.handleHostClick.bind(this);
+    this.addEventListener("click", this.handleHostClick);
+  }
+  disconnectedCallback() {
+    super.disconnectedCallback();
+    this.removeEventListener("click", this.handleHostClick);
   }
   firstUpdated() {
     if (this.isButton()) {
-      this.invalid = !this.button.checkValidity();
+      this.formControlController.updateValidity();
     }
   }
   handleBlur() {
@@ -1854,18 +2087,23 @@ var SlButton = class extends ShoelaceElement {
     this.hasFocus = true;
     this.emit("sl-focus");
   }
-  handleClick(event) {
-    if (this.disabled || this.loading) {
-      event.preventDefault();
-      event.stopPropagation();
-      return;
-    }
+  handleClick() {
     if (this.type === "submit") {
-      this.formSubmitController.submit(this);
+      this.formControlController.submit(this);
     }
     if (this.type === "reset") {
-      this.formSubmitController.reset(this);
+      this.formControlController.reset(this);
     }
+  }
+  handleHostClick(event) {
+    if (this.disabled || this.loading) {
+      event.preventDefault();
+      event.stopImmediatePropagation();
+    }
+  }
+  handleInvalid(event) {
+    this.formControlController.setValidity(false);
+    this.formControlController.emitInvalidEvent(event);
   }
   isButton() {
     return this.href ? false : true;
@@ -1875,35 +2113,40 @@ var SlButton = class extends ShoelaceElement {
   }
   handleDisabledChange() {
     if (this.isButton()) {
-      this.button.disabled = this.disabled;
-      this.invalid = !this.button.checkValidity();
+      this.formControlController.setValidity(this.disabled);
     }
   }
+  /** Simulates a click on the button. */
   click() {
     this.button.click();
   }
+  /** Sets focus on the button. */
   focus(options) {
     this.button.focus(options);
   }
+  /** Removes focus from the button. */
   blur() {
     this.button.blur();
   }
+  /** Checks for validity but does not show a validation message. Returns `true` when valid and `false` when invalid. */
   checkValidity() {
     if (this.isButton()) {
       return this.button.checkValidity();
     }
     return true;
   }
+  /** Checks for validity and shows the browser's validation message if the control is invalid. */
   reportValidity() {
     if (this.isButton()) {
       return this.button.reportValidity();
     }
     return true;
   }
+  /** Sets a custom validation message. Pass an empty string to restore validity. */
   setCustomValidity(message) {
     if (this.isButton()) {
       this.button.setCustomValidity(message);
-      this.invalid = !this.button.checkValidity();
+      this.formControlController.updateValidity();
     }
   }
   render() {
@@ -1945,12 +2188,13 @@ var SlButton = class extends ShoelaceElement {
         href=${l$6(isLink ? this.href : void 0)}
         target=${l$6(isLink ? this.target : void 0)}
         download=${l$6(isLink ? this.download : void 0)}
-        rel=${l$6(isLink && this.target ? "noreferrer noopener" : void 0)}
+        rel=${l$6(isLink ? this.rel : void 0)}
         role=${l$6(isLink ? void 0 : "button")}
         aria-disabled=${this.disabled ? "true" : "false"}
         tabindex=${this.disabled ? "-1" : "0"}
         @blur=${this.handleBlur}
         @focus=${this.handleFocus}
+        @invalid=${this.isButton() ? this.handleInvalid : null}
         @click=${this.handleClick}
       >
         <slot name="prefix" part="prefix" class="button__prefix"></slot>
@@ -2014,6 +2258,9 @@ __decorateClass([
 __decorateClass([
   e2$1()
 ], SlButton.prototype, "target", 2);
+__decorateClass([
+  e2$1()
+], SlButton.prototype, "rel", 2);
 __decorateClass([
   e2$1()
 ], SlButton.prototype, "download", 2);
@@ -2088,17 +2335,17 @@ var spinner_styles_default = i$7`
 
   @keyframes spin {
     0% {
-      rotate: 0deg;
+      transform: rotate(0deg);
       stroke-dasharray: 0.01em, 2.75em;
     }
 
     50% {
-      rotate: 450deg;
+      transform: rotate(450deg);
       stroke-dasharray: 1.375em, 1.375em;
     }
 
     100% {
-      rotate: 1080deg;
+      transform: rotate(1080deg);
       stroke-dasharray: 0.01em, 2.75em;
     }
   }
@@ -2333,7 +2580,6 @@ var icon_styles_default = i$7`
     display: inline-block;
     width: 1em;
     height: 1em;
-    contain: strict;
     box-sizing: content-box !important;
   }
 
@@ -2470,18 +2716,27 @@ __decorateClass([
   watch("label")
 ], SlIcon.prototype, "handleLabelChange", 1);
 __decorateClass([
-  watch("name"),
-  watch("src"),
-  watch("library")
+  watch(["name", "src", "library"])
 ], SlIcon.prototype, "setIcon", 1);
 SlIcon = __decorateClass([
   e$7("sl-icon")
 ], SlIcon);
-/**
- * @license
- * Copyright 2017 Google LLC
- * SPDX-License-Identifier: BSD-3-Clause
- */
+/*! Bundled license information:
+
+lit-html/directives/unsafe-html.js:
+  (**
+   * @license
+   * Copyright 2017 Google LLC
+   * SPDX-License-Identifier: BSD-3-Clause
+   *)
+
+lit-html/directives/unsafe-svg.js:
+  (**
+   * @license
+   * Copyright 2017 Google LLC
+   * SPDX-License-Identifier: BSD-3-Clause
+   *)
+*/
 
 // src/components/icon-button/icon-button.styles.ts
 var icon_button_styles_default = i$7`
@@ -2557,12 +2812,15 @@ var SlIconButton = class extends ShoelaceElement {
       event.stopPropagation();
     }
   }
+  /** Simulates a click on the icon button. */
   click() {
     this.button.click();
   }
+  /** Sets focus on the icon button. */
   focus(options) {
     this.button.focus(options);
   }
+  /** Removes focus from the icon button. */
   blur() {
     this.button.blur();
   }
@@ -2662,7 +2920,7 @@ var form_control_styles_default = i$7`
     font-size: var(--sl-input-label-font-size-medium);
   }
 
-  .form-control--has-label.form-control--large .form-control_label {
+  .form-control--has-label.form-control--large .form-control__label {
     font-size: var(--sl-input-label-font-size-large);
   }
 
@@ -3024,11 +3282,22 @@ var l2$1 = e$8(class extends i$5 {
     return s$8(i2), t2;
   }
 });
-/**
- * @license
- * Copyright 2020 Google LLC
- * SPDX-License-Identifier: BSD-3-Clause
- */
+/*! Bundled license information:
+
+lit-html/directive-helpers.js:
+  (**
+   * @license
+   * Copyright 2020 Google LLC
+   * SPDX-License-Identifier: BSD-3-Clause
+   *)
+
+lit-html/directives/live.js:
+  (**
+   * @license
+   * Copyright 2020 Google LLC
+   * SPDX-License-Identifier: BSD-3-Clause
+   *)
+*/
 
 // src/internal/default-value.ts
 var defaultValue = (propertyName = "value") => (proto, key) => {
@@ -3057,11 +3326,12 @@ var isFirefox = isChromium ? false : navigator.userAgent.includes("Firefox");
 var SlInput = class extends ShoelaceElement {
   constructor() {
     super(...arguments);
-    this.formSubmitController = new FormSubmitController(this);
+    this.formControlController = new FormControlController(this, {
+      assumeInteractionOn: ["sl-blur", "sl-input"]
+    });
     this.hasSlotController = new HasSlotController(this, "help-text", "label");
     this.localize = new LocalizeController2(this);
     this.hasFocus = false;
-    this.invalid = false;
     this.title = "";
     this.type = "text";
     this.name = "";
@@ -3079,9 +3349,11 @@ var SlInput = class extends ShoelaceElement {
     this.passwordToggle = false;
     this.passwordVisible = false;
     this.noSpinButtons = false;
+    this.form = "";
     this.required = false;
     this.spellcheck = true;
   }
+  /** Gets or sets the current value as a `Date` object. Returns `null` if the value can't be converted. */
   get valueAsDate() {
     var _a2, _b;
     return (_b = (_a2 = this.input) == null ? void 0 : _a2.valueAsDate) != null ? _b : null;
@@ -3092,6 +3364,7 @@ var SlInput = class extends ShoelaceElement {
     input.valueAsDate = newValue;
     this.value = input.value;
   }
+  /** Gets or sets the current value as a number. Returns `NaN` if the value can't be converted. */
   get valueAsNumber() {
     var _a2, _b;
     return (_b = (_a2 = this.input) == null ? void 0 : _a2.valueAsNumber) != null ? _b : parseFloat(this.value);
@@ -3102,8 +3375,16 @@ var SlInput = class extends ShoelaceElement {
     input.valueAsNumber = newValue;
     this.value = input.value;
   }
+  /** Gets the validity state object */
+  get validity() {
+    return this.input.validity;
+  }
+  /** Gets the validation message */
+  get validationMessage() {
+    return this.input.validationMessage;
+  }
   firstUpdated() {
-    this.invalid = !this.checkValidity();
+    this.formControlController.updateValidity();
   }
   handleBlur() {
     this.hasFocus = false;
@@ -3127,18 +3408,19 @@ var SlInput = class extends ShoelaceElement {
   }
   handleInput() {
     this.value = this.input.value;
-    this.invalid = !this.checkValidity();
+    this.formControlController.updateValidity();
     this.emit("sl-input");
   }
-  handleInvalid() {
-    this.invalid = true;
+  handleInvalid(event) {
+    this.formControlController.setValidity(false);
+    this.formControlController.emitInvalidEvent(event);
   }
   handleKeyDown(event) {
     const hasModifier = event.metaKey || event.ctrlKey || event.shiftKey || event.altKey;
     if (event.key === "Enter" && !hasModifier) {
       setTimeout(() => {
         if (!event.defaultPrevented && !event.isComposing) {
-          this.formSubmitController.submit();
+          this.formControlController.submit();
         }
       });
     }
@@ -3147,61 +3429,71 @@ var SlInput = class extends ShoelaceElement {
     this.passwordVisible = !this.passwordVisible;
   }
   handleDisabledChange() {
-    this.input.disabled = this.disabled;
-    this.invalid = !this.checkValidity();
+    this.formControlController.setValidity(this.disabled);
   }
   handleStepChange() {
     this.input.step = String(this.step);
-    this.invalid = !this.checkValidity();
+    this.formControlController.updateValidity();
   }
   async handleValueChange() {
     await this.updateComplete;
-    this.invalid = !this.checkValidity();
+    this.formControlController.updateValidity();
   }
+  /** Sets focus on the input. */
   focus(options) {
     this.input.focus(options);
   }
+  /** Removes focus from the input. */
   blur() {
     this.input.blur();
   }
+  /** Selects all the text in the input. */
   select() {
     this.input.select();
   }
+  /** Sets the start and end positions of the text selection (0-based). */
   setSelectionRange(selectionStart, selectionEnd, selectionDirection = "none") {
     this.input.setSelectionRange(selectionStart, selectionEnd, selectionDirection);
   }
+  /** Replaces a range of text with a new string. */
   setRangeText(replacement, start, end, selectMode) {
     this.input.setRangeText(replacement, start, end, selectMode);
     if (this.value !== this.input.value) {
       this.value = this.input.value;
     }
   }
+  /** Displays the browser picker for an input element (only works if the browser supports it for the input type). */
   showPicker() {
     if ("showPicker" in HTMLInputElement.prototype) {
       this.input.showPicker();
     }
   }
+  /** Increments the value of a numeric input type by the value of the step attribute. */
   stepUp() {
     this.input.stepUp();
     if (this.value !== this.input.value) {
       this.value = this.input.value;
     }
   }
+  /** Decrements the value of a numeric input type by the value of the step attribute. */
   stepDown() {
     this.input.stepDown();
     if (this.value !== this.input.value) {
       this.value = this.input.value;
     }
   }
+  /** Checks for validity but does not show a validation message. Returns `true` when valid and `false` when invalid. */
   checkValidity() {
     return this.input.checkValidity();
   }
+  /** Checks for validity and shows the browser's validation message if the control is invalid. */
   reportValidity() {
     return this.input.reportValidity();
   }
+  /** Sets a custom validation message. Pass an empty string to restore validity. */
   setCustomValidity(message) {
     this.input.setCustomValidity(message);
-    this.invalid = !this.checkValidity();
+    this.formControlController.updateValidity();
   }
   render() {
     const hasLabelSlot = this.hasSlotController.test("label");
@@ -3235,16 +3527,17 @@ var SlInput = class extends ShoelaceElement {
             part="base"
             class=${o$7({
       input: true,
+      // Sizes
       "input--small": this.size === "small",
       "input--medium": this.size === "medium",
       "input--large": this.size === "large",
+      // States
       "input--pill": this.pill,
       "input--standard": !this.filled,
       "input--filled": this.filled,
       "input--disabled": this.disabled,
       "input--focused": this.hasFocus,
       "input--empty": !this.value,
-      "input--invalid": this.invalid,
       "input--no-spin-buttons": this.noSpinButtons,
       "input--is-firefox": isFirefox
     })}
@@ -3276,7 +3569,6 @@ var SlInput = class extends ShoelaceElement {
               enterkeyhint=${l$6(this.enterkeyhint)}
               inputmode=${l$6(this.inputmode)}
               aria-describedby="help-text"
-              aria-invalid=${this.invalid ? "true" : "false"}
               @change=${this.handleChange}
               @input=${this.handleInput}
               @invalid=${this.handleInvalid}
@@ -3346,9 +3638,6 @@ __decorateClass([
   t$5()
 ], SlInput.prototype, "hasFocus", 2);
 __decorateClass([
-  t$5()
-], SlInput.prototype, "invalid", 2);
-__decorateClass([
   e2$1()
 ], SlInput.prototype, "title", 2);
 __decorateClass([
@@ -3400,6 +3689,9 @@ __decorateClass([
   e2$1({ attribute: "no-spin-buttons", type: Boolean })
 ], SlInput.prototype, "noSpinButtons", 2);
 __decorateClass([
+  e2$1({ reflect: true })
+], SlInput.prototype, "form", 2);
+__decorateClass([
   e2$1({ type: Boolean, reflect: true })
 ], SlInput.prototype, "required", 2);
 __decorateClass([
@@ -3439,6 +3731,7 @@ __decorateClass([
   e2$1({
     type: Boolean,
     converter: {
+      // Allow "true|false" attribute values but keep the property boolean
       fromAttribute: (value) => !value || value === "false" ? false : true,
       toAttribute: (value) => value ? "true" : "false"
     }
@@ -3547,13 +3840,14 @@ var rating_styles_default = i$7`
 
 // src/internal/math.ts
 function clamp(value, min, max) {
+  const noNegativeZero = (n) => Object.is(n, -0) ? 0 : n;
   if (value < min) {
-    return min;
+    return noNegativeZero(min);
   }
   if (value > max) {
-    return max;
+    return noNegativeZero(max);
   }
-  return value;
+  return noNegativeZero(value);
 }
 
 // node_modules/lit-html/directives/style-map.js
@@ -3587,11 +3881,15 @@ var i2$1 = e$8(class extends i$5 {
     return x$2;
   }
 });
-/**
- * @license
- * Copyright 2018 Google LLC
- * SPDX-License-Identifier: BSD-3-Clause
- */
+/*! Bundled license information:
+
+lit-html/directives/style-map.js:
+  (**
+   * @license
+   * Copyright 2018 Google LLC
+   * SPDX-License-Identifier: BSD-3-Clause
+   *)
+*/
 
 // src/components/rating/rating.ts
 var SlRating = class extends ShoelaceElement {
@@ -3660,8 +3958,9 @@ var SlRating = class extends ShoelaceElement {
       this.emit("sl-change");
     }
   }
-  handleMouseEnter() {
+  handleMouseEnter(event) {
     this.isHovering = true;
+    this.hoverValue = this.getValueFromMousePosition(event);
   }
   handleMouseMove(event) {
     this.hoverValue = this.getValueFromMousePosition(event);
@@ -3670,11 +3969,11 @@ var SlRating = class extends ShoelaceElement {
     this.isHovering = false;
   }
   handleTouchStart(event) {
+    this.isHovering = true;
     this.hoverValue = this.getValueFromTouchPosition(event);
     event.preventDefault();
   }
   handleTouchMove(event) {
-    this.isHovering = true;
     this.hoverValue = this.getValueFromTouchPosition(event);
   }
   handleTouchEnd(event) {
@@ -3687,9 +3986,27 @@ var SlRating = class extends ShoelaceElement {
     const multiplier = 1 / precision;
     return Math.ceil(numberToRound * multiplier) / multiplier;
   }
+  handleHoverValueChange() {
+    this.emit("sl-hover", {
+      detail: {
+        phase: "move",
+        value: this.hoverValue
+      }
+    });
+  }
+  handleIsHoveringChange() {
+    this.emit("sl-hover", {
+      detail: {
+        phase: this.isHovering ? "start" : "end",
+        value: this.hoverValue
+      }
+    });
+  }
+  /** Sets focus on the rating. */
   focus(options) {
     this.rating.focus(options);
   }
+  /** Removes focus from the rating. */
   blur() {
     this.rating.blur();
   }
@@ -3798,6 +4115,12 @@ __decorateClass([
 __decorateClass([
   e2$1()
 ], SlRating.prototype, "getSymbol", 2);
+__decorateClass([
+  watch("hoverValue")
+], SlRating.prototype, "handleHoverValueChange", 1);
+__decorateClass([
+  watch("isHovering")
+], SlRating.prototype, "handleIsHoveringChange", 1);
 SlRating = __decorateClass([
   e$7("sl-rating")
 ], SlRating);
@@ -3814,6 +4137,7 @@ var radio_group_styles_default = i$7`
   .form-control {
     border: none;
     padding: 0;
+    margin: 0;
   }
 
   .form-control__label {
@@ -3842,33 +4166,53 @@ var radio_group_styles_default = i$7`
 var SlRadioGroup = class extends ShoelaceElement {
   constructor() {
     super(...arguments);
-    this.formSubmitController = new FormSubmitController(this, {
-      defaultValue: (control) => control.defaultValue
-    });
+    this.formControlController = new FormControlController(this);
     this.hasSlotController = new HasSlotController(this, "help-text", "label");
+    this.customValidityMessage = "";
     this.hasButtonGroup = false;
     this.errorMessage = "";
-    this.customErrorMessage = "";
     this.defaultValue = "";
-    this.invalid = false;
     this.label = "";
     this.helpText = "";
     this.name = "option";
     this.value = "";
+    this.form = "";
     this.required = false;
+  }
+  /** Gets the validity state object */
+  get validity() {
+    const isRequiredAndEmpty = this.required && !this.value;
+    const hasCustomValidityMessage = this.customValidityMessage !== "";
+    if (hasCustomValidityMessage) {
+      return customErrorValidityState;
+    } else if (isRequiredAndEmpty) {
+      return valueMissingValidityState;
+    }
+    return validValidityState;
+  }
+  /** Gets the validation message */
+  get validationMessage() {
+    const isRequiredAndEmpty = this.required && !this.value;
+    const hasCustomValidityMessage = this.customValidityMessage !== "";
+    if (hasCustomValidityMessage) {
+      return this.customValidityMessage;
+    } else if (isRequiredAndEmpty) {
+      return this.validationInput.validationMessage;
+    }
+    return "";
   }
   connectedCallback() {
     super.connectedCallback();
     this.defaultValue = this.value;
   }
   firstUpdated() {
-    this.invalid = !this.validity.valid;
+    this.formControlController.updateValidity();
   }
   getAllRadios() {
     return [...this.querySelectorAll("sl-radio, sl-radio-button")];
   }
   handleRadioClick(event) {
-    const target = event.target;
+    const target = event.target.closest("sl-radio, sl-radio-button");
     const radios = this.getAllRadios();
     const oldValue = this.value;
     if (target.disabled) {
@@ -3945,59 +4289,50 @@ var SlRadioGroup = class extends ShoelaceElement {
       }
     }
   }
-  showNativeErrorMessage() {
-    this.input.hidden = false;
-    this.input.reportValidity();
-    setTimeout(() => this.input.hidden = true, 1e4);
+  handleInvalid(event) {
+    this.formControlController.setValidity(false);
+    this.formControlController.emitInvalidEvent(event);
   }
   updateCheckedRadio() {
     const radios = this.getAllRadios();
     radios.forEach((radio) => radio.checked = radio.value === this.value);
-    this.invalid = !this.validity.valid;
+    this.formControlController.setValidity(this.validity.valid);
   }
   handleValueChange() {
     if (this.hasUpdated) {
       this.updateCheckedRadio();
     }
   }
+  /** Checks for validity but does not show a validation message. Returns `true` when valid and `false` when invalid. */
   checkValidity() {
-    return this.validity.valid;
+    const isRequiredAndEmpty = this.required && !this.value;
+    const hasCustomValidityMessage = this.customValidityMessage !== "";
+    if (isRequiredAndEmpty || hasCustomValidityMessage) {
+      this.formControlController.emitInvalidEvent();
+      return false;
+    }
+    return true;
   }
+  /** Sets a custom validation message. Pass an empty string to restore validity. */
   setCustomValidity(message = "") {
-    this.customErrorMessage = message;
+    this.customValidityMessage = message;
     this.errorMessage = message;
-    if (!message) {
-      this.invalid = false;
-    } else {
-      this.invalid = true;
-      this.input.setCustomValidity(message);
-    }
+    this.validationInput.setCustomValidity(message);
+    this.formControlController.updateValidity();
   }
-  get validity() {
-    const hasMissingData = !(this.value && this.required || !this.required);
-    const hasCustomError = this.customErrorMessage !== "";
-    return {
-      badInput: false,
-      customError: hasCustomError,
-      patternMismatch: false,
-      rangeOverflow: false,
-      rangeUnderflow: false,
-      stepMismatch: false,
-      tooLong: false,
-      tooShort: false,
-      typeMismatch: false,
-      valid: hasMissingData || hasCustomError ? false : true,
-      valueMissing: !hasMissingData
-    };
-  }
+  /** Checks for validity and shows the browser's validation message if the control is invalid. */
   reportValidity() {
-    const validity = this.validity;
-    this.errorMessage = this.customErrorMessage || validity.valid ? "" : this.input.validationMessage;
-    this.invalid = !validity.valid;
-    if (!validity.valid) {
-      this.showNativeErrorMessage();
+    const isValid = this.validity.valid;
+    this.errorMessage = this.customValidityMessage || isValid ? "" : this.validationInput.validationMessage;
+    this.formControlController.setValidity(isValid);
+    this.validationInput.hidden = true;
+    clearTimeout(this.validationTimeout);
+    if (!isValid) {
+      this.validationInput.hidden = false;
+      this.validationInput.reportValidity();
+      this.validationTimeout = setTimeout(() => this.validationInput.hidden = true, 1e4);
     }
-    return !this.invalid;
+    return isValid;
   }
   render() {
     const hasLabelSlot = this.hasSlotController.test("label");
@@ -4047,6 +4382,7 @@ var SlRadioGroup = class extends ShoelaceElement {
                 ?required=${this.required}
                 tabindex="-1"
                 hidden
+                @invalid=${this.handleInvalid}
               />
             </label>
           </div>
@@ -4077,7 +4413,7 @@ __decorateClass([
 ], SlRadioGroup.prototype, "defaultSlot", 2);
 __decorateClass([
   i2$2(".radio-group__validation-input")
-], SlRadioGroup.prototype, "input", 2);
+], SlRadioGroup.prototype, "validationInput", 2);
 __decorateClass([
   t$5()
 ], SlRadioGroup.prototype, "hasButtonGroup", 2);
@@ -4086,13 +4422,7 @@ __decorateClass([
 ], SlRadioGroup.prototype, "errorMessage", 2);
 __decorateClass([
   t$5()
-], SlRadioGroup.prototype, "customErrorMessage", 2);
-__decorateClass([
-  t$5()
 ], SlRadioGroup.prototype, "defaultValue", 2);
-__decorateClass([
-  t$5()
-], SlRadioGroup.prototype, "invalid", 2);
 __decorateClass([
   e2$1()
 ], SlRadioGroup.prototype, "label", 2);
@@ -4105,6 +4435,9 @@ __decorateClass([
 __decorateClass([
   e2$1({ reflect: true })
 ], SlRadioGroup.prototype, "value", 2);
+__decorateClass([
+  e2$1({ reflect: true })
+], SlRadioGroup.prototype, "form", 2);
 __decorateClass([
   e2$1({ type: Boolean, reflect: true })
 ], SlRadioGroup.prototype, "required", 2);
@@ -4262,9 +4595,11 @@ var SlRadioButton = class extends ShoelaceElement {
   handleDisabledChange() {
     this.setAttribute("aria-disabled", this.disabled ? "true" : "false");
   }
+  /** Sets focus on the radio button. */
   focus(options) {
     this.input.focus(options);
   }
+  /** Removes focus from the radio button. */
   blur() {
     this.input.blur();
   }
@@ -4317,7 +4652,7 @@ __decorateClass([
   t$5()
 ], SlRadioButton.prototype, "hasFocus", 2);
 __decorateClass([
-  t$5()
+  e2$1({ type: Boolean, reflect: true })
 ], SlRadioButton.prototype, "checked", 2);
 __decorateClass([
   e2$1()
@@ -4844,6 +5179,7 @@ var SlAlert = class extends ShoelaceElement {
   handleDurationChange() {
     this.restartAutoHide();
   }
+  /** Shows the alert. */
   async show() {
     if (this.open) {
       return void 0;
@@ -4851,6 +5187,7 @@ var SlAlert = class extends ShoelaceElement {
     this.open = true;
     return waitForEvent(this, "sl-after-show");
   }
+  /** Hides the alert */
   async hide() {
     if (!this.open) {
       return void 0;
@@ -4858,6 +5195,11 @@ var SlAlert = class extends ShoelaceElement {
     this.open = false;
     return waitForEvent(this, "sl-after-hide");
   }
+  /**
+   * Displays the alert as a toast notification. This will move the alert out of its position in the DOM and, when
+   * dismissed, it will be removed from the DOM completely. By storing a reference to the alert, you can reuse it by
+   * calling this method again. The returned promise will resolve after the alert is hidden.
+   */
   async toast() {
     return new Promise((resolve) => {
       if (toastStack.parentElement === null) {
@@ -5279,10 +5621,11 @@ var textarea_styles_default = i$7`
 var SlTextarea = class extends ShoelaceElement {
   constructor() {
     super(...arguments);
-    this.formSubmitController = new FormSubmitController(this);
+    this.formControlController = new FormControlController(this, {
+      assumeInteractionOn: ["sl-blur", "sl-input"]
+    });
     this.hasSlotController = new HasSlotController(this, "help-text", "label");
     this.hasFocus = false;
-    this.invalid = false;
     this.title = "";
     this.name = "";
     this.value = "";
@@ -5295,9 +5638,18 @@ var SlTextarea = class extends ShoelaceElement {
     this.resize = "vertical";
     this.disabled = false;
     this.readonly = false;
+    this.form = "";
     this.required = false;
     this.spellcheck = true;
     this.defaultValue = "";
+  }
+  /** Gets the validity state object */
+  get validity() {
+    return this.input.validity;
+  }
+  /** Gets the validation message */
+  get validationMessage() {
+    return this.input.validationMessage;
   }
   connectedCallback() {
     super.connectedCallback();
@@ -5308,7 +5660,7 @@ var SlTextarea = class extends ShoelaceElement {
     });
   }
   firstUpdated() {
-    this.invalid = !this.checkValidity();
+    this.formControlController.updateValidity();
   }
   disconnectedCallback() {
     super.disconnectedCallback();
@@ -5331,6 +5683,10 @@ var SlTextarea = class extends ShoelaceElement {
     this.value = this.input.value;
     this.emit("sl-input");
   }
+  handleInvalid(event) {
+    this.formControlController.setValidity(false);
+    this.formControlController.emitInvalidEvent(event);
+  }
   setTextareaHeight() {
     if (this.resize === "auto") {
       this.input.style.height = "auto";
@@ -5340,26 +5696,29 @@ var SlTextarea = class extends ShoelaceElement {
     }
   }
   handleDisabledChange() {
-    this.input.disabled = this.disabled;
-    this.invalid = !this.checkValidity();
+    this.formControlController.setValidity(this.disabled);
   }
   handleRowsChange() {
     this.setTextareaHeight();
   }
   async handleValueChange() {
     await this.updateComplete;
-    this.invalid = !this.checkValidity();
+    this.formControlController.updateValidity();
     this.setTextareaHeight();
   }
+  /** Sets focus on the textarea. */
   focus(options) {
     this.input.focus(options);
   }
+  /** Removes focus from the textarea. */
   blur() {
     this.input.blur();
   }
+  /** Selects all the text in the textarea. */
   select() {
     this.input.select();
   }
+  /** Gets or sets the textarea's scroll position. */
   scrollPosition(position) {
     if (position) {
       if (typeof position.top === "number")
@@ -5373,9 +5732,11 @@ var SlTextarea = class extends ShoelaceElement {
       left: this.input.scrollTop
     };
   }
+  /** Sets the start and end positions of the text selection (0-based). */
   setSelectionRange(selectionStart, selectionEnd, selectionDirection = "none") {
     this.input.setSelectionRange(selectionStart, selectionEnd, selectionDirection);
   }
+  /** Replaces a range of text with a new string. */
   setRangeText(replacement, start, end, selectMode) {
     this.input.setRangeText(replacement, start, end, selectMode);
     if (this.value !== this.input.value) {
@@ -5386,15 +5747,18 @@ var SlTextarea = class extends ShoelaceElement {
       this.setTextareaHeight();
     }
   }
+  /** Checks for validity but does not show a validation message. Returns `true` when valid and `false` when invalid. */
   checkValidity() {
     return this.input.checkValidity();
   }
+  /** Checks for validity and shows the browser's validation message if the control is invalid. */
   reportValidity() {
     return this.input.reportValidity();
   }
+  /** Sets a custom validation message. Pass an empty string to restore validity. */
   setCustomValidity(message) {
     this.input.setCustomValidity(message);
-    this.invalid = !this.checkValidity();
+    this.formControlController.updateValidity();
   }
   render() {
     const hasLabelSlot = this.hasSlotController.test("label");
@@ -5435,7 +5799,6 @@ var SlTextarea = class extends ShoelaceElement {
       "textarea--disabled": this.disabled,
       "textarea--focused": this.hasFocus,
       "textarea--empty": !this.value,
-      "textarea--invalid": this.invalid,
       "textarea--resize-none": this.resize === "none",
       "textarea--resize-vertical": this.resize === "vertical",
       "textarea--resize-auto": this.resize === "auto"
@@ -5464,6 +5827,7 @@ var SlTextarea = class extends ShoelaceElement {
               aria-describedby="help-text"
               @change=${this.handleChange}
               @input=${this.handleInput}
+              @invalid=${this.handleInvalid}
               @focus=${this.handleFocus}
               @blur=${this.handleBlur}
             ></textarea>
@@ -5490,9 +5854,6 @@ __decorateClass([
 __decorateClass([
   t$5()
 ], SlTextarea.prototype, "hasFocus", 2);
-__decorateClass([
-  t$5()
-], SlTextarea.prototype, "invalid", 2);
 __decorateClass([
   e2$1()
 ], SlTextarea.prototype, "title", 2);
@@ -5530,6 +5891,9 @@ __decorateClass([
   e2$1({ type: Boolean, reflect: true })
 ], SlTextarea.prototype, "readonly", 2);
 __decorateClass([
+  e2$1({ reflect: true })
+], SlTextarea.prototype, "form", 2);
+__decorateClass([
   e2$1({ type: Boolean, reflect: true })
 ], SlTextarea.prototype, "required", 2);
 __decorateClass([
@@ -5557,6 +5921,7 @@ __decorateClass([
   e2$1({
     type: Boolean,
     converter: {
+      // Allow "true|false" attribute values but keep the property boolean
       fromAttribute: (value) => !value || value === "false" ? false : true,
       toAttribute: (value) => value ? "true" : "false"
     }
@@ -5636,6 +6001,7 @@ var select_styles_default = i$7`
     font: inherit;
     border: none;
     background: none;
+    color: var(--sl-input-color);
     cursor: inherit;
     overflow: hidden;
     padding: 0;
@@ -5643,12 +6009,16 @@ var select_styles_default = i$7`
     -webkit-appearance: none;
   }
 
+  .select:not(.select--disabled):hover .select__display-input {
+    color: var(--sl-input-color-hover);
+  }
+
   .select__display-input:focus {
     outline: none;
   }
 
   /* Visually hide the display input when multiple is enabled */
-  .select--multiple .select__display-input {
+  .select--multiple:not(.select--placeholder-visible) .select__display-input {
     position: absolute;
     z-index: -1;
     top: 0;
@@ -5747,7 +6117,7 @@ var select_styles_default = i$7`
     margin-inline-end: var(--sl-input-spacing-small);
   }
 
-  .select--small.select--multiple .select__combobox {
+  .select--small.select--multiple:not(.select--placeholder-visible) .select__combobox {
     padding-block: 2px;
     padding-inline-start: 0;
   }
@@ -5772,7 +6142,7 @@ var select_styles_default = i$7`
     margin-inline-end: var(--sl-input-spacing-medium);
   }
 
-  .select--medium.select--multiple .select__combobox {
+  .select--medium.select--multiple:not(.select--placeholder-visible) .select__combobox {
     padding-inline-start: 0;
     padding-block: 3px;
   }
@@ -5797,7 +6167,7 @@ var select_styles_default = i$7`
     margin-inline-end: var(--sl-input-spacing-large);
   }
 
-  .select--large.select--multiple .select__combobox {
+  .select--large.select--multiple:not(.select--placeholder-visible) .select__combobox {
     padding-inline-start: 0;
     padding-block: 4px;
   }
@@ -5907,14 +6277,23 @@ function getOffset(element, parent) {
 
 // src/internal/scroll.ts
 var locks = /* @__PURE__ */ new Set();
+function getScrollbarWidth() {
+  const documentWidth = document.documentElement.clientWidth;
+  return Math.abs(window.innerWidth - documentWidth);
+}
 function lockBodyScrolling(lockingEl) {
   locks.add(lockingEl);
-  document.body.classList.add("sl-scroll-lock");
+  if (!document.body.classList.contains("sl-scroll-lock")) {
+    const scrollbarWidth = getScrollbarWidth();
+    document.body.classList.add("sl-scroll-lock");
+    document.body.style.setProperty("--sl-scroll-lock-size", `${scrollbarWidth}px`);
+  }
 }
 function unlockBodyScrolling(lockingEl) {
   locks.delete(lockingEl);
   if (locks.size === 0) {
     document.body.classList.remove("sl-scroll-lock");
+    document.body.style.removeProperty("--sl-scrollbar-width");
   }
 }
 function scrollIntoView(element, container, direction = "vertical", behavior = "smooth") {
@@ -5945,14 +6324,15 @@ function scrollIntoView(element, container, direction = "vertical", behavior = "
 var SlSelect = class extends ShoelaceElement {
   constructor() {
     super(...arguments);
-    this.formSubmitController = new FormSubmitController(this);
+    this.formControlController = new FormControlController(this, {
+      assumeInteractionOn: ["sl-blur", "sl-input"]
+    });
     this.hasSlotController = new HasSlotController(this, "help-text", "label");
     this.localize = new LocalizeController2(this);
     this.typeToSelectString = "";
     this.hasFocus = false;
     this.displayLabel = "";
     this.selectedOptions = [];
-    this.invalid = false;
     this.name = "";
     this.value = "";
     this.defaultValue = "";
@@ -5969,7 +6349,16 @@ var SlSelect = class extends ShoelaceElement {
     this.label = "";
     this.placement = "bottom";
     this.helpText = "";
+    this.form = "";
     this.required = false;
+  }
+  /** Gets the validity state object */
+  get validity() {
+    return this.valueInput.validity;
+  }
+  /** Gets the validation message */
+  get validationMessage() {
+    return this.valueInput.validationMessage;
   }
   connectedCallback() {
     super.connectedCallback();
@@ -6158,7 +6547,7 @@ var SlSelect = class extends ShoelaceElement {
     allOptions.forEach((option) => {
       if (values.includes(option.value)) {
         console.error(
-          `An option with duplicate values has been found in <sl-select>. All options must have unique values.`,
+          `An option with a duplicate value of "${option.value}" has been found in <sl-select>. All options must have unique values.`,
           option
         );
       }
@@ -6166,12 +6555,24 @@ var SlSelect = class extends ShoelaceElement {
     });
     this.setSelectedOptions(allOptions.filter((el) => value.includes(el.value)));
   }
+  handleTagRemove(event, option) {
+    event.stopPropagation();
+    if (!this.disabled) {
+      this.toggleOptionSelection(option, false);
+      this.emit("sl-input");
+      this.emit("sl-change");
+    }
+  }
+  // Gets an array of all <sl-option> elements
   getAllOptions() {
     return [...this.querySelectorAll("sl-option")];
   }
+  // Gets the first <sl-option> element
   getFirstOption() {
     return this.querySelector("sl-option");
   }
+  // Sets the current option, which is the option the user is currently interacting with (e.g. via keyboard). Only one
+  // option may be "current" at a time.
   setCurrentOption(option) {
     const allOptions = this.getAllOptions();
     allOptions.forEach((el) => {
@@ -6183,19 +6584,19 @@ var SlSelect = class extends ShoelaceElement {
       option.current = true;
       option.tabIndex = 0;
       option.focus();
-      scrollIntoView(option, this.listbox);
     }
   }
+  // Sets the selected option(s)
   setSelectedOptions(option) {
     const allOptions = this.getAllOptions();
     const newSelectedOptions = Array.isArray(option) ? option : [option];
     allOptions.forEach((el) => el.selected = false);
     if (newSelectedOptions.length) {
       newSelectedOptions.forEach((el) => el.selected = true);
-      scrollIntoView(newSelectedOptions[0], this.listbox);
     }
     this.selectionChanged();
   }
+  // Toggles an option's selected state
   toggleOptionSelection(option, force) {
     if (force === true || force === false) {
       option.selected = force;
@@ -6204,17 +6605,29 @@ var SlSelect = class extends ShoelaceElement {
     }
     this.selectionChanged();
   }
+  // This method must be called whenever the selection changes. It will update the selected options cache, the current
+  // value, and the display value
   selectionChanged() {
     var _a, _b, _c, _d;
     this.selectedOptions = this.getAllOptions().filter((el) => el.selected);
     if (this.multiple) {
       this.value = this.selectedOptions.map((el) => el.value);
-      this.displayLabel = this.localize.term("numOptionsSelected", this.selectedOptions.length);
+      if (this.placeholder && this.value.length === 0) {
+        this.displayLabel = "";
+      } else {
+        this.displayLabel = this.localize.term("numOptionsSelected", this.selectedOptions.length);
+      }
     } else {
       this.value = (_b = (_a = this.selectedOptions[0]) == null ? void 0 : _a.value) != null ? _b : "";
       this.displayLabel = (_d = (_c = this.selectedOptions[0]) == null ? void 0 : _c.getTextLabel()) != null ? _d : "";
     }
-    this.updateComplete.then(() => this.invalid = !this.checkValidity());
+    this.updateComplete.then(() => {
+      this.formControlController.updateValidity();
+    });
+  }
+  handleInvalid(event) {
+    this.formControlController.setValidity(false);
+    this.formControlController.emitInvalidEvent(event);
   }
   handleDisabledChange() {
     if (this.disabled) {
@@ -6255,6 +6668,7 @@ var SlSelect = class extends ShoelaceElement {
       this.emit("sl-after-hide");
     }
   }
+  /** Shows the listbox. */
   async show() {
     if (this.open || this.disabled) {
       this.open = false;
@@ -6263,6 +6677,7 @@ var SlSelect = class extends ShoelaceElement {
     this.open = true;
     return waitForEvent(this, "sl-after-show");
   }
+  /** Hides the listbox. */
   async hide() {
     if (!this.open || this.disabled) {
       this.open = false;
@@ -6271,19 +6686,24 @@ var SlSelect = class extends ShoelaceElement {
     this.open = false;
     return waitForEvent(this, "sl-after-hide");
   }
+  /** Checks for validity but does not show a validation message. Returns `true` when valid and `false` when invalid. */
   checkValidity() {
     return this.valueInput.checkValidity();
   }
+  /** Checks for validity and shows the browser's validation message if the control is invalid. */
   reportValidity() {
     return this.valueInput.reportValidity();
   }
+  /** Sets a custom validation message. Pass an empty string to restore validity. */
   setCustomValidity(message) {
     this.valueInput.setCustomValidity(message);
-    this.invalid = !this.valueInput.checkValidity();
+    this.formControlController.updateValidity();
   }
+  /** Sets focus on the control. */
   focus(options) {
     this.displayInput.focus(options);
   }
+  /** Removes focus from the control. */
   blur() {
     this.displayInput.blur();
   }
@@ -6293,6 +6713,7 @@ var SlSelect = class extends ShoelaceElement {
     const hasLabel = this.label ? true : !!hasLabelSlot;
     const hasHelpText = this.helpText ? true : !!hasHelpTextSlot;
     const hasClearIcon = this.clearable && !this.disabled && this.value.length > 0;
+    const isPlaceholderVisible = this.placeholder && this.value.length === 0;
     return y$1`
       <div
         part="form-control"
@@ -6326,6 +6747,7 @@ var SlSelect = class extends ShoelaceElement {
       "select--disabled": this.disabled,
       "select--multiple": this.multiple,
       "select--focused": this.hasFocus,
+      "select--placeholder-visible": isPlaceholderVisible,
       "select--top": this.placement === "top",
       "select--bottom": this.placement === "bottom",
       "select--small": this.size === "small",
@@ -6378,14 +6800,11 @@ var SlSelect = class extends ShoelaceElement {
       if (index < this.maxOptionsVisible || this.maxOptionsVisible <= 0) {
         return y$1`
                             <sl-tag
+                              part="tag"
+                              ?pill=${this.pill}
                               size=${this.size}
                               removable
-                              @sl-remove=${(event) => {
-          event.stopPropagation();
-          if (!this.disabled) {
-            this.toggleOptionSelection(option, false);
-          }
-        }}
+                              @sl-remove=${(event) => this.handleTagRemove(event, option)}
                             >
                               ${option.getTextLabel()}
                             </sl-tag>
@@ -6408,6 +6827,7 @@ var SlSelect = class extends ShoelaceElement {
                 tabindex="-1"
                 aria-hidden="true"
                 @focus=${() => this.focus()}
+                @invalid=${this.handleInvalid}
               />
 
               ${hasClearIcon ? y$1`
@@ -6444,17 +6864,17 @@ var SlSelect = class extends ShoelaceElement {
               @slotchange=${this.handleDefaultSlotChange}
             ></slot>
           </sl-popup>
-
-          <slot
-            name="help-text"
-            part="form-control-help-text"
-            id="help-text"
-            class="form-control__help-text"
-            aria-hidden=${hasHelpText ? "false" : "true"}
-          >
-            ${this.helpText}
-          </slot>
         </div>
+
+        <slot
+          name="help-text"
+          part="form-control-help-text"
+          id="help-text"
+          class="form-control__help-text"
+          aria-hidden=${hasHelpText ? "false" : "true"}
+        >
+          ${this.helpText}
+        </slot>
       </div>
     `;
   }
@@ -6487,9 +6907,6 @@ __decorateClass([
 __decorateClass([
   t$5()
 ], SlSelect.prototype, "selectedOptions", 2);
-__decorateClass([
-  t$5()
-], SlSelect.prototype, "invalid", 2);
 __decorateClass([
   e2$1()
 ], SlSelect.prototype, "name", 2);
@@ -6543,6 +6960,9 @@ __decorateClass([
 __decorateClass([
   e2$1({ attribute: "help-text" })
 ], SlSelect.prototype, "helpText", 2);
+__decorateClass([
+  e2$1({ reflect: true })
+], SlSelect.prototype, "form", 2);
 __decorateClass([
   e2$1({ type: Boolean, reflect: true })
 ], SlSelect.prototype, "required", 2);
@@ -6709,15 +7129,18 @@ var SlTag = class extends ShoelaceElement {
         part="base"
         class=${o$7({
       tag: true,
+      // Types
       "tag--primary": this.variant === "primary",
       "tag--success": this.variant === "success",
       "tag--neutral": this.variant === "neutral",
       "tag--warning": this.variant === "warning",
       "tag--danger": this.variant === "danger",
       "tag--text": this.variant === "text",
+      // Sizes
       "tag--small": this.size === "small",
       "tag--medium": this.size === "medium",
       "tag--large": this.size === "large",
+      // Modifiers
       "tag--pill": this.pill,
       "tag--removable": this.removable
     })}
@@ -6802,22 +7225,22 @@ var popup_styles_default = i$7`
 
 // node_modules/@floating-ui/core/dist/floating-ui.core.browser.min.mjs
 function t$4(t2) {
-  return t2.split("-")[0];
-}
-function e3(t2) {
   return t2.split("-")[1];
 }
-function n$7(e4) {
-  return ["top", "bottom"].includes(t$4(e4)) ? "x" : "y";
-}
-function r$5(t2) {
+function e3(t2) {
   return "y" === t2 ? "height" : "width";
 }
-function i2(i4, o4, a3) {
+function n$7(t2) {
+  return t2.split("-")[0];
+}
+function o2(t2) {
+  return ["top", "bottom"].includes(n$7(t2)) ? "x" : "y";
+}
+function i2(i4, r3, a3) {
   let { reference: l3, floating: s3 } = i4;
-  const c3 = l3.x + l3.width / 2 - s3.width / 2, f3 = l3.y + l3.height / 2 - s3.height / 2, u3 = n$7(o4), m3 = r$5(u3), g3 = l3[m3] / 2 - s3[m3] / 2, d3 = "x" === u3;
+  const c3 = l3.x + l3.width / 2 - s3.width / 2, f3 = l3.y + l3.height / 2 - s3.height / 2, u3 = o2(r3), m3 = e3(u3), g3 = l3[m3] / 2 - s3[m3] / 2, d3 = "x" === u3;
   let p3;
-  switch (t$4(o4)) {
+  switch (n$7(r3)) {
     case "top":
       p3 = { x: c3, y: l3.y - s3.height };
       break;
@@ -6833,7 +7256,7 @@ function i2(i4, o4, a3) {
     default:
       p3 = { x: l3.x, y: l3.y };
   }
-  switch (e3(o4)) {
+  switch (t$4(r3)) {
     case "start":
       p3[u3] -= g3 * (a3 && d3 ? -1 : 1);
       break;
@@ -6842,14 +7265,14 @@ function i2(i4, o4, a3) {
   }
   return p3;
 }
-var o2 = async (t2, e4, n3) => {
-  const { placement: r3 = "bottom", strategy: o4 = "absolute", middleware: a3 = [], platform: l3 } = n3, s3 = a3.filter(Boolean), c3 = await (null == l3.isRTL ? void 0 : l3.isRTL(e4));
-  let f3 = await l3.getElementRects({ reference: t2, floating: e4, strategy: o4 }), { x: u3, y: m3 } = i2(f3, r3, c3), g3 = r3, d3 = {}, p3 = 0;
+var r$5 = async (t2, e4, n3) => {
+  const { placement: o4 = "bottom", strategy: r3 = "absolute", middleware: a3 = [], platform: l3 } = n3, s3 = a3.filter(Boolean), c3 = await (null == l3.isRTL ? void 0 : l3.isRTL(e4));
+  let f3 = await l3.getElementRects({ reference: t2, floating: e4, strategy: r3 }), { x: u3, y: m3 } = i2(f3, o4, c3), g3 = o4, d3 = {}, p3 = 0;
   for (let n4 = 0; n4 < s3.length; n4++) {
-    const { name: a4, fn: h3 } = s3[n4], { x: y4, y: x3, data: w3, reset: v3 } = await h3({ x: u3, y: m3, initialPlacement: r3, placement: g3, strategy: o4, middlewareData: d3, rects: f3, platform: l3, elements: { reference: t2, floating: e4 } });
-    u3 = null != y4 ? y4 : u3, m3 = null != x3 ? x3 : m3, d3 = __spreadProps(__spreadValues({}, d3), { [a4]: __spreadValues(__spreadValues({}, d3[a4]), w3) }), v3 && p3 <= 50 && (p3++, "object" == typeof v3 && (v3.placement && (g3 = v3.placement), v3.rects && (f3 = true === v3.rects ? await l3.getElementRects({ reference: t2, floating: e4, strategy: o4 }) : v3.rects), { x: u3, y: m3 } = i2(f3, g3, c3)), n4 = -1);
+    const { name: a4, fn: h3 } = s3[n4], { x: y4, y: x3, data: w3, reset: v3 } = await h3({ x: u3, y: m3, initialPlacement: o4, placement: g3, strategy: r3, middlewareData: d3, rects: f3, platform: l3, elements: { reference: t2, floating: e4 } });
+    u3 = null != y4 ? y4 : u3, m3 = null != x3 ? x3 : m3, d3 = __spreadProps(__spreadValues({}, d3), { [a4]: __spreadValues(__spreadValues({}, d3[a4]), w3) }), v3 && p3 <= 50 && (p3++, "object" == typeof v3 && (v3.placement && (g3 = v3.placement), v3.rects && (f3 = true === v3.rects ? await l3.getElementRects({ reference: t2, floating: e4, strategy: r3 }) : v3.rects), { x: u3, y: m3 } = i2(f3, g3, c3)), n4 = -1);
   }
-  return { x: u3, y: m3, placement: g3, strategy: o4, middlewareData: d3 };
+  return { x: u3, y: m3, placement: g3, strategy: r3, middlewareData: d3 };
 };
 function a$2(t2) {
   return "number" != typeof t2 ? function(t3) {
@@ -6862,304 +7285,343 @@ function l$5(t2) {
 async function s$7(t2, e4) {
   var n3;
   void 0 === e4 && (e4 = {});
-  const { x: r3, y: i4, platform: o4, rects: s3, elements: c3, strategy: f3 } = t2, { boundary: u3 = "clippingAncestors", rootBoundary: m3 = "viewport", elementContext: g3 = "floating", altBoundary: d3 = false, padding: p3 = 0 } = e4, h3 = a$2(p3), y4 = c3[d3 ? "floating" === g3 ? "reference" : "floating" : g3], x3 = l$5(await o4.getClippingRect({ element: null == (n3 = await (null == o4.isElement ? void 0 : o4.isElement(y4))) || n3 ? y4 : y4.contextElement || await (null == o4.getDocumentElement ? void 0 : o4.getDocumentElement(c3.floating)), boundary: u3, rootBoundary: m3, strategy: f3 })), w3 = l$5(o4.convertOffsetParentRelativeRectToViewportRelativeRect ? await o4.convertOffsetParentRelativeRectToViewportRelativeRect({ rect: "floating" === g3 ? __spreadProps(__spreadValues({}, s3.floating), { x: r3, y: i4 }) : s3.reference, offsetParent: await (null == o4.getOffsetParent ? void 0 : o4.getOffsetParent(c3.floating)), strategy: f3 }) : s3[g3]);
-  return { top: x3.top - w3.top + h3.top, bottom: w3.bottom - x3.bottom + h3.bottom, left: x3.left - w3.left + h3.left, right: w3.right - x3.right + h3.right };
+  const { x: o4, y: i4, platform: r3, rects: s3, elements: c3, strategy: f3 } = t2, { boundary: u3 = "clippingAncestors", rootBoundary: m3 = "viewport", elementContext: g3 = "floating", altBoundary: d3 = false, padding: p3 = 0 } = e4, h3 = a$2(p3), y4 = c3[d3 ? "floating" === g3 ? "reference" : "floating" : g3], x3 = l$5(await r3.getClippingRect({ element: null == (n3 = await (null == r3.isElement ? void 0 : r3.isElement(y4))) || n3 ? y4 : y4.contextElement || await (null == r3.getDocumentElement ? void 0 : r3.getDocumentElement(c3.floating)), boundary: u3, rootBoundary: m3, strategy: f3 })), w3 = "floating" === g3 ? __spreadProps(__spreadValues({}, s3.floating), { x: o4, y: i4 }) : s3.reference, v3 = await (null == r3.getOffsetParent ? void 0 : r3.getOffsetParent(c3.floating)), b3 = await (null == r3.isElement ? void 0 : r3.isElement(v3)) && await (null == r3.getScale ? void 0 : r3.getScale(v3)) || { x: 1, y: 1 }, R2 = l$5(r3.convertOffsetParentRelativeRectToViewportRelativeRect ? await r3.convertOffsetParentRelativeRectToViewportRelativeRect({ rect: w3, offsetParent: v3, strategy: f3 }) : w3);
+  return { top: (x3.top - R2.top + h3.top) / b3.y, bottom: (R2.bottom - x3.bottom + h3.bottom) / b3.y, left: (x3.left - R2.left + h3.left) / b3.x, right: (R2.right - x3.right + h3.right) / b3.x };
 }
 var c$6 = Math.min;
 var f$2 = Math.max;
 function u$3(t2, e4, n3) {
   return f$2(t2, c$6(e4, n3));
 }
-var m$2 = (t2) => ({ name: "arrow", options: t2, async fn(i4) {
-  const { element: o4, padding: l3 = 0 } = null != t2 ? t2 : {}, { x: s3, y: c3, placement: f3, rects: m3, platform: g3 } = i4;
-  if (null == o4)
+var m$2 = (n3) => ({ name: "arrow", options: n3, async fn(i4) {
+  const { element: r3, padding: l3 = 0 } = n3 || {}, { x: s3, y: c3, placement: f3, rects: m3, platform: g3 } = i4;
+  if (null == r3)
     return {};
-  const d3 = a$2(l3), p3 = { x: s3, y: c3 }, h3 = n$7(f3), y4 = e3(f3), x3 = r$5(h3), w3 = await g3.getDimensions(o4), v3 = "y" === h3 ? "top" : "left", b3 = "y" === h3 ? "bottom" : "right", R2 = m3.reference[x3] + m3.reference[h3] - p3[h3] - m3.floating[x3], A2 = p3[h3] - m3.reference[h3], P2 = await (null == g3.getOffsetParent ? void 0 : g3.getOffsetParent(o4));
-  let T3 = P2 ? "y" === h3 ? P2.clientHeight || 0 : P2.clientWidth || 0 : 0;
-  0 === T3 && (T3 = m3.floating[x3]);
-  const O3 = R2 / 2 - A2 / 2, L3 = d3[v3], D3 = T3 - w3[x3] - d3[b3], k2 = T3 / 2 - w3[x3] / 2 + O3, E3 = u$3(L3, k2, D3), B = ("start" === y4 ? d3[v3] : d3[b3]) > 0 && k2 !== E3 && m3.reference[x3] <= m3.floating[x3];
-  return { [h3]: p3[h3] - (B ? k2 < L3 ? L3 - k2 : D3 - k2 : 0), data: { [h3]: E3, centerOffset: k2 - E3 } };
+  const d3 = a$2(l3), p3 = { x: s3, y: c3 }, h3 = o2(f3), y4 = e3(h3), x3 = await g3.getDimensions(r3), w3 = "y" === h3 ? "top" : "left", v3 = "y" === h3 ? "bottom" : "right", b3 = m3.reference[y4] + m3.reference[h3] - p3[h3] - m3.floating[y4], R2 = p3[h3] - m3.reference[h3], A2 = await (null == g3.getOffsetParent ? void 0 : g3.getOffsetParent(r3));
+  let P3 = A2 ? "y" === h3 ? A2.clientHeight || 0 : A2.clientWidth || 0 : 0;
+  0 === P3 && (P3 = m3.floating[y4]);
+  const T3 = b3 / 2 - R2 / 2, O3 = d3[w3], D3 = P3 - x3[y4] - d3[v3], E3 = P3 / 2 - x3[y4] / 2 + T3, L3 = u$3(O3, E3, D3), k2 = null != t$4(f3) && E3 != L3 && m3.reference[y4] / 2 - (E3 < O3 ? d3[w3] : d3[v3]) - x3[y4] / 2 < 0;
+  return { [h3]: p3[h3] - (k2 ? E3 < O3 ? O3 - E3 : D3 - E3 : 0), data: { [h3]: L3, centerOffset: E3 - L3 } };
 } });
-var g$1 = { left: "right", right: "left", bottom: "top", top: "bottom" };
-function d$2(t2) {
-  return t2.replace(/left|right|bottom|top/g, (t3) => g$1[t3]);
+var g$1 = ["top", "right", "bottom", "left"];
+g$1.reduce((t2, e4) => t2.concat(e4, e4 + "-start", e4 + "-end"), []);
+var p$2 = { left: "right", right: "left", bottom: "top", top: "bottom" };
+function h$4(t2) {
+  return t2.replace(/left|right|bottom|top/g, (t3) => p$2[t3]);
 }
-function p$2(t2, i4, o4) {
-  void 0 === o4 && (o4 = false);
-  const a3 = e3(t2), l3 = n$7(t2), s3 = r$5(l3);
-  let c3 = "x" === l3 ? a3 === (o4 ? "end" : "start") ? "right" : "left" : "start" === a3 ? "bottom" : "top";
-  return i4.reference[s3] > i4.floating[s3] && (c3 = d$2(c3)), { main: c3, cross: d$2(c3) };
+function y2(n3, i4, r3) {
+  void 0 === r3 && (r3 = false);
+  const a3 = t$4(n3), l3 = o2(n3), s3 = e3(l3);
+  let c3 = "x" === l3 ? a3 === (r3 ? "end" : "start") ? "right" : "left" : "start" === a3 ? "bottom" : "top";
+  return i4.reference[s3] > i4.floating[s3] && (c3 = h$4(c3)), { main: c3, cross: h$4(c3) };
 }
-var h$4 = { start: "end", end: "start" };
-function y2(t2) {
-  return t2.replace(/start|end/g, (t3) => h$4[t3]);
+var x$1 = { start: "end", end: "start" };
+function w(t2) {
+  return t2.replace(/start|end/g, (t3) => x$1[t3]);
 }
-var x$1 = ["top", "right", "bottom", "left"];
-x$1.reduce((t2, e4) => t2.concat(e4, e4 + "-start", e4 + "-end"), []);
 var b$1 = function(e4) {
-  return void 0 === e4 && (e4 = {}), { name: "flip", options: e4, async fn(n3) {
-    var r3;
-    const { placement: i4, middlewareData: o4, rects: a3, initialPlacement: l3, platform: c3, elements: f3 } = n3, _a = e4, { mainAxis: u3 = true, crossAxis: m3 = true, fallbackPlacements: g3, fallbackStrategy: h3 = "bestFit", flipAlignment: x3 = true } = _a, w3 = __objRest(_a, ["mainAxis", "crossAxis", "fallbackPlacements", "fallbackStrategy", "flipAlignment"]), v3 = t$4(i4), b3 = g3 || (v3 === l3 || !x3 ? [d$2(l3)] : function(t2) {
-      const e5 = d$2(t2);
-      return [y2(t2), e5, y2(e5)];
-    }(l3)), R2 = [l3, ...b3], A2 = await s$7(n3, w3), P2 = [];
-    let T3 = (null == (r3 = o4.flip) ? void 0 : r3.overflows) || [];
-    if (u3 && P2.push(A2[v3]), m3) {
-      const { main: t2, cross: e5 } = p$2(i4, a3, await (null == c3.isRTL ? void 0 : c3.isRTL(f3.floating)));
-      P2.push(A2[t2], A2[e5]);
+  return void 0 === e4 && (e4 = {}), { name: "flip", options: e4, async fn(o4) {
+    var i4;
+    const { placement: r3, middlewareData: a3, rects: l3, initialPlacement: c3, platform: f3, elements: u3 } = o4, _a = e4, { mainAxis: m3 = true, crossAxis: g3 = true, fallbackPlacements: d3, fallbackStrategy: p3 = "bestFit", fallbackAxisSideDirection: x3 = "none", flipAlignment: v3 = true } = _a, b3 = __objRest(_a, ["mainAxis", "crossAxis", "fallbackPlacements", "fallbackStrategy", "fallbackAxisSideDirection", "flipAlignment"]), R2 = n$7(r3), A2 = n$7(c3) === c3, P3 = await (null == f3.isRTL ? void 0 : f3.isRTL(u3.floating)), T3 = d3 || (A2 || !v3 ? [h$4(c3)] : function(t2) {
+      const e5 = h$4(t2);
+      return [w(t2), e5, w(e5)];
+    }(c3));
+    d3 || "none" === x3 || T3.push(...function(e5, o5, i5, r4) {
+      const a4 = t$4(e5);
+      let l4 = function(t2, e6, n3) {
+        const o6 = ["left", "right"], i6 = ["right", "left"], r5 = ["top", "bottom"], a5 = ["bottom", "top"];
+        switch (t2) {
+          case "top":
+          case "bottom":
+            return n3 ? e6 ? i6 : o6 : e6 ? o6 : i6;
+          case "left":
+          case "right":
+            return e6 ? r5 : a5;
+          default:
+            return [];
+        }
+      }(n$7(e5), "start" === i5, r4);
+      return a4 && (l4 = l4.map((t2) => t2 + "-" + a4), o5 && (l4 = l4.concat(l4.map(w)))), l4;
+    }(c3, v3, x3, P3));
+    const O3 = [c3, ...T3], D3 = await s$7(o4, b3), E3 = [];
+    let L3 = (null == (i4 = a3.flip) ? void 0 : i4.overflows) || [];
+    if (m3 && E3.push(D3[R2]), g3) {
+      const { main: t2, cross: e5 } = y2(r3, l3, P3);
+      E3.push(D3[t2], D3[e5]);
     }
-    if (T3 = [...T3, { placement: i4, overflows: P2 }], !P2.every((t2) => t2 <= 0)) {
-      var O3, L3;
-      const t2 = (null != (O3 = null == (L3 = o4.flip) ? void 0 : L3.index) ? O3 : 0) + 1, e5 = R2[t2];
+    if (L3 = [...L3, { placement: r3, overflows: E3 }], !E3.every((t2) => t2 <= 0)) {
+      var k2;
+      const t2 = ((null == (k2 = a3.flip) ? void 0 : k2.index) || 0) + 1, e5 = O3[t2];
       if (e5)
-        return { data: { index: t2, overflows: T3 }, reset: { placement: e5 } };
-      let n4 = "bottom";
-      switch (h3) {
+        return { data: { index: t2, overflows: L3 }, reset: { placement: e5 } };
+      let n3 = "bottom";
+      switch (p3) {
         case "bestFit": {
-          var D3;
-          const t3 = null == (D3 = T3.map((t4) => [t4, t4.overflows.filter((t5) => t5 > 0).reduce((t5, e6) => t5 + e6, 0)]).sort((t4, e6) => t4[1] - e6[1])[0]) ? void 0 : D3[0].placement;
-          t3 && (n4 = t3);
+          var B;
+          const t3 = null == (B = L3.map((t4) => [t4, t4.overflows.filter((t5) => t5 > 0).reduce((t5, e6) => t5 + e6, 0)]).sort((t4, e6) => t4[1] - e6[1])[0]) ? void 0 : B[0].placement;
+          t3 && (n3 = t3);
           break;
         }
         case "initialPlacement":
-          n4 = l3;
+          n3 = c3;
       }
-      if (i4 !== n4)
-        return { reset: { placement: n4 } };
+      if (r3 !== n3)
+        return { reset: { placement: n3 } };
     }
     return {};
   } };
 };
-var T$1 = function(r3) {
-  return void 0 === r3 && (r3 = 0), { name: "offset", options: r3, async fn(i4) {
-    const { x: o4, y: a3 } = i4, l3 = await async function(r4, i5) {
-      const { placement: o5, platform: a4, elements: l4 } = r4, s3 = await (null == a4.isRTL ? void 0 : a4.isRTL(l4.floating)), c3 = t$4(o5), f3 = e3(o5), u3 = "x" === n$7(o5), m3 = ["left", "top"].includes(c3) ? -1 : 1, g3 = s3 && u3 ? -1 : 1, d3 = "function" == typeof i5 ? i5(r4) : i5;
+var O = function(e4) {
+  return void 0 === e4 && (e4 = 0), { name: "offset", options: e4, async fn(i4) {
+    const { x: r3, y: a3 } = i4, l3 = await async function(e5, i5) {
+      const { placement: r4, platform: a4, elements: l4 } = e5, s3 = await (null == a4.isRTL ? void 0 : a4.isRTL(l4.floating)), c3 = n$7(r4), f3 = t$4(r4), u3 = "x" === o2(r4), m3 = ["left", "top"].includes(c3) ? -1 : 1, g3 = s3 && u3 ? -1 : 1, d3 = "function" == typeof i5 ? i5(e5) : i5;
       let { mainAxis: p3, crossAxis: h3, alignmentAxis: y4 } = "number" == typeof d3 ? { mainAxis: d3, crossAxis: 0, alignmentAxis: null } : __spreadValues({ mainAxis: 0, crossAxis: 0, alignmentAxis: null }, d3);
       return f3 && "number" == typeof y4 && (h3 = "end" === f3 ? -1 * y4 : y4), u3 ? { x: h3 * g3, y: p3 * m3 } : { x: p3 * m3, y: h3 * g3 };
-    }(i4, r3);
-    return { x: o4 + l3.x, y: a3 + l3.y, data: l3 };
+    }(i4, e4);
+    return { x: r3 + l3.x, y: a3 + l3.y, data: l3 };
   } };
 };
-function O(t2) {
+function D(t2) {
   return "x" === t2 ? "y" : "x";
 }
-var L$1 = function(e4) {
-  return void 0 === e4 && (e4 = {}), { name: "shift", options: e4, async fn(r3) {
-    const { x: i4, y: o4, placement: a3 } = r3, _a = e4, { mainAxis: l3 = true, crossAxis: c3 = false, limiter: f3 = { fn: (t2) => {
-      let { x: e5, y: n3 } = t2;
+var E$1 = function(t2) {
+  return void 0 === t2 && (t2 = {}), { name: "shift", options: t2, async fn(e4) {
+    const { x: i4, y: r3, placement: a3 } = e4, _a = t2, { mainAxis: l3 = true, crossAxis: c3 = false, limiter: f3 = { fn: (t3) => {
+      let { x: e5, y: n3 } = t3;
       return { x: e5, y: n3 };
-    } } } = _a, m3 = __objRest(_a, ["mainAxis", "crossAxis", "limiter"]), g3 = { x: i4, y: o4 }, d3 = await s$7(r3, m3), p3 = n$7(t$4(a3)), h3 = O(p3);
+    } } } = _a, m3 = __objRest(_a, ["mainAxis", "crossAxis", "limiter"]), g3 = { x: i4, y: r3 }, d3 = await s$7(e4, m3), p3 = o2(n$7(a3)), h3 = D(p3);
     let y4 = g3[p3], x3 = g3[h3];
     if (l3) {
-      const t2 = "y" === p3 ? "bottom" : "right";
-      y4 = u$3(y4 + d3["y" === p3 ? "top" : "left"], y4, y4 - d3[t2]);
+      const t3 = "y" === p3 ? "bottom" : "right";
+      y4 = u$3(y4 + d3["y" === p3 ? "top" : "left"], y4, y4 - d3[t3]);
     }
     if (c3) {
-      const t2 = "y" === h3 ? "bottom" : "right";
-      x3 = u$3(x3 + d3["y" === h3 ? "top" : "left"], x3, x3 - d3[t2]);
+      const t3 = "y" === h3 ? "bottom" : "right";
+      x3 = u$3(x3 + d3["y" === h3 ? "top" : "left"], x3, x3 - d3[t3]);
     }
-    const w3 = f3.fn(__spreadProps(__spreadValues({}, r3), { [p3]: y4, [h3]: x3 }));
-    return __spreadProps(__spreadValues({}, w3), { data: { x: w3.x - i4, y: w3.y - o4 } });
+    const w3 = f3.fn(__spreadProps(__spreadValues({}, e4), { [p3]: y4, [h3]: x3 }));
+    return __spreadProps(__spreadValues({}, w3), { data: { x: w3.x - i4, y: w3.y - r3 } });
   } };
 };
-var k$1 = function(n3) {
-  return void 0 === n3 && (n3 = {}), { name: "size", options: n3, async fn(r3) {
-    const { placement: i4, rects: o4, platform: a3, elements: l3 } = r3, _a = n3, { apply: c3 = () => {
-    } } = _a, u3 = __objRest(_a, ["apply"]), m3 = await s$7(r3, u3), g3 = t$4(i4), d3 = e3(i4);
+var k$1 = function(e4) {
+  return void 0 === e4 && (e4 = {}), { name: "size", options: e4, async fn(o4) {
+    const { placement: i4, rects: r3, platform: a3, elements: l3 } = o4, _a = e4, { apply: c3 = () => {
+    } } = _a, u3 = __objRest(_a, ["apply"]), m3 = await s$7(o4, u3), g3 = n$7(i4), d3 = t$4(i4);
     let p3, h3;
     "top" === g3 || "bottom" === g3 ? (p3 = g3, h3 = d3 === (await (null == a3.isRTL ? void 0 : a3.isRTL(l3.floating)) ? "start" : "end") ? "left" : "right") : (h3 = g3, p3 = "end" === d3 ? "top" : "bottom");
-    const y4 = f$2(m3.left, 0), x3 = f$2(m3.right, 0), w3 = f$2(m3.top, 0), v3 = f$2(m3.bottom, 0), b3 = { availableHeight: o4.floating.height - (["left", "right"].includes(i4) ? 2 * (0 !== w3 || 0 !== v3 ? w3 + v3 : f$2(m3.top, m3.bottom)) : m3[p3]), availableWidth: o4.floating.width - (["top", "bottom"].includes(i4) ? 2 * (0 !== y4 || 0 !== x3 ? y4 + x3 : f$2(m3.left, m3.right)) : m3[h3]) };
-    await c3(__spreadValues(__spreadValues({}, r3), b3));
+    const y4 = f$2(m3.left, 0), x3 = f$2(m3.right, 0), w3 = f$2(m3.top, 0), v3 = f$2(m3.bottom, 0), b3 = { availableHeight: r3.floating.height - (["left", "right"].includes(i4) ? 2 * (0 !== w3 || 0 !== v3 ? w3 + v3 : f$2(m3.top, m3.bottom)) : m3[p3]), availableWidth: r3.floating.width - (["top", "bottom"].includes(i4) ? 2 * (0 !== y4 || 0 !== x3 ? y4 + x3 : f$2(m3.left, m3.right)) : m3[h3]) };
+    await c3(__spreadValues(__spreadValues({}, o4), b3));
     const R2 = await a3.getDimensions(l3.floating);
-    return o4.floating.width !== R2.width || o4.floating.height !== R2.height ? { reset: { rects: true } } : {};
+    return r3.floating.width !== R2.width || r3.floating.height !== R2.height ? { reset: { rects: true } } : {};
   } };
 };
 
 // node_modules/@floating-ui/dom/dist/floating-ui.dom.browser.min.mjs
 function n2(t2) {
-  return t2 && t2.document && t2.location && t2.alert && t2.setInterval;
+  var e4;
+  return (null == (e4 = t2.ownerDocument) ? void 0 : e4.defaultView) || window;
 }
 function o3(t2) {
-  if (null == t2)
-    return window;
-  if (!n2(t2)) {
-    const e4 = t2.ownerDocument;
-    return e4 && e4.defaultView || window;
-  }
-  return t2;
+  return n2(t2).getComputedStyle(t2);
 }
 function i3(t2) {
-  return o3(t2).getComputedStyle(t2);
+  return f2(t2) ? (t2.nodeName || "").toLowerCase() : "";
 }
-function r2(t2) {
-  return n2(t2) ? "" : t2 ? (t2.nodeName || "").toLowerCase() : "";
-}
+var r2;
 function l2() {
+  if (r2)
+    return r2;
   const t2 = navigator.userAgentData;
-  return t2 && Array.isArray(t2.brands) ? t2.brands.map((t3) => t3.brand + "/" + t3.version).join(" ") : navigator.userAgent;
+  return t2 && Array.isArray(t2.brands) ? (r2 = t2.brands.map((t3) => t3.brand + "/" + t3.version).join(" "), r2) : navigator.userAgent;
 }
 function c2(t2) {
-  return t2 instanceof o3(t2).HTMLElement;
+  return t2 instanceof n2(t2).HTMLElement;
 }
 function s2(t2) {
-  return t2 instanceof o3(t2).Element;
+  return t2 instanceof n2(t2).Element;
 }
 function f2(t2) {
-  if ("undefined" == typeof ShadowRoot)
-    return false;
-  return t2 instanceof o3(t2).ShadowRoot || t2 instanceof ShadowRoot;
+  return t2 instanceof n2(t2).Node;
 }
 function u2(t2) {
-  const { overflow: e4, overflowX: n3, overflowY: o4, display: r3 } = i3(t2);
-  return /auto|scroll|overlay|hidden/.test(e4 + o4 + n3) && !["inline", "contents"].includes(r3);
+  if ("undefined" == typeof ShadowRoot)
+    return false;
+  return t2 instanceof n2(t2).ShadowRoot || t2 instanceof ShadowRoot;
 }
 function a2(t2) {
-  return ["table", "td", "th"].includes(r2(t2));
+  const { overflow: e4, overflowX: n3, overflowY: i4, display: r3 } = o3(t2);
+  return /auto|scroll|overlay|hidden|clip/.test(e4 + i4 + n3) && !["inline", "contents"].includes(r3);
 }
 function d2(t2) {
-  const e4 = /firefox/i.test(l2()), n3 = i3(t2), o4 = n3.backdropFilter || n3.WebkitBackdropFilter;
-  return "none" !== n3.transform || "none" !== n3.perspective || !!o4 && "none" !== o4 || e4 && "filter" === n3.willChange || e4 && !!n3.filter && "none" !== n3.filter || ["transform", "perspective"].some((t3) => n3.willChange.includes(t3)) || ["paint", "layout", "strict", "content"].some((t3) => {
+  return ["table", "td", "th"].includes(i3(t2));
+}
+function h2$1(t2) {
+  const e4 = /firefox/i.test(l2()), n3 = o3(t2), i4 = n3.backdropFilter || n3.WebkitBackdropFilter;
+  return "none" !== n3.transform || "none" !== n3.perspective || !!i4 && "none" !== i4 || e4 && "filter" === n3.willChange || e4 && !!n3.filter && "none" !== n3.filter || ["transform", "perspective"].some((t3) => n3.willChange.includes(t3)) || ["paint", "layout", "strict", "content"].some((t3) => {
     const e5 = n3.contain;
     return null != e5 && e5.includes(t3);
   });
 }
-function h2$1() {
+function p2() {
   return !/^((?!chrome|android).)*safari/i.test(l2());
 }
 function g2(t2) {
-  return ["html", "body", "#document"].includes(r2(t2));
+  return ["html", "body", "#document"].includes(i3(t2));
 }
 var m2 = Math.min;
-var p2 = Math.max;
-var w2 = Math.round;
-function v2(t2, e4, n3) {
-  var i4, r3, l3, f3;
-  void 0 === e4 && (e4 = false), void 0 === n3 && (n3 = false);
-  const u3 = t2.getBoundingClientRect();
-  let a3 = 1, d3 = 1;
-  e4 && c2(t2) && (a3 = t2.offsetWidth > 0 && w2(u3.width) / t2.offsetWidth || 1, d3 = t2.offsetHeight > 0 && w2(u3.height) / t2.offsetHeight || 1);
-  const g3 = s2(t2) ? o3(t2) : window, m3 = !h2$1() && n3, p3 = (u3.left + (m3 && null != (i4 = null == (r3 = g3.visualViewport) ? void 0 : r3.offsetLeft) ? i4 : 0)) / a3, v3 = (u3.top + (m3 && null != (l3 = null == (f3 = g3.visualViewport) ? void 0 : f3.offsetTop) ? l3 : 0)) / d3, y4 = u3.width / a3, x3 = u3.height / d3;
-  return { width: y4, height: x3, top: v3, right: p3 + y4, bottom: v3 + x3, left: p3, x: p3, y: v3 };
+var y3 = Math.max;
+var x2 = Math.round;
+function w2(t2) {
+  const e4 = o3(t2);
+  let n3 = parseFloat(e4.width), i4 = parseFloat(e4.height);
+  const r3 = t2.offsetWidth, l3 = t2.offsetHeight, c3 = x2(n3) !== r3 || x2(i4) !== l3;
+  return c3 && (n3 = r3, i4 = l3), { width: n3, height: i4, fallback: c3 };
 }
-function y3(t2) {
-  return (e4 = t2, (e4 instanceof o3(e4).Node ? t2.ownerDocument : t2.document) || window.document).documentElement;
-  var e4;
+function v2(t2) {
+  return s2(t2) ? t2 : t2.contextElement;
 }
-function x2(t2) {
+var b2 = { x: 1, y: 1 };
+function L2(t2) {
+  const e4 = v2(t2);
+  if (!c2(e4))
+    return b2;
+  const n3 = e4.getBoundingClientRect(), { width: o4, height: i4, fallback: r3 } = w2(e4);
+  let l3 = (r3 ? x2(n3.width) : n3.width) / o4, s3 = (r3 ? x2(n3.height) : n3.height) / i4;
+  return l3 && Number.isFinite(l3) || (l3 = 1), s3 && Number.isFinite(s3) || (s3 = 1), { x: l3, y: s3 };
+}
+function E2(t2, e4, o4, i4) {
+  var r3, l3;
+  void 0 === e4 && (e4 = false), void 0 === o4 && (o4 = false);
+  const c3 = t2.getBoundingClientRect(), f3 = v2(t2);
+  let u3 = b2;
+  e4 && (i4 ? s2(i4) && (u3 = L2(i4)) : u3 = L2(t2));
+  const a3 = f3 ? n2(f3) : window, d3 = !p2() && o4;
+  let h3 = (c3.left + (d3 && (null == (r3 = a3.visualViewport) ? void 0 : r3.offsetLeft) || 0)) / u3.x, g3 = (c3.top + (d3 && (null == (l3 = a3.visualViewport) ? void 0 : l3.offsetTop) || 0)) / u3.y, m3 = c3.width / u3.x, y4 = c3.height / u3.y;
+  if (f3) {
+    const t3 = n2(f3), e5 = i4 && s2(i4) ? n2(i4) : i4;
+    let o5 = t3.frameElement;
+    for (; o5 && i4 && e5 !== t3; ) {
+      const t4 = L2(o5), e6 = o5.getBoundingClientRect(), i5 = getComputedStyle(o5);
+      e6.x += (o5.clientLeft + parseFloat(i5.paddingLeft)) * t4.x, e6.y += (o5.clientTop + parseFloat(i5.paddingTop)) * t4.y, h3 *= t4.x, g3 *= t4.y, m3 *= t4.x, y4 *= t4.y, h3 += e6.x, g3 += e6.y, o5 = n2(o5).frameElement;
+    }
+  }
+  return { width: m3, height: y4, top: g3, right: h3 + m3, bottom: g3 + y4, left: h3, x: h3, y: g3 };
+}
+function R$1(t2) {
+  return ((f2(t2) ? t2.ownerDocument : t2.document) || window.document).documentElement;
+}
+function T2(t2) {
   return s2(t2) ? { scrollLeft: t2.scrollLeft, scrollTop: t2.scrollTop } : { scrollLeft: t2.pageXOffset, scrollTop: t2.pageYOffset };
 }
-function b2(t2) {
-  return v2(y3(t2)).left + x2(t2).scrollLeft;
+function C$1(t2) {
+  return E2(R$1(t2)).left + T2(t2).scrollLeft;
 }
-function L2(t2, e4, n3) {
-  const o4 = c2(e4), i4 = y3(e4), l3 = v2(t2, o4 && function(t3) {
-    const e5 = v2(t3);
-    return w2(e5.width) !== t3.offsetWidth || w2(e5.height) !== t3.offsetHeight;
-  }(e4), "fixed" === n3);
+function F(t2, e4, n3) {
+  const o4 = c2(e4), r3 = R$1(e4), l3 = E2(t2, true, "fixed" === n3, e4);
   let s3 = { scrollLeft: 0, scrollTop: 0 };
   const f3 = { x: 0, y: 0 };
   if (o4 || !o4 && "fixed" !== n3)
-    if (("body" !== r2(e4) || u2(i4)) && (s3 = x2(e4)), c2(e4)) {
-      const t3 = v2(e4, true);
+    if (("body" !== i3(e4) || a2(r3)) && (s3 = T2(e4)), c2(e4)) {
+      const t3 = E2(e4, true);
       f3.x = t3.x + e4.clientLeft, f3.y = t3.y + e4.clientTop;
     } else
-      i4 && (f3.x = b2(i4));
+      r3 && (f3.x = C$1(r3));
   return { x: l3.left + s3.scrollLeft - f3.x, y: l3.top + s3.scrollTop - f3.y, width: l3.width, height: l3.height };
 }
-function E2(t2) {
-  if ("html" === r2(t2))
+function W(t2) {
+  if ("html" === i3(t2))
     return t2;
-  const e4 = t2.assignedSlot || t2.parentNode || (f2(t2) ? t2.host : null) || y3(t2);
-  return f2(e4) ? e4.host : e4;
+  const e4 = t2.assignedSlot || t2.parentNode || (u2(t2) ? t2.host : null) || R$1(t2);
+  return u2(e4) ? e4.host : e4;
 }
-function R$1(t2) {
-  return c2(t2) && "fixed" !== i3(t2).position ? t2.offsetParent : null;
+function D2(t2) {
+  return c2(t2) && "fixed" !== o3(t2).position ? t2.offsetParent : null;
 }
-function T2(t2) {
-  const e4 = o3(t2);
-  let n3 = R$1(t2);
-  for (; n3 && a2(n3) && "static" === i3(n3).position; )
-    n3 = R$1(n3);
-  return n3 && ("html" === r2(n3) || "body" === r2(n3) && "static" === i3(n3).position && !d2(n3)) ? e4 : n3 || function(t3) {
-    let e5 = E2(t3);
+function S$2(t2) {
+  const e4 = n2(t2);
+  let r3 = D2(t2);
+  for (; r3 && d2(r3) && "static" === o3(r3).position; )
+    r3 = D2(r3);
+  return r3 && ("html" === i3(r3) || "body" === i3(r3) && "static" === o3(r3).position && !h2$1(r3)) ? e4 : r3 || function(t3) {
+    let e5 = W(t3);
     for (; c2(e5) && !g2(e5); ) {
-      if (d2(e5))
+      if (h2$1(e5))
         return e5;
-      e5 = E2(e5);
+      e5 = W(e5);
     }
     return null;
   }(t2) || e4;
 }
-function W(t2) {
-  const e4 = E2(t2);
-  return g2(e4) ? t2.ownerDocument.body : c2(e4) && u2(e4) ? e4 : W(e4);
+function A$1(t2) {
+  const e4 = W(t2);
+  return g2(e4) ? t2.ownerDocument.body : c2(e4) && a2(e4) ? e4 : A$1(e4);
 }
 function H$1(t2, e4) {
-  var n3;
+  var o4;
   void 0 === e4 && (e4 = []);
-  const i4 = W(t2), r3 = i4 === (null == (n3 = t2.ownerDocument) ? void 0 : n3.body), l3 = o3(i4), c3 = r3 ? [l3].concat(l3.visualViewport || [], u2(i4) ? i4 : []) : i4, s3 = e4.concat(c3);
-  return r3 ? s3 : s3.concat(H$1(c3));
+  const i4 = A$1(t2), r3 = i4 === (null == (o4 = t2.ownerDocument) ? void 0 : o4.body), l3 = n2(i4);
+  return r3 ? e4.concat(l3, l3.visualViewport || [], a2(i4) ? i4 : []) : e4.concat(i4, H$1(i4));
 }
-function D2(e4, n3, r3) {
-  return "viewport" === n3 ? l$5(function(t2, e5) {
-    const n4 = o3(t2), i4 = y3(t2), r4 = n4.visualViewport;
-    let l3 = i4.clientWidth, c3 = i4.clientHeight, s3 = 0, f3 = 0;
+function O2(e4, i4, r3) {
+  return "viewport" === i4 ? l$5(function(t2, e5) {
+    const o4 = n2(t2), i5 = R$1(t2), r4 = o4.visualViewport;
+    let l3 = i5.clientWidth, c3 = i5.clientHeight, s3 = 0, f3 = 0;
     if (r4) {
       l3 = r4.width, c3 = r4.height;
-      const t3 = h2$1();
+      const t3 = p2();
       (t3 || !t3 && "fixed" === e5) && (s3 = r4.offsetLeft, f3 = r4.offsetTop);
     }
     return { width: l3, height: c3, x: s3, y: f3 };
-  }(e4, r3)) : s2(n3) ? function(t2, e5) {
-    const n4 = v2(t2, false, "fixed" === e5), o4 = n4.top + t2.clientTop, i4 = n4.left + t2.clientLeft;
-    return { top: o4, left: i4, x: i4, y: o4, right: i4 + t2.clientWidth, bottom: o4 + t2.clientHeight, width: t2.clientWidth, height: t2.clientHeight };
-  }(n3, r3) : l$5(function(t2) {
+  }(e4, r3)) : s2(i4) ? function(t2, e5) {
+    const n3 = E2(t2, true, "fixed" === e5), o4 = n3.top + t2.clientTop, i5 = n3.left + t2.clientLeft, r4 = c2(t2) ? L2(t2) : { x: 1, y: 1 }, l3 = t2.clientWidth * r4.x, s3 = t2.clientHeight * r4.y, f3 = i5 * r4.x, u3 = o4 * r4.y;
+    return { top: u3, left: f3, right: f3 + l3, bottom: u3 + s3, x: f3, y: u3, width: l3, height: s3 };
+  }(i4, r3) : l$5(function(t2) {
     var e5;
-    const n4 = y3(t2), o4 = x2(t2), r4 = null == (e5 = t2.ownerDocument) ? void 0 : e5.body, l3 = p2(n4.scrollWidth, n4.clientWidth, r4 ? r4.scrollWidth : 0, r4 ? r4.clientWidth : 0), c3 = p2(n4.scrollHeight, n4.clientHeight, r4 ? r4.scrollHeight : 0, r4 ? r4.clientHeight : 0);
-    let s3 = -o4.scrollLeft + b2(t2);
-    const f3 = -o4.scrollTop;
-    return "rtl" === i3(r4 || n4).direction && (s3 += p2(n4.clientWidth, r4 ? r4.clientWidth : 0) - l3), { width: l3, height: c3, x: s3, y: f3 };
-  }(y3(e4)));
+    const n3 = R$1(t2), i5 = T2(t2), r4 = null == (e5 = t2.ownerDocument) ? void 0 : e5.body, l3 = y3(n3.scrollWidth, n3.clientWidth, r4 ? r4.scrollWidth : 0, r4 ? r4.clientWidth : 0), c3 = y3(n3.scrollHeight, n3.clientHeight, r4 ? r4.scrollHeight : 0, r4 ? r4.clientHeight : 0);
+    let s3 = -i5.scrollLeft + C$1(t2);
+    const f3 = -i5.scrollTop;
+    return "rtl" === o3(r4 || n3).direction && (s3 += y3(n3.clientWidth, r4 ? r4.clientWidth : 0) - l3), { width: l3, height: c3, x: s3, y: f3 };
+  }(R$1(e4)));
 }
-var A$1 = { getClippingRect: function(t2) {
-  let { element: e4, boundary: n3, rootBoundary: o4, strategy: l3 } = t2;
-  const c3 = "clippingAncestors" === n3 ? function(t3) {
-    let e5 = H$1(t3).filter((t4) => s2(t4) && "body" !== r2(t4)), n4 = null;
-    const o5 = "fixed" === i3(t3).position;
-    let l4 = o5 ? E2(t3) : t3;
-    for (; s2(l4) && !g2(l4); ) {
-      const t4 = i3(l4), r3 = d2(l4);
-      (o5 ? r3 || n4 : r3 || "static" !== t4.position || !n4 || !["absolute", "fixed"].includes(n4.position)) ? n4 = t4 : e5 = e5.filter((t5) => t5 !== l4), l4 = E2(l4);
+var P2 = { getClippingRect: function(t2) {
+  let { element: e4, boundary: n3, rootBoundary: r3, strategy: l3 } = t2;
+  const c3 = "clippingAncestors" === n3 ? function(t3, e5) {
+    const n4 = e5.get(t3);
+    if (n4)
+      return n4;
+    let r4 = H$1(t3).filter((t4) => s2(t4) && "body" !== i3(t4)), l4 = null;
+    const c4 = "fixed" === o3(t3).position;
+    let f4 = c4 ? W(t3) : t3;
+    for (; s2(f4) && !g2(f4); ) {
+      const t4 = o3(f4), e6 = h2$1(f4);
+      (c4 ? e6 || l4 : e6 || "static" !== t4.position || !l4 || !["absolute", "fixed"].includes(l4.position)) ? l4 = t4 : r4 = r4.filter((t5) => t5 !== f4), f4 = W(f4);
     }
-    return e5;
-  }(e4) : [].concat(n3), f3 = [...c3, o4], u3 = f3[0], a3 = f3.reduce((t3, n4) => {
-    const o5 = D2(e4, n4, l3);
-    return t3.top = p2(o5.top, t3.top), t3.right = m2(o5.right, t3.right), t3.bottom = m2(o5.bottom, t3.bottom), t3.left = p2(o5.left, t3.left), t3;
-  }, D2(e4, u3, l3));
+    return e5.set(t3, r4), r4;
+  }(e4, this._c) : [].concat(n3), f3 = [...c3, r3], u3 = f3[0], a3 = f3.reduce((t3, n4) => {
+    const o4 = O2(e4, n4, l3);
+    return t3.top = y3(o4.top, t3.top), t3.right = m2(o4.right, t3.right), t3.bottom = m2(o4.bottom, t3.bottom), t3.left = y3(o4.left, t3.left), t3;
+  }, O2(e4, u3, l3));
   return { width: a3.right - a3.left, height: a3.bottom - a3.top, x: a3.left, y: a3.top };
 }, convertOffsetParentRelativeRectToViewportRelativeRect: function(t2) {
   let { rect: e4, offsetParent: n3, strategy: o4 } = t2;
-  const i4 = c2(n3), l3 = y3(n3);
+  const r3 = c2(n3), l3 = R$1(n3);
   if (n3 === l3)
     return e4;
-  let s3 = { scrollLeft: 0, scrollTop: 0 };
-  const f3 = { x: 0, y: 0 };
-  if ((i4 || !i4 && "fixed" !== o4) && (("body" !== r2(n3) || u2(l3)) && (s3 = x2(n3)), c2(n3))) {
-    const t3 = v2(n3, true);
-    f3.x = t3.x + n3.clientLeft, f3.y = t3.y + n3.clientTop;
+  let s3 = { scrollLeft: 0, scrollTop: 0 }, f3 = { x: 1, y: 1 };
+  const u3 = { x: 0, y: 0 };
+  if ((r3 || !r3 && "fixed" !== o4) && (("body" !== i3(n3) || a2(l3)) && (s3 = T2(n3)), c2(n3))) {
+    const t3 = E2(n3);
+    f3 = L2(n3), u3.x = t3.x + n3.clientLeft, u3.y = t3.y + n3.clientTop;
   }
-  return __spreadProps(__spreadValues({}, e4), { x: e4.x - s3.scrollLeft + f3.x, y: e4.y - s3.scrollTop + f3.y });
+  return { width: e4.width * f3.x, height: e4.height * f3.y, x: e4.x * f3.x - s3.scrollLeft * f3.x + u3.x, y: e4.y * f3.y - s3.scrollTop * f3.y + u3.y };
 }, isElement: s2, getDimensions: function(t2) {
-  if (c2(t2))
-    return { width: t2.offsetWidth, height: t2.offsetHeight };
-  const e4 = v2(t2);
-  return { width: e4.width, height: e4.height };
-}, getOffsetParent: T2, getDocumentElement: y3, async getElementRects(t2) {
+  return w2(t2);
+}, getOffsetParent: S$2, getDocumentElement: R$1, getScale: L2, async getElementRects(t2) {
   let { reference: e4, floating: n3, strategy: o4 } = t2;
-  const i4 = this.getOffsetParent || T2, r3 = this.getDimensions;
-  return { reference: L2(e4, await i4(n3), o4), floating: __spreadValues({ x: 0, y: 0 }, await r3(n3)) };
-}, getClientRects: (t2) => Array.from(t2.getClientRects()), isRTL: (t2) => "rtl" === i3(t2).direction };
-function C$1(t2, e4, n3, o4) {
+  const i4 = this.getOffsetParent || S$2, r3 = this.getDimensions;
+  return { reference: F(e4, await i4(n3), o4), floating: __spreadValues({ x: 0, y: 0 }, await r3(n3)) };
+}, getClientRects: (t2) => Array.from(t2.getClientRects()), isRTL: (t2) => "rtl" === o3(t2).direction };
+function z$1(t2, e4, n3, o4) {
   void 0 === o4 && (o4 = {});
   const { ancestorScroll: i4 = true, ancestorResize: r3 = true, elementResize: l3 = true, animationFrame: c3 = false } = o4, f3 = i4 && !c3, u3 = f3 || r3 ? [...s2(t2) ? H$1(t2) : t2.contextElement ? H$1(t2.contextElement) : [], ...H$1(e4)] : [];
   u3.forEach((t3) => {
@@ -7172,9 +7634,9 @@ function C$1(t2, e4, n3, o4) {
       o5 || n3(), o5 = false;
     }), s2(t2) && !c3 && d3.observe(t2), s2(t2) || !t2.contextElement || c3 || d3.observe(t2.contextElement), d3.observe(e4);
   }
-  let h3 = c3 ? v2(t2) : null;
+  let h3 = c3 ? E2(t2) : null;
   return c3 && function e5() {
-    const o5 = v2(t2);
+    const o5 = E2(t2);
     !h3 || o5.x === h3.x && o5.y === h3.y && o5.width === h3.width && o5.height === h3.height || n3();
     h3 = o5, a3 = requestAnimationFrame(e5);
   }(), n3(), () => {
@@ -7184,7 +7646,10 @@ function C$1(t2, e4, n3, o4) {
     }), null == (t3 = d3) || t3.disconnect(), d3 = null, c3 && cancelAnimationFrame(a3);
   };
 }
-var O2 = (t2, n3, o4) => o2(t2, n3, __spreadValues({ platform: A$1 }, o4));
+var V$1 = (t2, n3, o4) => {
+  const i4 = /* @__PURE__ */ new Map(), r3 = __spreadValues({ platform: P2 }, o4), l3 = __spreadProps(__spreadValues({}, r3.platform), { _c: i4 });
+  return r$5(t2, n3, __spreadProps(__spreadValues({}, r3), { platform: l3 }));
+};
 
 // src/components/popup/popup.ts
 var SlPopup = class extends ShoelaceElement {
@@ -7236,7 +7701,7 @@ var SlPopup = class extends ShoelaceElement {
     if (this.anchor && typeof this.anchor === "string") {
       const root = this.getRootNode();
       this.anchorEl = root.getElementById(this.anchor);
-    } else if (this.anchor instanceof HTMLElement) {
+    } else if (this.anchor instanceof Element) {
       this.anchorEl = this.anchor;
     } else {
       this.anchorEl = this.querySelector('[slot="anchor"]');
@@ -7255,7 +7720,7 @@ var SlPopup = class extends ShoelaceElement {
     if (!this.anchorEl) {
       return;
     }
-    this.cleanup = C$1(this.anchorEl, this.popup, () => {
+    this.cleanup = z$1(this.anchorEl, this.popup, () => {
       this.reposition();
     });
   }
@@ -7273,12 +7738,14 @@ var SlPopup = class extends ShoelaceElement {
       }
     });
   }
+  /** Forces the popup to recalculate and reposition itself. */
   reposition() {
     if (!this.active || !this.anchorEl) {
       return;
     }
     const middleware = [
-      T$1({ mainAxis: this.distance, crossAxis: this.skidding })
+      // The offset middleware goes first
+      O({ mainAxis: this.distance, crossAxis: this.skidding })
     ];
     if (this.sync) {
       middleware.push(
@@ -7299,6 +7766,7 @@ var SlPopup = class extends ShoelaceElement {
       middleware.push(
         b$1({
           boundary: this.flipBoundary,
+          // @ts-expect-error - We're converting a string attribute to an array here
           fallbackPlacements: this.flipFallbackPlacements,
           fallbackStrategy: this.flipFallbackStrategy === "best-fit" ? "bestFit" : "initialPlacement",
           padding: this.flipPadding
@@ -7307,7 +7775,7 @@ var SlPopup = class extends ShoelaceElement {
     }
     if (this.shift) {
       middleware.push(
-        L$1({
+        E$1({
           boundary: this.shiftBoundary,
           padding: this.shiftPadding
         })
@@ -7344,7 +7812,7 @@ var SlPopup = class extends ShoelaceElement {
         })
       );
     }
-    O2(this.anchorEl, this.popup, {
+    V$1(this.anchorEl, this.popup, {
       placement: this.placement,
       middleware,
       strategy: this.strategy
@@ -7520,23 +7988,16 @@ var SlMenu = class extends ShoelaceElement {
     super.connectedCallback();
     this.setAttribute("role", "menu");
   }
-  getAllItems() {
-    return [...this.defaultSlot.assignedElements({ flatten: true })].filter((el) => {
-      if (!this.isMenuItem(el)) {
-        return false;
-      }
-      return true;
-    });
-  }
   handleClick(event) {
     const target = event.target;
     const item = target.closest("sl-menu-item");
-    if ((item == null ? void 0 : item.disabled) === false) {
-      if (item.type === "checkbox") {
-        item.checked = !item.checked;
-      }
-      this.emit("sl-select", { detail: { item } });
+    if (!item || item.disabled || item.inert) {
+      return;
     }
+    if (item.type === "checkbox") {
+      item.checked = !item.checked;
+    }
+    this.emit("sl-select", { detail: { item } });
   }
   handleKeyDown(event) {
     if (event.key === "Enter") {
@@ -7589,9 +8050,26 @@ var SlMenu = class extends ShoelaceElement {
     var _a;
     return item.tagName.toLowerCase() === "sl-menu-item" || ["menuitem", "menuitemcheckbox", "menuitemradio"].includes((_a = item.getAttribute("role")) != null ? _a : "");
   }
+  /** @internal Gets all slotted menu items, ignoring dividers, headers, and other elements. */
+  getAllItems() {
+    return [...this.defaultSlot.assignedElements({ flatten: true })].filter((el) => {
+      if (el.inert || !this.isMenuItem(el)) {
+        return false;
+      }
+      return true;
+    });
+  }
+  /**
+   * @internal Gets the current menu item, which is the menu item that has `tabindex="0"` within the roving tab index.
+   * The menu item may or may not have focus, but for keyboard interaction purposes it's considered the "active" item.
+   */
   getCurrentItem() {
     return this.getAllItems().find((i2) => i2.getAttribute("tabindex") === "0");
   }
+  /**
+   * @internal Sets the current menu item to the specified element. This sets `tabindex="0"` on the target element and
+   * `tabindex="-1"` to all other items. This method must be called prior to setting focus on a menu item.
+   */
   setCurrentItem(item) {
     const items = this.getAllItems();
     items.forEach((i2) => {
@@ -7623,6 +8101,10 @@ var menu_item_styles_default = i$7`
 
   :host {
     display: block;
+  }
+
+  :host([inert]) {
+    display: none;
   }
 
   .menu-item {
@@ -7682,7 +8164,7 @@ var menu_item_styles_default = i$7`
     color: var(--sl-color-neutral-1000);
   }
 
-  :host(:focus-visible) .menu-item {
+  :host(:focus) .menu-item {
     outline: none;
     background-color: var(--sl-color-primary-600);
     color: var(--sl-color-neutral-0);
@@ -7706,7 +8188,7 @@ var menu_item_styles_default = i$7`
 
   @media (forced-colors: active) {
     :host(:hover:not([aria-disabled='true'])) .menu-item,
-    :host(:focus-visible) .menu-item {
+    :host(:focus) .menu-item {
       outline: dashed 1px SelectedItem;
       outline-offset: -1px;
     }
@@ -7722,6 +8204,15 @@ var SlMenuItem = class extends ShoelaceElement {
     this.value = "";
     this.disabled = false;
   }
+  connectedCallback() {
+    super.connectedCallback();
+    this.handleHostClick = this.handleHostClick.bind(this);
+    this.addEventListener("click", this.handleHostClick);
+  }
+  disconnectedCallback() {
+    super.disconnectedCallback();
+    this.removeEventListener("click", this.handleHostClick);
+  }
   handleDefaultSlotChange() {
     const textLabel = this.getTextLabel();
     if (typeof this.cachedTextLabel === "undefined") {
@@ -7731,6 +8222,12 @@ var SlMenuItem = class extends ShoelaceElement {
     if (textLabel !== this.cachedTextLabel) {
       this.cachedTextLabel = textLabel;
       this.emit("slotchange", { bubbles: true, composed: false, cancelable: false });
+    }
+  }
+  handleHostClick(event) {
+    if (this.disabled) {
+      event.preventDefault();
+      event.stopImmediatePropagation();
     }
   }
   handleCheckedChange() {
@@ -7757,6 +8254,7 @@ var SlMenuItem = class extends ShoelaceElement {
       this.removeAttribute("aria-checked");
     }
   }
+  /** Returns a text label based on the contents of the menu item's default slot. */
   getTextLabel() {
     return getTextContent(this.defaultSlot);
   }
@@ -7769,6 +8267,7 @@ var SlMenuItem = class extends ShoelaceElement {
       "menu-item--checked": this.checked,
       "menu-item--disabled": this.disabled,
       "menu-item--has-submenu": false
+      // reserved for future use
     })}
       >
         <span part="checked-icon" class="menu-item__check">
@@ -7912,6 +8411,7 @@ var option_styles_default = i$7`
 var SlOption = class extends ShoelaceElement {
   constructor() {
     super(...arguments);
+    // @ts-expect-error - Controller is currently unused
     this.localize = new LocalizeController2(this);
     this.current = false;
     this.selected = false;
@@ -7953,6 +8453,7 @@ var SlOption = class extends ShoelaceElement {
       this.value = this.value.replace(/ /g, "_");
     }
   }
+  /** Returns a plain text label based on the option's content. */
   getTextLabel() {
     var _a;
     return ((_a = this.textContent) != null ? _a : "").trim();
@@ -8168,6 +8669,12 @@ var SlDropdown = class extends ShoelaceElement {
   }
   handleDocumentKeyDown(event) {
     var _a;
+    if (event.key === "Escape" && this.open) {
+      event.stopPropagation();
+      this.focusOnTrigger();
+      this.hide();
+      return;
+    }
     if (event.key === "Tab") {
       if (this.open && ((_a = document.activeElement) == null ? void 0 : _a.tagName.toLowerCase()) === "sl-menu-item") {
         event.preventDefault();
@@ -8206,15 +8713,10 @@ var SlDropdown = class extends ShoelaceElement {
       this.hide();
     } else {
       this.show();
+      this.focusOnTrigger();
     }
   }
   handleTriggerKeyDown(event) {
-    if (event.key === "Escape" && this.open) {
-      event.stopPropagation();
-      this.focusOnTrigger();
-      this.hide();
-      return;
-    }
     if ([" ", "Enter"].includes(event.key)) {
       event.preventDefault();
       this.handleTriggerClick();
@@ -8222,7 +8724,7 @@ var SlDropdown = class extends ShoelaceElement {
     }
     const menu = this.getMenu();
     if (menu) {
-      const menuItems = menu.defaultSlot.assignedElements({ flatten: true });
+      const menuItems = menu.getAllItems();
       const firstMenuItem = menuItems[0];
       const lastMenuItem = menuItems[menuItems.length - 1];
       if (["ArrowDown", "ArrowUp", "Home", "End"].includes(event.key)) {
@@ -8231,7 +8733,7 @@ var SlDropdown = class extends ShoelaceElement {
           this.show();
         }
         if (menuItems.length > 0) {
-          requestAnimationFrame(() => {
+          this.updateComplete.then(() => {
             if (event.key === "ArrowDown" || event.key === "Home") {
               menu.setCurrentItem(firstMenuItem);
               firstMenuItem.focus();
@@ -8253,6 +8755,16 @@ var SlDropdown = class extends ShoelaceElement {
   handleTriggerSlotChange() {
     this.updateAccessibleTrigger();
   }
+  //
+  // Slotted triggers can be arbitrary content, but we need to link them to the dropdown panel with `aria-haspopup` and
+  // `aria-expanded`. These must be applied to the "accessible trigger" (the tabbable portion of the trigger element
+  // that gets slotted in) so screen readers will understand them. The accessible trigger could be the slotted element,
+  // a child of the slotted element, or an element in the slotted element's shadow root.
+  //
+  // For example, the accessible trigger of an <sl-button> is a <button> located inside its shadow root.
+  //
+  // To determine this, we assume the first tabbable element in the trigger slot is the "accessible trigger."
+  //
   updateAccessibleTrigger() {
     const assignedElements = this.trigger.assignedElements({ flatten: true });
     const accessibleTrigger = assignedElements.find((el) => getTabbableBoundary(el).start);
@@ -8270,6 +8782,7 @@ var SlDropdown = class extends ShoelaceElement {
       target.setAttribute("aria-expanded", this.open ? "true" : "false");
     }
   }
+  /** Shows the dropdown panel. */
   async show() {
     if (this.open) {
       return void 0;
@@ -8277,6 +8790,7 @@ var SlDropdown = class extends ShoelaceElement {
     this.open = true;
     return waitForEvent(this, "sl-after-show");
   }
+  /** Hides the dropdown panel */
   async hide() {
     if (!this.open) {
       return void 0;
@@ -8284,6 +8798,10 @@ var SlDropdown = class extends ShoelaceElement {
     this.open = false;
     return waitForEvent(this, "sl-after-hide");
   }
+  /**
+   * Instructs the dropdown menu to reposition. Useful when the position or size of the trigger changes when the menu
+   * is activated.
+   */
   reposition() {
     this.popup.reposition();
   }
@@ -8845,6 +9363,7 @@ var SlTabGroup = class extends ShoelaceElement {
         break;
     }
   }
+  // This stores tabs and panels so we can refer to a cache instead of calling querySelectorAll() multiple times.
   syncTabsAndPanels() {
     this.tabs = this.getAllTabs({ includeDisabled: false });
     this.panels = this.getAllPanels();
@@ -8866,6 +9385,7 @@ var SlTabGroup = class extends ShoelaceElement {
       this.indicator.style.display = "none";
     }
   }
+  /** Shows the specified tab panel. */
   show(panel) {
     const tab = this.tabs.find((el) => el.panel === panel);
     if (tab) {
@@ -8969,16 +9489,16 @@ var tab_panel_styles_default = i$7`
   :host {
     --padding: 0;
 
+    display: none;
+  }
+
+  :host([active]) {
     display: block;
   }
 
   .tab-panel {
     display: block;
     padding: var(--padding);
-  }
-
-  .tab-panel:not(.tab-panel--active) {
-    display: none;
   }
 `;
 
@@ -9122,9 +9642,11 @@ var SlTab = class extends ShoelaceElement {
   handleDisabledChange() {
     this.setAttribute("aria-disabled", this.disabled ? "true" : "false");
   }
+  /** Sets focus to the tab. */
   focus(options) {
     this.tab.focus(options);
   }
+  /** Removes focus from the tab. */
   blur() {
     this.tab.blur();
   }
@@ -9361,6 +9883,7 @@ var SlTooltip = class extends ShoelaceElement {
       this.hide();
     }
   }
+  /** Shows the tooltip. */
   async show() {
     if (this.open) {
       return void 0;
@@ -9368,6 +9891,7 @@ var SlTooltip = class extends ShoelaceElement {
     this.open = true;
     return waitForEvent(this, "sl-after-show");
   }
+  /** Hides the tooltip */
   async hide() {
     if (!this.open) {
       return void 0;
@@ -9449,11 +9973,7 @@ __decorateClass([
   watch("open", { waitUntilFirstUpdate: true })
 ], SlTooltip.prototype, "handleOpenChange", 1);
 __decorateClass([
-  watch("content"),
-  watch("distance"),
-  watch("hoist"),
-  watch("placement"),
-  watch("skidding")
+  watch(["content", "distance", "hoist", "placement", "skidding"])
 ], SlTooltip.prototype, "handleOptionsChange", 1);
 __decorateClass([
   watch("disabled")
@@ -9509,12 +10029,13 @@ var switch_styles_default = i$7`
   }
 
   .switch {
+    position: relative;
     display: inline-flex;
     align-items: center;
     font-family: var(--sl-input-font-family);
     font-size: inherit;
     font-weight: var(--sl-input-font-weight);
-    color: var(--sl-input-color);
+    color: var(--sl-input-label-color);
     vertical-align: middle;
     cursor: pointer;
   }
@@ -9629,29 +10150,44 @@ var switch_styles_default = i$7`
     content: var(--sl-input-required-content);
     margin-inline-start: var(--sl-input-required-content-offset);
   }
+
+  @media (forced-colors: active) {
+    .switch.switch--checked:not(.switch--disabled) .switch__control:hover .switch__thumb,
+    .switch--checked .switch__control .switch__thumb {
+      background-color: ButtonText;
+    }
+  }
 `;
 
 // src/components/switch/switch.ts
 var SlSwitch = class extends ShoelaceElement {
   constructor() {
     super(...arguments);
-    this.formSubmitController = new FormSubmitController(this, {
+    this.formControlController = new FormControlController(this, {
       value: (control) => control.checked ? control.value || "on" : void 0,
       defaultValue: (control) => control.defaultChecked,
       setValue: (control, checked) => control.checked = checked
     });
     this.hasFocus = false;
-    this.invalid = false;
     this.title = "";
     this.name = "";
     this.size = "medium";
     this.disabled = false;
-    this.required = false;
     this.checked = false;
     this.defaultChecked = false;
+    this.form = "";
+    this.required = false;
+  }
+  /** Gets the validity state object */
+  get validity() {
+    return this.input.validity;
+  }
+  /** Gets the validation message */
+  get validationMessage() {
+    return this.input.validationMessage;
   }
   firstUpdated() {
-    this.invalid = !this.checkValidity();
+    this.formControlController.updateValidity();
   }
   handleBlur() {
     this.hasFocus = false;
@@ -9659,6 +10195,10 @@ var SlSwitch = class extends ShoelaceElement {
   }
   handleInput() {
     this.emit("sl-input");
+  }
+  handleInvalid(event) {
+    this.formControlController.setValidity(false);
+    this.formControlController.emitInvalidEvent(event);
   }
   handleClick() {
     this.checked = !this.checked;
@@ -9684,30 +10224,35 @@ var SlSwitch = class extends ShoelaceElement {
   }
   handleCheckedChange() {
     this.input.checked = this.checked;
-    this.invalid = !this.checkValidity();
+    this.formControlController.updateValidity();
   }
   handleDisabledChange() {
-    this.input.disabled = this.disabled;
-    this.invalid = !this.checkValidity();
+    this.formControlController.setValidity(true);
   }
+  /** Simulates a click on the switch. */
   click() {
     this.input.click();
   }
+  /** Sets focus on the switch. */
   focus(options) {
     this.input.focus(options);
   }
+  /** Removes focus from the switch. */
   blur() {
     this.input.blur();
   }
+  /** Checks for validity but does not show a validation message. Returns `true` when valid and `false` when invalid. */
   checkValidity() {
     return this.input.checkValidity();
   }
+  /** Checks for validity and shows the browser's validation message if the control is invalid. */
   reportValidity() {
     return this.input.reportValidity();
   }
+  /** Sets a custom validation message. Pass an empty string to restore validity. */
   setCustomValidity(message) {
     this.input.setCustomValidity(message);
-    this.invalid = !this.checkValidity();
+    this.formControlController.updateValidity();
   }
   render() {
     return y$1`
@@ -9736,6 +10281,7 @@ var SlSwitch = class extends ShoelaceElement {
           aria-checked=${this.checked ? "true" : "false"}
           @click=${this.handleClick}
           @input=${this.handleInput}
+          @invalid=${this.handleInvalid}
           @blur=${this.handleBlur}
           @focus=${this.handleFocus}
           @keydown=${this.handleKeyDown}
@@ -9758,9 +10304,6 @@ __decorateClass([
   t$5()
 ], SlSwitch.prototype, "hasFocus", 2);
 __decorateClass([
-  t$5()
-], SlSwitch.prototype, "invalid", 2);
-__decorateClass([
   e2$1()
 ], SlSwitch.prototype, "title", 2);
 __decorateClass([
@@ -9777,13 +10320,16 @@ __decorateClass([
 ], SlSwitch.prototype, "disabled", 2);
 __decorateClass([
   e2$1({ type: Boolean, reflect: true })
-], SlSwitch.prototype, "required", 2);
-__decorateClass([
-  e2$1({ type: Boolean, reflect: true })
 ], SlSwitch.prototype, "checked", 2);
 __decorateClass([
   defaultValue("checked")
 ], SlSwitch.prototype, "defaultChecked", 2);
+__decorateClass([
+  e2$1({ reflect: true })
+], SlSwitch.prototype, "form", 2);
+__decorateClass([
+  e2$1({ type: Boolean, reflect: true })
+], SlSwitch.prototype, "required", 2);
 __decorateClass([
   watch("checked", { waitUntilFirstUpdate: true })
 ], SlSwitch.prototype, "handleCheckedChange", 1);
@@ -10076,6 +10622,7 @@ var SlDialog = class extends ShoelaceElement {
       this.emit("sl-after-hide");
     }
   }
+  /** Shows the dialog. */
   async show() {
     if (this.open) {
       return void 0;
@@ -10083,6 +10630,7 @@ var SlDialog = class extends ShoelaceElement {
     this.open = true;
     return waitForEvent(this, "sl-after-show");
   }
+  /** Hides the dialog */
   async hide() {
     if (!this.open) {
       return void 0;
@@ -10874,7 +11422,7 @@ let MainNav = class MainNav extends s$3 {
     }
     #renderNavFooter() {
         const hasFooter = !!navElements.items.find(elem => elem.isNavFooter);
-        const content = fetch('/user/me', {
+        const content = fetch('/v1/user/me', {
             method: 'GET',
             ...header,
         }).then(r => r.json());
@@ -11511,7 +12059,7 @@ class Color {
 }
 
 /*!
- * Chart.js v4.1.2
+ * Chart.js v4.2.1
  * https://www.chartjs.org
  * (c) 2023 Chart.js Contributors
  * Released under the MIT License
@@ -14107,7 +14655,7 @@ function styleChanged(style, prevStyle) {
 }
 
 /*!
- * Chart.js v4.1.2
+ * Chart.js v4.2.1
  * https://www.chartjs.org
  * (c) 2023 Chart.js Contributors
  * Released under the MIT License
@@ -17700,6 +18248,7 @@ function determineMaxTicks(scale) {
 
 const reverseAlign = (align)=>align === 'left' ? 'right' : align === 'right' ? 'left' : align;
 const offsetFromEdge = (scale, edge, offset)=>edge === 'top' || edge === 'left' ? scale[edge] + offset : scale[edge] - offset;
+const getTicksLimit = (ticksLength, maxTicksLimit)=>Math.min(maxTicksLimit || ticksLength, ticksLength);
  function sample(arr, numItems) {
     const result = [];
     const increment = arr.length / numItems;
@@ -18094,7 +18643,7 @@ class Scale extends Element$1 {
     calculateLabelRotation() {
         const options = this.options;
         const tickOpts = options.ticks;
-        const numTicks = this.ticks.length;
+        const numTicks = getTicksLimit(this.ticks.length, options.ticks.maxTicksLimit);
         const minRotation = tickOpts.minRotation || 0;
         const maxRotation = tickOpts.maxRotation;
         let labelRotation = minRotation;
@@ -18252,18 +18801,19 @@ class Scale extends Element$1 {
             if (sampleSize < ticks.length) {
                 ticks = sample(ticks, sampleSize);
             }
-            this._labelSizes = labelSizes = this._computeLabelSizes(ticks, ticks.length);
+            this._labelSizes = labelSizes = this._computeLabelSizes(ticks, ticks.length, this.options.ticks.maxTicksLimit);
         }
         return labelSizes;
     }
- _computeLabelSizes(ticks, length) {
+ _computeLabelSizes(ticks, length, maxTicksLimit) {
         const { ctx , _longestTextCache: caches  } = this;
         const widths = [];
         const heights = [];
+        const increment = Math.floor(length / getTicksLimit(length, maxTicksLimit));
         let widestLabelSize = 0;
         let highestLabelSize = 0;
         let i, j, jlen, label, tickFont, fontString, cache, lineHeight, width, height, nestedLabel;
-        for(i = 0; i < length; ++i){
+        for(i = 0; i < length; i += increment){
             label = ticks[i].label;
             tickFont = this._resolveTickFontOptions(i);
             ctx.font = fontString = tickFont.string;
@@ -19569,7 +20119,7 @@ function needContext(proxy, names) {
     return false;
 }
 
-var version = "4.1.2";
+var version = "4.2.1";
 
 const KNOWN_POSITIONS = [
     'top',
@@ -19650,7 +20200,7 @@ function getDatasetArea(meta) {
         };
     }
 }
-let Chart$1 = class Chart {
+class Chart {
     static defaults = defaults;
     static instances = instances;
     static overrides = overrides;
@@ -20476,9 +21026,9 @@ let Chart$1 = class Chart {
         const hoverOptions = this.options.hover;
         return this.getElementsAtEventForMode(e, hoverOptions.mode, hoverOptions, useFinalPosition);
     }
-};
+}
 function invalidatePlugins() {
-    return each(Chart$1.instances, (chart)=>chart._plugins.invalidate());
+    return each(Chart.instances, (chart)=>chart._plugins.invalidate());
 }
 
 function clipArc(ctx, element, endAngle) {
@@ -20733,8 +21283,7 @@ class ArcElement extends Element$1 {
             'startAngle',
             'endAngle',
             'innerRadius',
-            'outerRadius',
-            'circumference'
+            'outerRadius'
         ], useFinalPosition);
         const { offset , spacing  } = this.options;
         const halfAngle = (startAngle + endAngle) / 2;
@@ -21383,6 +21932,9 @@ function containsColorsDefinitions(descriptors) {
     }
     return false;
 }
+function containsColorsDefinition(descriptor) {
+    return descriptor && (descriptor.borderColor || descriptor.backgroundColor);
+}
 var plugin_colors = {
     id: 'colors',
     defaults: {
@@ -21393,8 +21945,9 @@ var plugin_colors = {
         if (!options.enabled) {
             return;
         }
-        const { options: { elements  } , data: { datasets  }  } = chart.config;
-        if (!options.forceOverride && (containsColorsDefinitions(datasets) || elements && containsColorsDefinitions(elements))) {
+        const { data: { datasets  } , options: chartOptions  } = chart.config;
+        const { elements  } = chartOptions;
+        if (!options.forceOverride && (containsColorsDefinitions(datasets) || containsColorsDefinition(chartOptions) || elements && containsColorsDefinitions(elements))) {
             return;
         }
         const colorizer = getColorizer(chart);
@@ -21504,6 +22057,9 @@ function cleanDecimatedDataset(dataset) {
         delete dataset._decimated;
         delete dataset._data;
         Object.defineProperty(dataset, 'data', {
+            configurable: true,
+            enumerable: true,
+            writable: true,
             value: data
         });
     }
@@ -25208,6 +25764,13 @@ class TimeScale extends Scale {
         }
         return adapter.format(value, timeOpts.displayFormats.datetime);
     }
+ format(value, format) {
+        const options = this.options;
+        const formats = options.time.displayFormats;
+        const unit = this._unit;
+        const fmt = format || formats[unit];
+        return this._adapter.format(value, fmt);
+    }
  _tickFormatFunction(time, index, ticks, format) {
         const options = this.options;
         const formatter = options.ticks.callback;
@@ -25416,8 +25979,7 @@ const registerables = [
     scales
 ];
 
-Chart$1.register(...registerables);
-var Chart = Chart$1;
+Chart.register(...registerables);
 
 var __decorate$4 = (undefined && undefined.__decorate) || function (decorators, target, key, desc) {
     var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
@@ -25726,7 +26288,7 @@ let ProfileView = class ProfileView extends ViewLayout$1 {
         }
     }
     async connectedCallback() {
-        const request = await fetch('/user/me');
+        const request = await fetch('/v1/user/me');
         const json = await request.json();
         const team = await this.#getTeam();
         const role = await this.#getRole();
@@ -25740,14 +26302,14 @@ let ProfileView = class ProfileView extends ViewLayout$1 {
         return this; // prevents creating a shadow root
     }
     async #getRole() {
-        const request = await fetch('/role/getRole', {
+        const request = await fetch('/v1/role/getRole', {
             method: 'GET',
             ...header,
         });
         return await request.json();
     }
     async #getUserData() {
-        const request = await fetch('/user/me', {
+        const request = await fetch('/v1/user/me', {
             method: 'GET',
             ...header,
         });
@@ -25778,7 +26340,7 @@ let ProfileView = class ProfileView extends ViewLayout$1 {
         if (!hasDataChanged) {
             return toast('neutral', msg('User Update'), msg('Change user details to trigger an update'));
         }
-        const request = await fetch('/user/getUser', {
+        const request = await fetch('/v1/user/getUser', {
             method: 'POST',
             ...header,
             body: JSON.stringify({
@@ -25798,7 +26360,7 @@ let ProfileView = class ProfileView extends ViewLayout$1 {
         }
     }
     async #logout() {
-        await fetch('/logout', {
+        await fetch('/v1/logout', {
             method: 'GET',
             ...header,
         });
@@ -25824,7 +26386,7 @@ let ProfileView = class ProfileView extends ViewLayout$1 {
         </sl-select>`;
     }
     async #sendCheckPassword(oldPassword) {
-        const request = await fetch('/checkPassword', {
+        const request = await fetch('/v1/checkPassword', {
             method: 'POST',
             ...header,
             body: JSON.stringify({
@@ -25838,7 +26400,7 @@ let ProfileView = class ProfileView extends ViewLayout$1 {
         return auth;
     }
     async #sendChangePassword(newPassword) {
-        const request = await fetch('/changePassword', {
+        const request = await fetch('/v1/changePassword', {
             method: 'POST',
             ...header,
             body: JSON.stringify({
@@ -25900,7 +26462,7 @@ let ProfileView = class ProfileView extends ViewLayout$1 {
         return toast('danger', msg('New Password'), msg('Something went wrong'));
     }
     async #sendAvatar(file, imgTag, e) {
-        const request = await fetch('/user/changeAvatar', {
+        const request = await fetch('/v1/user/changeAvatar', {
             method: 'POST',
             ...header,
             body: JSON.stringify({
@@ -26050,14 +26612,14 @@ let ProfileView = class ProfileView extends ViewLayout$1 {
         }
     }
     async #getRoles() {
-        const rolesRequest = await fetch('/role/getRoles', {
+        const rolesRequest = await fetch('/v1/role/getRoles', {
             method: 'GET',
             ...header,
         });
         return await rolesRequest.json();
     }
     async #getTeam() {
-        const teamRequest = await fetch('/team', {
+        const teamRequest = await fetch('/v1/team', {
             method: 'GET',
             ...header,
         });
@@ -26065,7 +26627,7 @@ let ProfileView = class ProfileView extends ViewLayout$1 {
     }
     async #switchToTeamTab() {
         this.team = (await this.#getTeam());
-        const membersRequest = await fetch('/user/getUsers', {
+        const membersRequest = await fetch('/v1/user/getUsers', {
             method: 'POST',
             ...header,
             body: JSON.stringify({
@@ -26129,7 +26691,7 @@ let ProfileView = class ProfileView extends ViewLayout$1 {
         dialog?.show();
     }
     async #removeTeamMember() {
-        const request = await fetch('/team/removeMember', {
+        const request = await fetch('/v1/team/removeMember', {
             method: 'POST',
             ...header,
             body: JSON.stringify({
@@ -26150,7 +26712,7 @@ let ProfileView = class ProfileView extends ViewLayout$1 {
         if (!role || !member || role === this.user.roleName) {
             return;
         }
-        const request = await fetch('/team/changeRole', {
+        const request = await fetch('/v1/team/changeRole', {
             method: 'POST',
             ...header,
             body: JSON.stringify({
@@ -26174,7 +26736,7 @@ let ProfileView = class ProfileView extends ViewLayout$1 {
         if (!emailInput.checkValidity()) {
             return;
         }
-        const request = await fetch('/team/addMember', {
+        const request = await fetch('/v1/team/addMember', {
             method: 'POST',
             ...header,
             body: JSON.stringify({
@@ -26381,7 +26943,7 @@ let ProfileView = class ProfileView extends ViewLayout$1 {
         if (selectedRole === 'member' || selectedRole === 'admin') {
             return toast('warning', msg('role'), msg('You cannot remove member or admin role'));
         }
-        const request = await fetch('/role/removeRole', {
+        const request = await fetch('/v1/role/removeRole', {
             method: 'POST',
             ...header,
             body: JSON.stringify({
@@ -26426,7 +26988,7 @@ let ProfileView = class ProfileView extends ViewLayout$1 {
         if (roles.includes(roleName)) {
             return toast('warning', msg('role'), msg('Role already exists'));
         }
-        const request = await fetch('/role/createRole', {
+        const request = await fetch('/v1/role/createRole', {
             method: 'POST',
             ...header,
             body: JSON.stringify({
@@ -26469,7 +27031,7 @@ let ProfileView = class ProfileView extends ViewLayout$1 {
         const key = target.dataset.key;
         const selectedRoleElem = this.querySelector('#selected-role');
         const selectedRole = selectedRoleElem.value;
-        const request = await fetch('/role/updateRole', {
+        const request = await fetch('/v1/role/updateRole', {
             method: 'POST',
             ...header,
             body: JSON.stringify({
@@ -26719,7 +27281,7 @@ AppLayout = __decorate([
 document.addEventListener('DOMContentLoaded', function () {
     const app = document.querySelector('app-layout');
     app.bootstrapActiveMenu();
-    console.log('v:0.0.1 at: "2023-02-15T11:03:03.130Z" ');
+    console.log('v:0.0.1 at: "2023-03-13T19:08:25.793Z" ');
 });
 
 /* CSS */

@@ -2,7 +2,7 @@
     "name": "log",
     "version": "0.0.1",
     "scripts": {
-        "copy-data": "cp -r ./frontend/src/ts/data/shared/* ./backend/src/data/shared/",
+        "copy-data": "cp -r ./frontend/src/ts/data/shared/* ./backend/src/versions/v1/data/shared/",
         "insert-dev-data": "node _build/insert_data.mjs",
         "build-frontend-ts": "tsc --project frontend/tsconfig.json",
         "rename-js-to-mjs": "find ./backend/dist/ -name \"*.js\" -exec bash -c 'mv \"$1\" \"${1%.js}\".mjs' - '{}' \\;",

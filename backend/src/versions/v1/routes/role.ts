@@ -6,31 +6,31 @@ export default async function user(server: Server) {
     server.route([
         {
             method: 'GET',
-            path: '/role/getRole',
+            path: '/v1/role/getRole',
             handler: getRole,
             options: strictRouteOptions,
         },
         {
             method: 'GET',
-            path: '/role/getRoles',
+            path: '/v1/role/getRoles',
             handler: getRoles,
             options: strictRouteOptions,
         },
         {
             method: 'POST',
-            path: '/role/removeRole',
+            path: '/v1/role/removeRole',
             handler: removeRole,
             options: strictRouteOptions,
         },
         {
             method: 'POST',
-            path: '/role/createRole',
+            path: '/v1/role/createRole',
             handler: createRole,
             options: strictRouteOptions,
         },
         {
             method: 'POST',
-            path: '/role/updateRole',
+            path: '/v1/role/updateRole',
             handler: updateRole,
             options: strictRouteOptions,
         },

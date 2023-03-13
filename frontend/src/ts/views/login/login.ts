@@ -18,7 +18,7 @@ export default class LoginLayout extends LitElement {
     }
 
     async #sendLogin(username: string, password: string) {
-        const request = await fetch('/login', {
+        const request = await fetch('/v1/login', {
             method: 'POST',
             mode: 'cors',
             cache: 'no-cache',

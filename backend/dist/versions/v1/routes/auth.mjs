@@ -1,25 +1,22 @@
-import { Server } from '@hapi/hapi';
 import cokie from '@hapi/cookie';
 import { validate, login, logout, checkPassword, changePassword } from '../controller/auth';
 import { strictRouteOptions } from '../data/routeOptions';
-
-export default async function auth(server: Server) {
+export default async function auth(server) {
     await server.register(cokie);
-
     server.auth.strategy('session', 'cookie', {
         cookie: {
             name: 'log-cookie',
             password: process.env.COOKIE_PASSWORD,
             isSecure: true,
         },
-        redirectTo: '/login/',
+        redirectTo: 'v1/login/',
         validate,
     });
     server.auth.default('session');
     server.route([
         {
             method: 'POST',
-            path: '/login',
+            path: '/v1/login',
             handler: login,
             options: {
                 auth: {
@@ -30,19 +27,19 @@ export default async function auth(server: Server) {
         },
         {
             method: 'POST',
-            path: '/changePassword',
+            path: '/v1/changePassword',
             handler: changePassword,
             options: strictRouteOptions,
         },
         {
             method: 'POST',
-            path: '/checkPassword',
+            path: '/v1/checkPassword',
             handler: checkPassword,
             options: strictRouteOptions,
         },
         {
             method: 'GET',
-            path: '/logout',
+            path: '/v1/logout',
             handler: logout,
             options: strictRouteOptions,
         },

@@ -1,13 +1,13 @@
 import Hapi, { Server } from '@hapi/hapi';
-import './utilities/config/init_env';
-import './utilities/config/init_mongo';
-import './utilities/config/init_email';
-import initRateLimit from './utilities/config/init_ratelimiting';
-import host from './staticfiles/app';
-import auth from './routes/auth';
-import user from './routes/user';
-import team from './routes/team';
-import role from './routes/role';
+import './versions/v1/utilities/config/init_env';
+import './versions/v1/utilities/config/init_mongo';
+import './versions/v1/utilities/config/init_email';
+import initRateLimit from './versions/v1/utilities/config/init_ratelimiting';
+import host from './versions/v1/staticfiles/app';
+import auth from './versions/v1/routes/auth';
+import user from './versions/v1/routes/user';
+import team from './versions/v1/routes/team';
+import role from './versions/v1/routes/role';
 
 const hostAdress: string = process.env.RUNTIME === 'production' ? '0.0.0.0' : 'localhost';
 const server: Server = Hapi.server({

@@ -73,7 +73,7 @@ let MainNav = class MainNav extends LitElement {
     }
     #renderNavFooter() {
         const hasFooter = !!navElements.items.find(elem => elem.isNavFooter);
-        const content = fetch('/user/me', {
+        const content = fetch('/v1/user/me', {
             method: 'GET',
             ...header,
         }).then(r => r.json());

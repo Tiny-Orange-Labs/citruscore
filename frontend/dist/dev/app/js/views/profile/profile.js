@@ -72,7 +72,7 @@ let ProfileView = class ProfileView extends ViewLayout {
         }
     }
     async connectedCallback() {
-        const request = await fetch('/user/me');
+        const request = await fetch('/v1/user/me');
         const json = await request.json();
         const team = await this.#getTeam();
         const role = await this.#getRole();
@@ -86,14 +86,14 @@ let ProfileView = class ProfileView extends ViewLayout {
         return this; // prevents creating a shadow root
     }
     async #getRole() {
-        const request = await fetch('/role/getRole', {
+        const request = await fetch('/v1/role/getRole', {
             method: 'GET',
             ...header,
         });
         return await request.json();
     }
     async #getUserData() {
-        const request = await fetch('/user/me', {
+        const request = await fetch('/v1/user/me', {
             method: 'GET',
             ...header,
         });
@@ -124,7 +124,7 @@ let ProfileView = class ProfileView extends ViewLayout {
         if (!hasDataChanged) {
             return toast('neutral', msg('User Update'), msg('Change user details to trigger an update'));
         }
-        const request = await fetch('/user/getUser', {
+        const request = await fetch('/v1/user/getUser', {
             method: 'POST',
             ...header,
             body: JSON.stringify({
@@ -144,7 +144,7 @@ let ProfileView = class ProfileView extends ViewLayout {
         }
     }
     async #logout() {
-        await fetch('/logout', {
+        await fetch('/v1/logout', {
             method: 'GET',
             ...header,
         });
@@ -170,7 +170,7 @@ let ProfileView = class ProfileView extends ViewLayout {
         </sl-select>`;
     }
     async #sendCheckPassword(oldPassword) {
-        const request = await fetch('/checkPassword', {
+        const request = await fetch('/v1/checkPassword', {
             method: 'POST',
             ...header,
             body: JSON.stringify({
@@ -184,7 +184,7 @@ let ProfileView = class ProfileView extends ViewLayout {
         return auth;
     }
     async #sendChangePassword(newPassword) {
-        const request = await fetch('/changePassword', {
+        const request = await fetch('/v1/changePassword', {
             method: 'POST',
             ...header,
             body: JSON.stringify({
@@ -246,7 +246,7 @@ let ProfileView = class ProfileView extends ViewLayout {
         return toast('danger', msg('New Password'), msg('Something went wrong'));
     }
     async #sendAvatar(file, imgTag, e) {
-        const request = await fetch('/user/changeAvatar', {
+        const request = await fetch('/v1/user/changeAvatar', {
             method: 'POST',
             ...header,
             body: JSON.stringify({
@@ -396,14 +396,14 @@ let ProfileView = class ProfileView extends ViewLayout {
         }
     }
     async #getRoles() {
-        const rolesRequest = await fetch('/role/getRoles', {
+        const rolesRequest = await fetch('/v1/role/getRoles', {
             method: 'GET',
             ...header,
         });
         return await rolesRequest.json();
     }
     async #getTeam() {
-        const teamRequest = await fetch('/team', {
+        const teamRequest = await fetch('/v1/team', {
             method: 'GET',
             ...header,
         });
@@ -411,7 +411,7 @@ let ProfileView = class ProfileView extends ViewLayout {
     }
     async #switchToTeamTab() {
         this.team = (await this.#getTeam());
-        const membersRequest = await fetch('/user/getUsers', {
+        const membersRequest = await fetch('/v1/user/getUsers', {
             method: 'POST',
             ...header,
             body: JSON.stringify({
@@ -475,7 +475,7 @@ let ProfileView = class ProfileView extends ViewLayout {
         dialog?.show();
     }
     async #removeTeamMember() {
-        const request = await fetch('/team/removeMember', {
+        const request = await fetch('/v1/team/removeMember', {
             method: 'POST',
             ...header,
             body: JSON.stringify({
@@ -496,7 +496,7 @@ let ProfileView = class ProfileView extends ViewLayout {
         if (!role || !member || role === this.user.roleName) {
             return;
         }
-        const request = await fetch('/team/changeRole', {
+        const request = await fetch('/v1/team/changeRole', {
             method: 'POST',
             ...header,
             body: JSON.stringify({
@@ -520,7 +520,7 @@ let ProfileView = class ProfileView extends ViewLayout {
         if (!emailInput.checkValidity()) {
             return;
         }
-        const request = await fetch('/team/addMember', {
+        const request = await fetch('/v1/team/addMember', {
             method: 'POST',
             ...header,
             body: JSON.stringify({
@@ -727,7 +727,7 @@ let ProfileView = class ProfileView extends ViewLayout {
         if (selectedRole === 'member' || selectedRole === 'admin') {
             return toast('warning', msg('role'), msg('You cannot remove member or admin role'));
         }
-        const request = await fetch('/role/removeRole', {
+        const request = await fetch('/v1/role/removeRole', {
             method: 'POST',
             ...header,
             body: JSON.stringify({
@@ -772,7 +772,7 @@ let ProfileView = class ProfileView extends ViewLayout {
         if (roles.includes(roleName)) {
             return toast('warning', msg('role'), msg('Role already exists'));
         }
-        const request = await fetch('/role/createRole', {
+        const request = await fetch('/v1/role/createRole', {
             method: 'POST',
             ...header,
             body: JSON.stringify({
@@ -815,7 +815,7 @@ let ProfileView = class ProfileView extends ViewLayout {
         const key = target.dataset.key;
         const selectedRoleElem = this.querySelector('#selected-role');
         const selectedRole = selectedRoleElem.value;
-        const request = await fetch('/role/updateRole', {
+        const request = await fetch('/v1/role/updateRole', {
             method: 'POST',
             ...header,
             body: JSON.stringify({

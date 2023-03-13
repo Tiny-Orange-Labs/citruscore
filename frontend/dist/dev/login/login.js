@@ -1,202 +1,6 @@
 (function () {
   'use strict';
 
-  var __defProp = Object.defineProperty;
-  var __defProps = Object.defineProperties;
-  var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
-  var __getOwnPropDescs = Object.getOwnPropertyDescriptors;
-  var __getOwnPropSymbols = Object.getOwnPropertySymbols;
-  var __hasOwnProp = Object.prototype.hasOwnProperty;
-  var __propIsEnum = Object.prototype.propertyIsEnumerable;
-  var __defNormalProp = (obj, key, value) => key in obj ? __defProp(obj, key, { enumerable: true, configurable: true, writable: true, value }) : obj[key] = value;
-  var __spreadValues = (a, b) => {
-    for (var prop in b || (b = {}))
-      if (__hasOwnProp.call(b, prop))
-        __defNormalProp(a, prop, b[prop]);
-    if (__getOwnPropSymbols)
-      for (var prop of __getOwnPropSymbols(b)) {
-        if (__propIsEnum.call(b, prop))
-          __defNormalProp(a, prop, b[prop]);
-      }
-    return a;
-  };
-  var __spreadProps = (a, b) => __defProps(a, __getOwnPropDescs(b));
-  var __decorateClass = (decorators, target, key, kind) => {
-    var result = kind > 1 ? void 0 : kind ? __getOwnPropDesc(target, key) : target;
-    for (var i = decorators.length - 1, decorator; i >= 0; i--)
-      if (decorator = decorators[i])
-        result = (kind ? decorator(target, key, result) : decorator(result)) || result;
-    if (kind && result)
-      __defProp(target, key, result);
-    return result;
-  };
-
-  // src/internal/form.ts
-  var formCollections = /* @__PURE__ */ new WeakMap();
-  var userInteractedControls = /* @__PURE__ */ new WeakMap();
-  var reportValidityOverloads = /* @__PURE__ */ new WeakMap();
-  var FormSubmitController = class {
-    constructor(host, options) {
-      (this.host = host).addController(this);
-      this.options = __spreadValues({
-        form: (input) => input.closest("form"),
-        name: (input) => input.name,
-        value: (input) => input.value,
-        defaultValue: (input) => input.defaultValue,
-        disabled: (input) => {
-          var _a;
-          return (_a = input.disabled) != null ? _a : false;
-        },
-        reportValidity: (input) => typeof input.reportValidity === "function" ? input.reportValidity() : true,
-        setValue: (input, value) => input.value = value
-      }, options);
-      this.handleFormData = this.handleFormData.bind(this);
-      this.handleFormSubmit = this.handleFormSubmit.bind(this);
-      this.handleFormReset = this.handleFormReset.bind(this);
-      this.reportFormValidity = this.reportFormValidity.bind(this);
-      this.handleUserInput = this.handleUserInput.bind(this);
-    }
-    hostConnected() {
-      this.form = this.options.form(this.host);
-      if (this.form) {
-        if (formCollections.has(this.form)) {
-          formCollections.get(this.form).add(this.host);
-        } else {
-          formCollections.set(this.form, /* @__PURE__ */ new Set([this.host]));
-        }
-        this.form.addEventListener("formdata", this.handleFormData);
-        this.form.addEventListener("submit", this.handleFormSubmit);
-        this.form.addEventListener("reset", this.handleFormReset);
-        if (!reportValidityOverloads.has(this.form)) {
-          reportValidityOverloads.set(this.form, this.form.reportValidity);
-          this.form.reportValidity = () => this.reportFormValidity();
-        }
-      }
-      this.host.addEventListener("sl-input", this.handleUserInput);
-    }
-    hostDisconnected() {
-      var _a;
-      if (this.form) {
-        (_a = formCollections.get(this.form)) == null ? void 0 : _a.delete(this.host);
-        this.form.removeEventListener("formdata", this.handleFormData);
-        this.form.removeEventListener("submit", this.handleFormSubmit);
-        this.form.removeEventListener("reset", this.handleFormReset);
-        if (reportValidityOverloads.has(this.form)) {
-          this.form.reportValidity = reportValidityOverloads.get(this.form);
-          reportValidityOverloads.delete(this.form);
-        }
-        this.form = void 0;
-      }
-      this.host.removeEventListener("sl-input", this.handleUserInput);
-    }
-    hostUpdated() {
-      var _a;
-      const host = this.host;
-      const hasInteracted = Boolean(userInteractedControls.get(host));
-      const invalid = Boolean(host.invalid);
-      const required = Boolean(host.required);
-      if ((_a = this.form) == null ? void 0 : _a.noValidate) {
-        host.removeAttribute("data-required");
-        host.removeAttribute("data-optional");
-        host.removeAttribute("data-invalid");
-        host.removeAttribute("data-valid");
-        host.removeAttribute("data-user-invalid");
-        host.removeAttribute("data-user-valid");
-      } else {
-        host.toggleAttribute("data-required", required);
-        host.toggleAttribute("data-optional", !required);
-        host.toggleAttribute("data-invalid", invalid);
-        host.toggleAttribute("data-valid", !invalid);
-        host.toggleAttribute("data-user-invalid", invalid && hasInteracted);
-        host.toggleAttribute("data-user-valid", !invalid && hasInteracted);
-      }
-    }
-    handleFormData(event) {
-      const disabled = this.options.disabled(this.host);
-      const name = this.options.name(this.host);
-      const value = this.options.value(this.host);
-      const isButton = this.host.tagName.toLowerCase() === "sl-button";
-      if (!disabled && !isButton && typeof name === "string" && name.length > 0 && typeof value !== "undefined") {
-        if (Array.isArray(value)) {
-          value.forEach((val) => {
-            event.formData.append(name, val.toString());
-          });
-        } else {
-          event.formData.append(name, value.toString());
-        }
-      }
-    }
-    handleFormSubmit(event) {
-      var _a;
-      const disabled = this.options.disabled(this.host);
-      const reportValidity = this.options.reportValidity;
-      if (this.form && !this.form.noValidate) {
-        (_a = formCollections.get(this.form)) == null ? void 0 : _a.forEach((control) => {
-          this.setUserInteracted(control, true);
-        });
-      }
-      if (this.form && !this.form.noValidate && !disabled && !reportValidity(this.host)) {
-        event.preventDefault();
-        event.stopImmediatePropagation();
-      }
-    }
-    handleFormReset() {
-      this.options.setValue(this.host, this.options.defaultValue(this.host));
-      this.setUserInteracted(this.host, false);
-    }
-    async handleUserInput() {
-      await this.host.updateComplete;
-      this.setUserInteracted(this.host, true);
-    }
-    reportFormValidity() {
-      if (this.form && !this.form.noValidate) {
-        const elements = this.form.querySelectorAll("*");
-        for (const element of elements) {
-          if (typeof element.reportValidity === "function") {
-            if (!element.reportValidity()) {
-              return false;
-            }
-          }
-        }
-      }
-      return true;
-    }
-    setUserInteracted(el, hasInteracted) {
-      userInteractedControls.set(el, hasInteracted);
-      el.requestUpdate();
-    }
-    doAction(type, invoker) {
-      if (this.form) {
-        const button = document.createElement("button");
-        button.type = type;
-        button.style.position = "absolute";
-        button.style.width = "0";
-        button.style.height = "0";
-        button.style.clipPath = "inset(50%)";
-        button.style.overflow = "hidden";
-        button.style.whiteSpace = "nowrap";
-        if (invoker) {
-          button.name = invoker.name;
-          button.value = invoker.value;
-          ["formaction", "formenctype", "formmethod", "formnovalidate", "formtarget"].forEach((attr) => {
-            if (invoker.hasAttribute(attr)) {
-              button.setAttribute(attr, invoker.getAttribute(attr));
-            }
-          });
-        }
-        this.form.append(button);
-        button.click();
-        button.remove();
-      }
-    }
-    reset(invoker) {
-      this.doAction("reset", invoker);
-    }
-    submit(invoker) {
-      this.doAction("submit", invoker);
-    }
-  };
-
   // node_modules/@lit/reactive-element/css-tag.js
   var t$4 = window;
   var e$7 = t$4.ShadowRoot && (void 0 === t$4.ShadyCSS || t$4.ShadyCSS.nativeShadow) && "adoptedStyleSheets" in Document.prototype && "replace" in CSSStyleSheet.prototype;
@@ -461,7 +265,7 @@
     firstUpdated(t3) {
     }
   };
-  d$2.finalized = true, d$2.elementProperties = /* @__PURE__ */ new Map(), d$2.elementStyles = [], d$2.shadowRootOptions = { mode: "open" }, null == o2$1 || o2$1({ ReactiveElement: d$2 }), (null !== (s2 = e2$2.reactiveElementVersions) && void 0 !== s2 ? s2 : e2$2.reactiveElementVersions = []).push("1.4.2");
+  d$2.finalized = true, d$2.elementProperties = /* @__PURE__ */ new Map(), d$2.elementStyles = [], d$2.shadowRootOptions = { mode: "open" }, null == o2$1 || o2$1({ ReactiveElement: d$2 }), (null !== (s2 = e2$2.reactiveElementVersions) && void 0 !== s2 ? s2 : e2$2.reactiveElementVersions = []).push("1.6.1");
 
   // node_modules/lit-html/lit-html.js
   var t2;
@@ -736,7 +540,7 @@
     }
   };
   var z$1 = i2$1.litHtmlPolyfillSupport;
-  null == z$1 || z$1(C$1, N$1), (null !== (t2 = i2$1.litHtmlVersions) && void 0 !== t2 ? t2 : i2$1.litHtmlVersions = []).push("2.4.0");
+  null == z$1 || z$1(C$1, N$1), (null !== (t2 = i2$1.litHtmlVersions) && void 0 !== t2 ? t2 : i2$1.litHtmlVersions = []).push("2.6.1");
   var Z$1 = (t3, i3, s5) => {
     var e4, o5;
     const n5 = null !== (e4 = null == s5 ? void 0 : s5.renderBefore) && void 0 !== e4 ? e4 : i3;
@@ -780,21 +584,43 @@
   var n4 = globalThis.litElementPolyfillSupport;
   null == n4 || n4({ LitElement: s4 });
   (null !== (o4 = globalThis.litElementVersions) && void 0 !== o4 ? o4 : globalThis.litElementVersions = []).push("3.2.0");
-  /**
-   * @license
-   * Copyright 2017 Google LLC
-   * SPDX-License-Identifier: BSD-3-Clause
-   */
-  /**
-   * @license
-   * Copyright 2019 Google LLC
-   * SPDX-License-Identifier: BSD-3-Clause
-   */
-  /**
-   * @license
-   * Copyright 2022 Google LLC
-   * SPDX-License-Identifier: BSD-3-Clause
-   */
+  /*! Bundled license information:
+
+  @lit/reactive-element/css-tag.js:
+    (**
+     * @license
+     * Copyright 2019 Google LLC
+     * SPDX-License-Identifier: BSD-3-Clause
+     *)
+
+  @lit/reactive-element/reactive-element.js:
+    (**
+     * @license
+     * Copyright 2017 Google LLC
+     * SPDX-License-Identifier: BSD-3-Clause
+     *)
+
+  lit-html/lit-html.js:
+    (**
+     * @license
+     * Copyright 2017 Google LLC
+     * SPDX-License-Identifier: BSD-3-Clause
+     *)
+
+  lit-element/lit-element.js:
+    (**
+     * @license
+     * Copyright 2017 Google LLC
+     * SPDX-License-Identifier: BSD-3-Clause
+     *)
+
+  lit-html/is-server.js:
+    (**
+     * @license
+     * Copyright 2022 Google LLC
+     * SPDX-License-Identifier: BSD-3-Clause
+     *)
+  */
 
   // src/styles/component.styles.ts
   var component_styles_default = i$4`
@@ -861,7 +687,7 @@
     cursor: not-allowed;
   }
 
-  /* When disabled, prevent mouse events from bubbling up */
+  /* When disabled, prevent mouse events from bubbling up from children */
   .button--disabled * {
     pointer-events: none;
   }
@@ -1375,7 +1201,13 @@
   }
 
   /* Add a visual separator between solid buttons */
-  :host(.sl-button-group__button:not(.sl-button-group__button--first, .sl-button-group__button--radio, [variant='default']):not(:hover))
+  :host(
+      .sl-button-group__button:not(
+          .sl-button-group__button--first,
+          .sl-button-group__button--radio,
+          [variant='default']
+        ):not(:hover)
+    )
     .button:after {
     content: '';
     position: absolute;
@@ -1397,6 +1229,302 @@
     z-index: 2;
   }
 `;
+
+  var __defProp = Object.defineProperty;
+  var __defProps = Object.defineProperties;
+  var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
+  var __getOwnPropDescs = Object.getOwnPropertyDescriptors;
+  var __getOwnPropSymbols = Object.getOwnPropertySymbols;
+  var __hasOwnProp = Object.prototype.hasOwnProperty;
+  var __propIsEnum = Object.prototype.propertyIsEnumerable;
+  var __defNormalProp = (obj, key, value) => key in obj ? __defProp(obj, key, { enumerable: true, configurable: true, writable: true, value }) : obj[key] = value;
+  var __spreadValues = (a, b) => {
+    for (var prop in b || (b = {}))
+      if (__hasOwnProp.call(b, prop))
+        __defNormalProp(a, prop, b[prop]);
+    if (__getOwnPropSymbols)
+      for (var prop of __getOwnPropSymbols(b)) {
+        if (__propIsEnum.call(b, prop))
+          __defNormalProp(a, prop, b[prop]);
+      }
+    return a;
+  };
+  var __spreadProps = (a, b) => __defProps(a, __getOwnPropDescs(b));
+  var __decorateClass = (decorators, target, key, kind) => {
+    var result = kind > 1 ? void 0 : kind ? __getOwnPropDesc(target, key) : target;
+    for (var i = decorators.length - 1, decorator; i >= 0; i--)
+      if (decorator = decorators[i])
+        result = (kind ? decorator(target, key, result) : decorator(result)) || result;
+    if (kind && result)
+      __defProp(target, key, result);
+    return result;
+  };
+
+  // src/internal/form.ts
+  var formCollections = /* @__PURE__ */ new WeakMap();
+  var reportValidityOverloads = /* @__PURE__ */ new WeakMap();
+  var userInteractedControls = /* @__PURE__ */ new Set();
+  var interactions = /* @__PURE__ */ new WeakMap();
+  var FormControlController = class {
+    constructor(host, options) {
+      (this.host = host).addController(this);
+      this.options = __spreadValues({
+        form: (input) => {
+          if (input.hasAttribute("form") && input.getAttribute("form") !== "") {
+            const root = input.getRootNode();
+            const formId = input.getAttribute("form");
+            if (formId) {
+              return root.getElementById(formId);
+            }
+          }
+          return input.closest("form");
+        },
+        name: (input) => input.name,
+        value: (input) => input.value,
+        defaultValue: (input) => input.defaultValue,
+        disabled: (input) => {
+          var _a;
+          return (_a = input.disabled) != null ? _a : false;
+        },
+        reportValidity: (input) => typeof input.reportValidity === "function" ? input.reportValidity() : true,
+        setValue: (input, value) => input.value = value,
+        assumeInteractionOn: ["sl-input"]
+      }, options);
+      this.handleFormData = this.handleFormData.bind(this);
+      this.handleFormSubmit = this.handleFormSubmit.bind(this);
+      this.handleFormReset = this.handleFormReset.bind(this);
+      this.reportFormValidity = this.reportFormValidity.bind(this);
+      this.handleInteraction = this.handleInteraction.bind(this);
+    }
+    hostConnected() {
+      const form = this.options.form(this.host);
+      if (form) {
+        this.attachForm(form);
+      }
+      interactions.set(this.host, []);
+      this.options.assumeInteractionOn.forEach((event) => {
+        this.host.addEventListener(event, this.handleInteraction);
+      });
+    }
+    hostDisconnected() {
+      this.detachForm();
+      interactions.delete(this.host);
+      this.options.assumeInteractionOn.forEach((event) => {
+        this.host.removeEventListener(event, this.handleInteraction);
+      });
+    }
+    hostUpdated() {
+      const form = this.options.form(this.host);
+      if (!form) {
+        this.detachForm();
+      }
+      if (form && this.form !== form) {
+        this.detachForm();
+        this.attachForm(form);
+      }
+      if (this.host.hasUpdated) {
+        this.setValidity(this.host.validity.valid);
+      }
+    }
+    attachForm(form) {
+      if (form) {
+        this.form = form;
+        if (formCollections.has(this.form)) {
+          formCollections.get(this.form).add(this.host);
+        } else {
+          formCollections.set(this.form, /* @__PURE__ */ new Set([this.host]));
+        }
+        this.form.addEventListener("formdata", this.handleFormData);
+        this.form.addEventListener("submit", this.handleFormSubmit);
+        this.form.addEventListener("reset", this.handleFormReset);
+        if (!reportValidityOverloads.has(this.form)) {
+          reportValidityOverloads.set(this.form, this.form.reportValidity);
+          this.form.reportValidity = () => this.reportFormValidity();
+        }
+      } else {
+        this.form = void 0;
+      }
+    }
+    detachForm() {
+      var _a;
+      if (this.form) {
+        (_a = formCollections.get(this.form)) == null ? void 0 : _a.delete(this.host);
+        this.form.removeEventListener("formdata", this.handleFormData);
+        this.form.removeEventListener("submit", this.handleFormSubmit);
+        this.form.removeEventListener("reset", this.handleFormReset);
+        if (reportValidityOverloads.has(this.form)) {
+          this.form.reportValidity = reportValidityOverloads.get(this.form);
+          reportValidityOverloads.delete(this.form);
+        }
+      }
+      this.form = void 0;
+    }
+    handleFormData(event) {
+      const disabled = this.options.disabled(this.host);
+      const name = this.options.name(this.host);
+      const value = this.options.value(this.host);
+      const isButton = this.host.tagName.toLowerCase() === "sl-button";
+      if (!disabled && !isButton && typeof name === "string" && name.length > 0 && typeof value !== "undefined") {
+        if (Array.isArray(value)) {
+          value.forEach((val) => {
+            event.formData.append(name, val.toString());
+          });
+        } else {
+          event.formData.append(name, value.toString());
+        }
+      }
+    }
+    handleFormSubmit(event) {
+      var _a;
+      const disabled = this.options.disabled(this.host);
+      const reportValidity = this.options.reportValidity;
+      if (this.form && !this.form.noValidate) {
+        (_a = formCollections.get(this.form)) == null ? void 0 : _a.forEach((control) => {
+          this.setUserInteracted(control, true);
+        });
+      }
+      if (this.form && !this.form.noValidate && !disabled && !reportValidity(this.host)) {
+        event.preventDefault();
+        event.stopImmediatePropagation();
+      }
+    }
+    handleFormReset() {
+      this.options.setValue(this.host, this.options.defaultValue(this.host));
+      this.setUserInteracted(this.host, false);
+      interactions.set(this.host, []);
+    }
+    handleInteraction(event) {
+      const emittedEvents = interactions.get(this.host);
+      if (!emittedEvents.includes(event.type)) {
+        emittedEvents.push(event.type);
+      }
+      if (emittedEvents.length === this.options.assumeInteractionOn.length) {
+        this.setUserInteracted(this.host, true);
+      }
+    }
+    reportFormValidity() {
+      if (this.form && !this.form.noValidate) {
+        const elements = this.form.querySelectorAll("*");
+        for (const element of elements) {
+          if (typeof element.reportValidity === "function") {
+            if (!element.reportValidity()) {
+              return false;
+            }
+          }
+        }
+      }
+      return true;
+    }
+    setUserInteracted(el, hasInteracted) {
+      if (hasInteracted) {
+        userInteractedControls.add(el);
+      } else {
+        userInteractedControls.delete(el);
+      }
+      el.requestUpdate();
+    }
+    doAction(type, invoker) {
+      if (this.form) {
+        const button = document.createElement("button");
+        button.type = type;
+        button.style.position = "absolute";
+        button.style.width = "0";
+        button.style.height = "0";
+        button.style.clipPath = "inset(50%)";
+        button.style.overflow = "hidden";
+        button.style.whiteSpace = "nowrap";
+        if (invoker) {
+          button.name = invoker.name;
+          button.value = invoker.value;
+          ["formaction", "formenctype", "formmethod", "formnovalidate", "formtarget"].forEach((attr) => {
+            if (invoker.hasAttribute(attr)) {
+              button.setAttribute(attr, invoker.getAttribute(attr));
+            }
+          });
+        }
+        this.form.append(button);
+        button.click();
+        button.remove();
+      }
+    }
+    /** Returns the associated `<form>` element, if one exists. */
+    getForm() {
+      var _a;
+      return (_a = this.form) != null ? _a : null;
+    }
+    /** Resets the form, restoring all the control to their default value */
+    reset(invoker) {
+      this.doAction("reset", invoker);
+    }
+    /** Submits the form, triggering validation and form data injection. */
+    submit(invoker) {
+      this.doAction("submit", invoker);
+    }
+    /**
+     * Synchronously sets the form control's validity. Call this when you know the future validity but need to update
+     * the host element immediately, i.e. before Lit updates the component in the next update.
+     */
+    setValidity(isValid) {
+      const host = this.host;
+      const hasInteracted = Boolean(userInteractedControls.has(host));
+      const required = Boolean(host.required);
+      host.toggleAttribute("data-required", required);
+      host.toggleAttribute("data-optional", !required);
+      host.toggleAttribute("data-invalid", !isValid);
+      host.toggleAttribute("data-valid", isValid);
+      host.toggleAttribute("data-user-invalid", !isValid && hasInteracted);
+      host.toggleAttribute("data-user-valid", isValid && hasInteracted);
+    }
+    /**
+     * Updates the form control's validity based on the current value of `host.validity.valid`. Call this when anything
+     * that affects constraint validation changes so the component receives the correct validity states.
+     */
+    updateValidity() {
+      const host = this.host;
+      this.setValidity(host.validity.valid);
+    }
+    /**
+     * Dispatches a non-bubbling, cancelable custom event of type `sl-invalid`.
+     * If the `sl-invalid` event will be cancelled then the original `invalid`
+     * event (which may have been passed as argument) will also be cancelled.
+     * If no original `invalid` event has been passed then the `sl-invalid`
+     * event will be cancelled before being dispatched.
+     */
+    emitInvalidEvent(originalInvalidEvent) {
+      const slInvalidEvent = new CustomEvent("sl-invalid", {
+        bubbles: false,
+        composed: false,
+        cancelable: true
+      });
+      if (!originalInvalidEvent) {
+        slInvalidEvent.preventDefault();
+      }
+      if (!this.host.dispatchEvent(slInvalidEvent)) {
+        originalInvalidEvent == null ? void 0 : originalInvalidEvent.preventDefault();
+      }
+    }
+  };
+  var validValidityState = Object.freeze({
+    badInput: false,
+    customError: false,
+    patternMismatch: false,
+    rangeOverflow: false,
+    rangeUnderflow: false,
+    stepMismatch: false,
+    tooLong: false,
+    tooShort: false,
+    typeMismatch: false,
+    valid: true,
+    valueMissing: false
+  });
+  Object.freeze(__spreadProps(__spreadValues({}, validValidityState), {
+    valid: false,
+    valueMissing: true
+  }));
+  Object.freeze(__spreadProps(__spreadValues({}, validValidityState), {
+    valid: false,
+    customError: true
+  }));
 
   // node_modules/lit-html/static.js
   var e$6 = Symbol.for("");
@@ -1428,11 +1556,15 @@
     return t(r, ...e2);
   };
   var n$6 = a$2(y$1);
-  /**
-   * @license
-   * Copyright 2020 Google LLC
-   * SPDX-License-Identifier: BSD-3-Clause
-   */
+  /*! Bundled license information:
+
+  lit-html/static.js:
+    (**
+     * @license
+     * Copyright 2020 Google LLC
+     * SPDX-License-Identifier: BSD-3-Clause
+     *)
+  */
 
   // node_modules/@shoelace-style/localize/dist/index.js
   var connectedElements = /* @__PURE__ */ new Set();
@@ -1602,11 +1734,15 @@
 
   // node_modules/lit-html/directives/if-defined.js
   var l$3 = (l2) => null != l2 ? l2 : b$1;
-  /**
-   * @license
-   * Copyright 2018 Google LLC
-   * SPDX-License-Identifier: BSD-3-Clause
-   */
+  /*! Bundled license information:
+
+  lit-html/directives/if-defined.js:
+    (**
+     * @license
+     * Copyright 2018 Google LLC
+     * SPDX-License-Identifier: BSD-3-Clause
+     *)
+  */
 
   // node_modules/lit-html/directive.js
   var t$3 = { ATTRIBUTE: 1, CHILD: 2, PROPERTY: 3, BOOLEAN_ATTRIBUTE: 4, EVENT: 5, ELEMENT: 6 };
@@ -1627,11 +1763,15 @@
       return this.render(...e2);
     }
   };
-  /**
-   * @license
-   * Copyright 2017 Google LLC
-   * SPDX-License-Identifier: BSD-3-Clause
-   */
+  /*! Bundled license information:
+
+  lit-html/directive.js:
+    (**
+     * @license
+     * Copyright 2017 Google LLC
+     * SPDX-License-Identifier: BSD-3-Clause
+     *)
+  */
 
   // node_modules/lit-html/directives/class-map.js
   var o$5 = e$5(class extends i$2 {
@@ -1662,34 +1802,39 @@
       return x$1;
     }
   });
-  /**
-   * @license
-   * Copyright 2018 Google LLC
-   * SPDX-License-Identifier: BSD-3-Clause
-   */
+  /*! Bundled license information:
+
+  lit-html/directives/class-map.js:
+    (**
+     * @license
+     * Copyright 2018 Google LLC
+     * SPDX-License-Identifier: BSD-3-Clause
+     *)
+  */
 
   // src/internal/watch.ts
-  function watch(propName, options) {
+  function watch(propertyName, options) {
     const resolvedOptions = __spreadValues({
       waitUntilFirstUpdate: false
     }, options);
     return (proto, decoratedFnName) => {
       const { update } = proto;
-      if (propName in proto) {
-        const propNameKey = propName;
-        proto.update = function(changedProps) {
-          if (changedProps.has(propNameKey)) {
-            const oldValue = changedProps.get(propNameKey);
-            const newValue = this[propNameKey];
+      const watchedProperties = Array.isArray(propertyName) ? propertyName : [propertyName];
+      proto.update = function(changedProps) {
+        watchedProperties.forEach((property) => {
+          const key = property;
+          if (changedProps.has(key)) {
+            const oldValue = changedProps.get(key);
+            const newValue = this[key];
             if (oldValue !== newValue) {
               if (!resolvedOptions.waitUntilFirstUpdate || this.hasUpdated) {
                 this[decoratedFnName](oldValue, newValue);
               }
             }
           }
-          update.call(this, changedProps);
-        };
-      }
+        });
+        update.call(this, changedProps);
+      };
     };
   }
 
@@ -1759,6 +1904,7 @@
 
   // src/internal/shoelace-element.ts
   var ShoelaceElement = class extends s4 {
+    /** Emits a custom event with more convenient defaults. */
     emit(name, options) {
       const event = new CustomEvent(name, __spreadValues({
         bubbles: true,
@@ -1776,22 +1922,84 @@
   __decorateClass([
     e2$1()
   ], ShoelaceElement.prototype, "lang", 2);
-  /**
-   * @license
-   * Copyright 2017 Google LLC
-   * SPDX-License-Identifier: BSD-3-Clause
-   */
-  /**
-   * @license
-   * Copyright 2021 Google LLC
-   * SPDX-License-Identifier: BSD-3-Clause
-   */
+  /*! Bundled license information:
+
+  @lit/reactive-element/decorators/custom-element.js:
+    (**
+     * @license
+     * Copyright 2017 Google LLC
+     * SPDX-License-Identifier: BSD-3-Clause
+     *)
+
+  @lit/reactive-element/decorators/property.js:
+    (**
+     * @license
+     * Copyright 2017 Google LLC
+     * SPDX-License-Identifier: BSD-3-Clause
+     *)
+
+  @lit/reactive-element/decorators/state.js:
+    (**
+     * @license
+     * Copyright 2017 Google LLC
+     * SPDX-License-Identifier: BSD-3-Clause
+     *)
+
+  @lit/reactive-element/decorators/base.js:
+    (**
+     * @license
+     * Copyright 2017 Google LLC
+     * SPDX-License-Identifier: BSD-3-Clause
+     *)
+
+  @lit/reactive-element/decorators/query.js:
+    (**
+     * @license
+     * Copyright 2017 Google LLC
+     * SPDX-License-Identifier: BSD-3-Clause
+     *)
+
+  @lit/reactive-element/decorators/query-async.js:
+    (**
+     * @license
+     * Copyright 2017 Google LLC
+     * SPDX-License-Identifier: BSD-3-Clause
+     *)
+
+  @lit/reactive-element/decorators/event-options.js:
+    (**
+     * @license
+     * Copyright 2017 Google LLC
+     * SPDX-License-Identifier: BSD-3-Clause
+     *)
+
+  @lit/reactive-element/decorators/query-all.js:
+    (**
+     * @license
+     * Copyright 2017 Google LLC
+     * SPDX-License-Identifier: BSD-3-Clause
+     *)
+
+  @lit/reactive-element/decorators/query-assigned-elements.js:
+    (**
+     * @license
+     * Copyright 2021 Google LLC
+     * SPDX-License-Identifier: BSD-3-Clause
+     *)
+
+  @lit/reactive-element/decorators/query-assigned-nodes.js:
+    (**
+     * @license
+     * Copyright 2017 Google LLC
+     * SPDX-License-Identifier: BSD-3-Clause
+     *)
+  */
 
   // src/components/button/button.ts
   var SlButton = class extends ShoelaceElement {
     constructor() {
       super(...arguments);
-      this.formSubmitController = new FormSubmitController(this, {
+      this.formControlController = new FormControlController(this, {
         form: (input) => {
           if (input.hasAttribute("form")) {
             const doc = input.getRootNode();
@@ -1799,7 +2007,8 @@
             return doc.getElementById(formId);
           }
           return input.closest("form");
-        }
+        },
+        assumeInteractionOn: ["click"]
       });
       this.hasSlotController = new HasSlotController(this, "[default]", "prefix", "suffix");
       this.localize = new LocalizeController2(this);
@@ -1818,10 +2027,34 @@
       this.name = "";
       this.value = "";
       this.href = "";
+      this.rel = "noreferrer noopener";
+    }
+    /** Gets the validity state object */
+    get validity() {
+      if (this.isButton()) {
+        return this.button.validity;
+      }
+      return validValidityState;
+    }
+    /** Gets the validation message */
+    get validationMessage() {
+      if (this.isButton()) {
+        return this.button.validationMessage;
+      }
+      return "";
+    }
+    connectedCallback() {
+      super.connectedCallback();
+      this.handleHostClick = this.handleHostClick.bind(this);
+      this.addEventListener("click", this.handleHostClick);
+    }
+    disconnectedCallback() {
+      super.disconnectedCallback();
+      this.removeEventListener("click", this.handleHostClick);
     }
     firstUpdated() {
       if (this.isButton()) {
-        this.invalid = !this.button.checkValidity();
+        this.formControlController.updateValidity();
       }
     }
     handleBlur() {
@@ -1832,18 +2065,23 @@
       this.hasFocus = true;
       this.emit("sl-focus");
     }
-    handleClick(event) {
-      if (this.disabled || this.loading) {
-        event.preventDefault();
-        event.stopPropagation();
-        return;
-      }
+    handleClick() {
       if (this.type === "submit") {
-        this.formSubmitController.submit(this);
+        this.formControlController.submit(this);
       }
       if (this.type === "reset") {
-        this.formSubmitController.reset(this);
+        this.formControlController.reset(this);
       }
+    }
+    handleHostClick(event) {
+      if (this.disabled || this.loading) {
+        event.preventDefault();
+        event.stopImmediatePropagation();
+      }
+    }
+    handleInvalid(event) {
+      this.formControlController.setValidity(false);
+      this.formControlController.emitInvalidEvent(event);
     }
     isButton() {
       return this.href ? false : true;
@@ -1853,35 +2091,40 @@
     }
     handleDisabledChange() {
       if (this.isButton()) {
-        this.button.disabled = this.disabled;
-        this.invalid = !this.button.checkValidity();
+        this.formControlController.setValidity(this.disabled);
       }
     }
+    /** Simulates a click on the button. */
     click() {
       this.button.click();
     }
+    /** Sets focus on the button. */
     focus(options) {
       this.button.focus(options);
     }
+    /** Removes focus from the button. */
     blur() {
       this.button.blur();
     }
+    /** Checks for validity but does not show a validation message. Returns `true` when valid and `false` when invalid. */
     checkValidity() {
       if (this.isButton()) {
         return this.button.checkValidity();
       }
       return true;
     }
+    /** Checks for validity and shows the browser's validation message if the control is invalid. */
     reportValidity() {
       if (this.isButton()) {
         return this.button.reportValidity();
       }
       return true;
     }
+    /** Sets a custom validation message. Pass an empty string to restore validity. */
     setCustomValidity(message) {
       if (this.isButton()) {
         this.button.setCustomValidity(message);
-        this.invalid = !this.button.checkValidity();
+        this.formControlController.updateValidity();
       }
     }
     render() {
@@ -1923,12 +2166,13 @@
         href=${l$3(isLink ? this.href : void 0)}
         target=${l$3(isLink ? this.target : void 0)}
         download=${l$3(isLink ? this.download : void 0)}
-        rel=${l$3(isLink && this.target ? "noreferrer noopener" : void 0)}
+        rel=${l$3(isLink ? this.rel : void 0)}
         role=${l$3(isLink ? void 0 : "button")}
         aria-disabled=${this.disabled ? "true" : "false"}
         tabindex=${this.disabled ? "-1" : "0"}
         @blur=${this.handleBlur}
         @focus=${this.handleFocus}
+        @invalid=${this.isButton() ? this.handleInvalid : null}
         @click=${this.handleClick}
       >
         <slot name="prefix" part="prefix" class="button__prefix"></slot>
@@ -1992,6 +2236,9 @@
   __decorateClass([
     e2$1()
   ], SlButton.prototype, "target", 2);
+  __decorateClass([
+    e2$1()
+  ], SlButton.prototype, "rel", 2);
   __decorateClass([
     e2$1()
   ], SlButton.prototype, "download", 2);
@@ -2066,17 +2313,17 @@
 
   @keyframes spin {
     0% {
-      rotate: 0deg;
+      transform: rotate(0deg);
       stroke-dasharray: 0.01em, 2.75em;
     }
 
     50% {
-      rotate: 450deg;
+      transform: rotate(450deg);
       stroke-dasharray: 1.375em, 1.375em;
     }
 
     100% {
-      rotate: 1080deg;
+      transform: rotate(1080deg);
       stroke-dasharray: 0.01em, 2.75em;
     }
   }
@@ -2311,7 +2558,6 @@
     display: inline-block;
     width: 1em;
     height: 1em;
-    contain: strict;
     box-sizing: content-box !important;
   }
 
@@ -2447,18 +2693,27 @@
     watch("label")
   ], SlIcon.prototype, "handleLabelChange", 1);
   __decorateClass([
-    watch("name"),
-    watch("src"),
-    watch("library")
+    watch(["name", "src", "library"])
   ], SlIcon.prototype, "setIcon", 1);
   SlIcon = __decorateClass([
     e$4("sl-icon")
   ], SlIcon);
-  /**
-   * @license
-   * Copyright 2017 Google LLC
-   * SPDX-License-Identifier: BSD-3-Clause
-   */
+  /*! Bundled license information:
+
+  lit-html/directives/unsafe-html.js:
+    (**
+     * @license
+     * Copyright 2017 Google LLC
+     * SPDX-License-Identifier: BSD-3-Clause
+     *)
+
+  lit-html/directives/unsafe-svg.js:
+    (**
+     * @license
+     * Copyright 2017 Google LLC
+     * SPDX-License-Identifier: BSD-3-Clause
+     *)
+  */
 
   // src/styles/form-control.styles.ts
   var form_control_styles_default = i$4`
@@ -2485,7 +2740,7 @@
     font-size: var(--sl-input-label-font-size-medium);
   }
 
-  .form-control--has-label.form-control--large .form-control_label {
+  .form-control--has-label.form-control--large .form-control__label {
     font-size: var(--sl-input-label-font-size-large);
   }
 
@@ -2847,11 +3102,22 @@
       return s$4(i2), t2;
     }
   });
-  /**
-   * @license
-   * Copyright 2020 Google LLC
-   * SPDX-License-Identifier: BSD-3-Clause
-   */
+  /*! Bundled license information:
+
+  lit-html/directive-helpers.js:
+    (**
+     * @license
+     * Copyright 2020 Google LLC
+     * SPDX-License-Identifier: BSD-3-Clause
+     *)
+
+  lit-html/directives/live.js:
+    (**
+     * @license
+     * Copyright 2020 Google LLC
+     * SPDX-License-Identifier: BSD-3-Clause
+     *)
+  */
 
   // src/internal/default-value.ts
   var defaultValue = (propertyName = "value") => (proto, key) => {
@@ -2880,11 +3146,12 @@
   var SlInput = class extends ShoelaceElement {
     constructor() {
       super(...arguments);
-      this.formSubmitController = new FormSubmitController(this);
+      this.formControlController = new FormControlController(this, {
+        assumeInteractionOn: ["sl-blur", "sl-input"]
+      });
       this.hasSlotController = new HasSlotController(this, "help-text", "label");
       this.localize = new LocalizeController2(this);
       this.hasFocus = false;
-      this.invalid = false;
       this.title = "";
       this.type = "text";
       this.name = "";
@@ -2902,9 +3169,11 @@
       this.passwordToggle = false;
       this.passwordVisible = false;
       this.noSpinButtons = false;
+      this.form = "";
       this.required = false;
       this.spellcheck = true;
     }
+    /** Gets or sets the current value as a `Date` object. Returns `null` if the value can't be converted. */
     get valueAsDate() {
       var _a2, _b;
       return (_b = (_a2 = this.input) == null ? void 0 : _a2.valueAsDate) != null ? _b : null;
@@ -2915,6 +3184,7 @@
       input.valueAsDate = newValue;
       this.value = input.value;
     }
+    /** Gets or sets the current value as a number. Returns `NaN` if the value can't be converted. */
     get valueAsNumber() {
       var _a2, _b;
       return (_b = (_a2 = this.input) == null ? void 0 : _a2.valueAsNumber) != null ? _b : parseFloat(this.value);
@@ -2925,8 +3195,16 @@
       input.valueAsNumber = newValue;
       this.value = input.value;
     }
+    /** Gets the validity state object */
+    get validity() {
+      return this.input.validity;
+    }
+    /** Gets the validation message */
+    get validationMessage() {
+      return this.input.validationMessage;
+    }
     firstUpdated() {
-      this.invalid = !this.checkValidity();
+      this.formControlController.updateValidity();
     }
     handleBlur() {
       this.hasFocus = false;
@@ -2950,18 +3228,19 @@
     }
     handleInput() {
       this.value = this.input.value;
-      this.invalid = !this.checkValidity();
+      this.formControlController.updateValidity();
       this.emit("sl-input");
     }
-    handleInvalid() {
-      this.invalid = true;
+    handleInvalid(event) {
+      this.formControlController.setValidity(false);
+      this.formControlController.emitInvalidEvent(event);
     }
     handleKeyDown(event) {
       const hasModifier = event.metaKey || event.ctrlKey || event.shiftKey || event.altKey;
       if (event.key === "Enter" && !hasModifier) {
         setTimeout(() => {
           if (!event.defaultPrevented && !event.isComposing) {
-            this.formSubmitController.submit();
+            this.formControlController.submit();
           }
         });
       }
@@ -2970,61 +3249,71 @@
       this.passwordVisible = !this.passwordVisible;
     }
     handleDisabledChange() {
-      this.input.disabled = this.disabled;
-      this.invalid = !this.checkValidity();
+      this.formControlController.setValidity(this.disabled);
     }
     handleStepChange() {
       this.input.step = String(this.step);
-      this.invalid = !this.checkValidity();
+      this.formControlController.updateValidity();
     }
     async handleValueChange() {
       await this.updateComplete;
-      this.invalid = !this.checkValidity();
+      this.formControlController.updateValidity();
     }
+    /** Sets focus on the input. */
     focus(options) {
       this.input.focus(options);
     }
+    /** Removes focus from the input. */
     blur() {
       this.input.blur();
     }
+    /** Selects all the text in the input. */
     select() {
       this.input.select();
     }
+    /** Sets the start and end positions of the text selection (0-based). */
     setSelectionRange(selectionStart, selectionEnd, selectionDirection = "none") {
       this.input.setSelectionRange(selectionStart, selectionEnd, selectionDirection);
     }
+    /** Replaces a range of text with a new string. */
     setRangeText(replacement, start, end, selectMode) {
       this.input.setRangeText(replacement, start, end, selectMode);
       if (this.value !== this.input.value) {
         this.value = this.input.value;
       }
     }
+    /** Displays the browser picker for an input element (only works if the browser supports it for the input type). */
     showPicker() {
       if ("showPicker" in HTMLInputElement.prototype) {
         this.input.showPicker();
       }
     }
+    /** Increments the value of a numeric input type by the value of the step attribute. */
     stepUp() {
       this.input.stepUp();
       if (this.value !== this.input.value) {
         this.value = this.input.value;
       }
     }
+    /** Decrements the value of a numeric input type by the value of the step attribute. */
     stepDown() {
       this.input.stepDown();
       if (this.value !== this.input.value) {
         this.value = this.input.value;
       }
     }
+    /** Checks for validity but does not show a validation message. Returns `true` when valid and `false` when invalid. */
     checkValidity() {
       return this.input.checkValidity();
     }
+    /** Checks for validity and shows the browser's validation message if the control is invalid. */
     reportValidity() {
       return this.input.reportValidity();
     }
+    /** Sets a custom validation message. Pass an empty string to restore validity. */
     setCustomValidity(message) {
       this.input.setCustomValidity(message);
-      this.invalid = !this.checkValidity();
+      this.formControlController.updateValidity();
     }
     render() {
       const hasLabelSlot = this.hasSlotController.test("label");
@@ -3058,16 +3347,17 @@
             part="base"
             class=${o$5({
       input: true,
+      // Sizes
       "input--small": this.size === "small",
       "input--medium": this.size === "medium",
       "input--large": this.size === "large",
+      // States
       "input--pill": this.pill,
       "input--standard": !this.filled,
       "input--filled": this.filled,
       "input--disabled": this.disabled,
       "input--focused": this.hasFocus,
       "input--empty": !this.value,
-      "input--invalid": this.invalid,
       "input--no-spin-buttons": this.noSpinButtons,
       "input--is-firefox": isFirefox
     })}
@@ -3099,7 +3389,6 @@
               enterkeyhint=${l$3(this.enterkeyhint)}
               inputmode=${l$3(this.inputmode)}
               aria-describedby="help-text"
-              aria-invalid=${this.invalid ? "true" : "false"}
               @change=${this.handleChange}
               @input=${this.handleInput}
               @invalid=${this.handleInvalid}
@@ -3169,9 +3458,6 @@
     t$2()
   ], SlInput.prototype, "hasFocus", 2);
   __decorateClass([
-    t$2()
-  ], SlInput.prototype, "invalid", 2);
-  __decorateClass([
     e2$1()
   ], SlInput.prototype, "title", 2);
   __decorateClass([
@@ -3223,6 +3509,9 @@
     e2$1({ attribute: "no-spin-buttons", type: Boolean })
   ], SlInput.prototype, "noSpinButtons", 2);
   __decorateClass([
+    e2$1({ reflect: true })
+  ], SlInput.prototype, "form", 2);
+  __decorateClass([
     e2$1({ type: Boolean, reflect: true })
   ], SlInput.prototype, "required", 2);
   __decorateClass([
@@ -3262,6 +3551,7 @@
     e2$1({
       type: Boolean,
       converter: {
+        // Allow "true|false" attribute values but keep the property boolean
         fromAttribute: (value) => !value || value === "false" ? false : true,
         toAttribute: (value) => value ? "true" : "false"
       }
@@ -3506,6 +3796,7 @@
     handleDurationChange() {
       this.restartAutoHide();
     }
+    /** Shows the alert. */
     async show() {
       if (this.open) {
         return void 0;
@@ -3513,6 +3804,7 @@
       this.open = true;
       return waitForEvent(this, "sl-after-show");
     }
+    /** Hides the alert */
     async hide() {
       if (!this.open) {
         return void 0;
@@ -3520,6 +3812,11 @@
       this.open = false;
       return waitForEvent(this, "sl-after-hide");
     }
+    /**
+     * Displays the alert as a toast notification. This will move the alert out of its position in the DOM and, when
+     * dismissed, it will be removed from the DOM completely. By storing a reference to the alert, you can reuse it by
+     * calling this method again. The returned promise will resolve after the alert is hidden.
+     */
     async toast() {
       return new Promise((resolve) => {
         if (toastStack.parentElement === null) {
@@ -3695,12 +3992,15 @@
         event.stopPropagation();
       }
     }
+    /** Simulates a click on the icon button. */
     click() {
       this.button.click();
     }
+    /** Sets focus on the icon button. */
     focus(options) {
       this.button.focus(options);
     }
+    /** Removes focus from the icon button. */
     blur() {
       this.button.blur();
     }
@@ -4107,7 +4407,7 @@
           return this; // prevents creating a shadow root
       }
       async #sendLogin(username, password) {
-          const request = await fetch('/login', {
+          const request = await fetch('/v1/login', {
               method: 'POST',
               mode: 'cors',
               cache: 'no-cache',
