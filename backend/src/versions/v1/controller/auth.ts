@@ -6,6 +6,7 @@ import sendEmail from '../utilities/sendEmail';
 import { getMe } from './user';
 
 const cookieKey = 'session';
+const ttl = 90 * 24 * 60 * 60 * 1000; // 90 days
 
 type LoginData = {
     username: string;
@@ -22,18 +23,19 @@ export async function login(request: any): Promise<{ auth: boolean }> {
     }
 
     request.cookieAuth.set({ id: sessionID, username });
-    request.cookieAuth.ttl(90 * 24 * 60 * 60 * 1000); // 90 days
+    request.cookieAuth.ttl(ttl);
     await redis.SADD(cookieKey, sessionID);
 
     return { auth: true };
 }
 
-export async function validate(
-    request: any,
-    session: { id: string },
-): Promise<{ isValid: boolean; credentials?: any }> {
-    const account = await redis.SISMEMBER(cookieKey, session.id);
-    return !account ? { isValid: false } : { isValid: true, credentials: account };
+export async function validate(_: any, session: { id: string }): Promise<{ isValid: boolean; credentials?: any }> {
+    if (session.id) {
+        const account = await redis.SISMEMBER(cookieKey, session.id);
+        return !account ? { isValid: false } : { isValid: true, credentials: account };
+    }
+
+    return { isValid: false };
 }
 
 export async function logout(request: any, h: any) {
@@ -46,11 +48,13 @@ export async function logout(request: any, h: any) {
 }
 
 export async function checkPassword(request: any): Promise<{ auth: boolean }> {
+    console.log(request.state['log-cookie'].username, request.payload.data.password);
     const username: string = request.state['log-cookie'].username;
     const { password } = request.payload.data;
+    console.log('checkPassword', username, password);
     const userData: UserType = await userModel.findOne({ username }).lean();
     const validPW: boolean = await Bcrypt.compare(password, userData.password);
-
+    console.log(userData, validPW);
     if (userData && validPW) {
         return { auth: true };
     }

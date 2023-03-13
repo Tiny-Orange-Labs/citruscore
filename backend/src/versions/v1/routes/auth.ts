@@ -3,6 +3,10 @@ import cokie from '@hapi/cookie';
 import { validate, login, logout, checkPassword, changePassword } from '../controller/auth';
 import { strictRouteOptions } from '../data/routeOptions';
 
+/*
+Why can I prefix the path with /v1/?
+What kind of magic is this?
+*/
 export default async function auth(server: Server) {
     await server.register(cokie);
 
@@ -12,14 +16,14 @@ export default async function auth(server: Server) {
             password: process.env.COOKIE_PASSWORD,
             isSecure: true,
         },
-        redirectTo: 'v1/login/',
+        redirectTo: '/login/',
         validate,
     });
     server.auth.default('session');
     server.route([
         {
             method: 'POST',
-            path: '/v1/login',
+            path: '/login',
             handler: login,
             options: {
                 auth: {
@@ -30,19 +34,19 @@ export default async function auth(server: Server) {
         },
         {
             method: 'POST',
-            path: '/v1/changePassword',
+            path: '/changePassword',
             handler: changePassword,
             options: strictRouteOptions,
         },
         {
             method: 'POST',
-            path: '/v1/checkPassword',
+            path: '/checkPassword',
             handler: checkPassword,
             options: strictRouteOptions,
         },
         {
             method: 'GET',
-            path: '/v1/logout',
+            path: '/logout',
             handler: logout,
             options: strictRouteOptions,
         },

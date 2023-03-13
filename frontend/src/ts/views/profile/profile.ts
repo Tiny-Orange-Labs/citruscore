@@ -17,7 +17,6 @@ import Rights from '../../data/shared/rights';
 import { transRights, transRightsInfo } from '../../utilities/trans/trans';
 import SlDialog from '@shoelace-style/shoelace/dist/components/dialog/dialog';
 import SlSelect from '@shoelace-style/shoelace/dist/components/select/select';
-import SlTab from '@shoelace-style/shoelace/dist/components/tab/tab';
 import SlSwitch from '@shoelace-style/shoelace/dist/components/switch/switch';
 
 const passwordMinLength = 8;
@@ -84,7 +83,7 @@ export default class ProfileView extends ViewLayout {
             __v: 0,
         },
     ];
-    @property() activeSearchResults: String = '0';
+    @property() activeSearchResults: string = '0';
 
     constructor() {
         super();
@@ -187,7 +186,7 @@ export default class ProfileView extends ViewLayout {
     }
 
     async #logout() {
-        await fetch('/v1/logout', {
+        await fetch('/logout', {
             method: 'GET',
             ...header,
         });
@@ -217,7 +216,7 @@ export default class ProfileView extends ViewLayout {
     }
 
     async #sendCheckPassword(oldPassword: string): Promise<boolean> {
-        const request = await fetch('/v1/checkPassword', {
+        const request = await fetch('/checkPassword', {
             method: 'POST',
             ...header,
             body: JSON.stringify({
@@ -233,7 +232,7 @@ export default class ProfileView extends ViewLayout {
     }
 
     async #sendChangePassword(newPassword: string) {
-        const request = await fetch('/v1/changePassword', {
+        const request = await fetch('/changePassword', {
             method: 'POST',
             ...header,
             body: JSON.stringify({
@@ -581,6 +580,7 @@ export default class ProfileView extends ViewLayout {
 
         await this.#tabSwitchEvent({ detail: { name: 'team' } });
         this.#closeRemoveTeamMemberDialog();
+        this.activeSearchResults = parseInt(this.activeSearchResults) - 1 + '';
         return toast('success', msg('team'), msg('member removed successfully'));
     }
 

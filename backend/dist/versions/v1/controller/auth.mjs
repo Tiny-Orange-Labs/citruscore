@@ -5,6 +5,7 @@ import redis from '../utilities/config/init_redis';
 import sendEmail from '../utilities/sendEmail';
 import { getMe } from './user';
 const cookieKey = 'session';
+const ttl = 90 * 24 * 60 * 60 * 1000; // 90 days
 export async function login(request) {
     const { username, password } = request.payload.data;
     const userData = await userModel.findOne({ username }).lean();
@@ -13,13 +14,16 @@ export async function login(request) {
         return { auth: false };
     }
     request.cookieAuth.set({ id: sessionID, username });
-    request.cookieAuth.ttl(90 * 24 * 60 * 60 * 1000); // 90 days
+    request.cookieAuth.ttl(ttl);
     await redis.SADD(cookieKey, sessionID);
     return { auth: true };
 }
-export async function validate(request, session) {
-    const account = await redis.SISMEMBER(cookieKey, session.id);
-    return !account ? { isValid: false } : { isValid: true, credentials: account };
+export async function validate(_, session) {
+    if (session.id) {
+        const account = await redis.SISMEMBER(cookieKey, session.id);
+        return !account ? { isValid: false } : { isValid: true, credentials: account };
+    }
+    return { isValid: false };
 }
 export async function logout(request, h) {
     request.cookieAuth.clear();
@@ -29,10 +33,13 @@ export async function logout(request, h) {
     }
 }
 export async function checkPassword(request) {
+    console.log(request.state['log-cookie'].username, request.payload.data.password);
     const username = request.state['log-cookie'].username;
     const { password } = request.payload.data;
+    console.log('checkPassword', username, password);
     const userData = await userModel.findOne({ username }).lean();
     const validPW = await Bcrypt.compare(password, userData.password);
+    console.log(userData, validPW);
     if (userData && validPW) {
         return { auth: true };
     }

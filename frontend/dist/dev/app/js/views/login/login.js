@@ -18,7 +18,7 @@ let LoginLayout = class LoginLayout extends LitElement {
         return this; // prevents creating a shadow root
     }
     async #sendLogin(username, password) {
-        const request = await fetch('/v1/login', {
+        const request = await fetch('/login', {
             method: 'POST',
             mode: 'cors',
             cache: 'no-cache',

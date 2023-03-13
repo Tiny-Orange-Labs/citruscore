@@ -144,7 +144,7 @@ let ProfileView = class ProfileView extends ViewLayout {
         }
     }
     async #logout() {
-        await fetch('/v1/logout', {
+        await fetch('/logout', {
             method: 'GET',
             ...header,
         });
@@ -170,7 +170,7 @@ let ProfileView = class ProfileView extends ViewLayout {
         </sl-select>`;
     }
     async #sendCheckPassword(oldPassword) {
-        const request = await fetch('/v1/checkPassword', {
+        const request = await fetch('/checkPassword', {
             method: 'POST',
             ...header,
             body: JSON.stringify({
@@ -184,7 +184,7 @@ let ProfileView = class ProfileView extends ViewLayout {
         return auth;
     }
     async #sendChangePassword(newPassword) {
-        const request = await fetch('/v1/changePassword', {
+        const request = await fetch('/changePassword', {
             method: 'POST',
             ...header,
             body: JSON.stringify({
@@ -488,6 +488,7 @@ let ProfileView = class ProfileView extends ViewLayout {
         await request.json();
         await this.#tabSwitchEvent({ detail: { name: 'team' } });
         this.#closeRemoveTeamMemberDialog();
+        this.activeSearchResults = parseInt(this.activeSearchResults) - 1 + '';
         return toast('success', msg('team'), msg('member removed successfully'));
     }
     async #changeRoleEvent({ target }) {
