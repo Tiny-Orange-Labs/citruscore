@@ -566,6 +566,8 @@ export default class ProfileView extends ViewLayout {
     }
 
     async #removeTeamMember() {
+        const button = this.querySelector('#remove-team-member') as HTMLButtonElement;
+        button.disabled = true;
         const request = await fetch('/v1/team/removeMember', {
             method: 'POST',
             ...header,
@@ -581,6 +583,8 @@ export default class ProfileView extends ViewLayout {
         await this.#tabSwitchEvent({ detail: { name: 'team' } });
         this.#closeRemoveTeamMemberDialog();
         this.activeSearchResults = parseInt(this.activeSearchResults) - 1 + '';
+        button.disabled = false;
+
         return toast('success', msg('team'), msg('member removed successfully'));
     }
 
@@ -663,7 +667,12 @@ export default class ProfileView extends ViewLayout {
             id="remove-team-member-dialog"
         >
             ${dialogText}
-            <sl-button @click="${this.#removeTeamMember}" class="float-left" slot="footer" variant="danger"
+            <sl-button
+                @click="${this.#removeTeamMember}"
+                id="remove-team-member"
+                class="float-left"
+                slot="footer"
+                variant="danger"
                 >${msg('yes')}</sl-button
             >
             <sl-button @click="${this.#closeRemoveTeamMemberDialog}" slot="footer" variant="neutral"

@@ -26691,6 +26691,8 @@ let ProfileView = class ProfileView extends ViewLayout$1 {
         dialog?.show();
     }
     async #removeTeamMember() {
+        const button = this.querySelector('#remove-team-member');
+        button.disabled = true;
         const request = await fetch('/v1/team/removeMember', {
             method: 'POST',
             ...header,
@@ -26705,6 +26707,7 @@ let ProfileView = class ProfileView extends ViewLayout$1 {
         await this.#tabSwitchEvent({ detail: { name: 'team' } });
         this.#closeRemoveTeamMemberDialog();
         this.activeSearchResults = parseInt(this.activeSearchResults) - 1 + '';
+        button.disabled = false;
         return toast('success', msg('team'), msg('member removed successfully'));
     }
     async #changeRoleEvent({ target }) {
@@ -26773,7 +26776,12 @@ let ProfileView = class ProfileView extends ViewLayout$1 {
             id="remove-team-member-dialog"
         >
             ${dialogText}
-            <sl-button @click="${this.#removeTeamMember}" class="float-left" slot="footer" variant="danger"
+            <sl-button
+                @click="${this.#removeTeamMember}"
+                id="remove-team-member"
+                class="float-left"
+                slot="footer"
+                variant="danger"
                 >${msg('yes')}</sl-button
             >
             <sl-button @click="${this.#closeRemoveTeamMemberDialog}" slot="footer" variant="neutral"
@@ -27283,7 +27291,7 @@ AppLayout = __decorate([
 document.addEventListener('DOMContentLoaded', function () {
     const app = document.querySelector('app-layout');
     app.bootstrapActiveMenu();
-    console.log('v:0.0.1 at: "2023-03-15T08:38:17.427Z" ');
+    console.log('v:0.0.1 at: "2023-04-15T18:54:57.696Z" ');
 });
 
 /* CSS */
