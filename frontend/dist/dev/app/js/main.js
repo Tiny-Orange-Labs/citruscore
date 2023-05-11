@@ -27291,7 +27291,7 @@ AppLayout = __decorate([
 document.addEventListener('DOMContentLoaded', function () {
     const app = document.querySelector('app-layout');
     app.bootstrapActiveMenu();
-    console.log('v:0.0.1 at: "2023-04-15T18:54:57.696Z" ');
+    console.log('v:0.0.1 at: "2023-05-11T07:56:02.258Z" ');
 });
 
 /* CSS */

@@ -169,5 +169,5 @@ sl-divider {
 }
 
 .team-section-inner {
-    @apply overflow-hidden h-82 md:h-[calc(100vh - 175px)] w-72;
+    @apply overflow-hidden h-80 md:h-[calc(100vh - 175px)] w-72;
 }
