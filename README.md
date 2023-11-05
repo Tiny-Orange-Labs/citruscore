@@ -1,6 +1,6 @@
 # CitrusCore
 
-![citurscore logo](citruscore.png)
+![citurscore logo](citruscore_logo.png)
 
 I build the same stuff over and over again:
 
